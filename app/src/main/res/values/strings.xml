@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">NewsChannel</string>
+    <string name="resyclerN">resyclerID</string>
+    <string name="imageDescriprion">Картинка</string>
+</resources>

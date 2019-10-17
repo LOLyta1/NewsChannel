@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+
+    app:cardCornerRadius="10dp"
+    app:cardElevation="5dp"
+    app:cardUseCompatPadding="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/pictureImageView"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/imageWidth"
+            android:contentDescription="@string/imageDescriprion"
+            android:minWidth="@dimen/imageMinWidth"
+            android:scaleType="centerCrop"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/dateTextView"
+            style="@android:style/Widget.TextView.PopupMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="0dp"
+            android:layout_marginLeft="0dp"
+            android:background="#FAFADF"
+
+            android:gravity="bottom|end"
+            android:padding="@dimen/date_padding"
+            android:textColor="#3D3A3A"
+            tools:text="Дата" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingTop="10dp">
+
+            <TextView
+                android:id="@+id/titleTextView"
+                style="@android:style/Widget.TextView.PopupMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/date_padding"
+                tools:text="Заголовок" />
+
+            <TextView
+                android:id="@+id/summaryTextView"
+                style="@android:style/Widget.TextView.PopupMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/date_padding"
+                android:visibility="gone"
+                tools:text="Описание"
+                tools:visibility="visible" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="bottom|end"
+                android:background="#FAFADF"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/linkTextView"
+                    style="@android:style/Widget.Holo.TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#FAFADF"
+                    android:gravity="end"
+                    android:padding="@dimen/footter_padding"
+                    android:textColor="#7A7580"
+                    android:textColorHighlight="#00F5E9E9"
+                    tools:text="Источник"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
