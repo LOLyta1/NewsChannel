@@ -5,4 +5,5 @@
     <color name="colorAccent">#D81B60</color>
     <color name="futter">#FBFBFB</color>
     <color name="text_gooter_color">#B69BDF</color>
+    <color name="background_color">#4E4B4B</color>
 </resources>

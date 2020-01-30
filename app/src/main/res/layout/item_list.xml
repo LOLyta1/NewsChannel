@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<!---на всякий случай добавила LinearLayout, для того, чтобы
+потом можно было вынести заголовок и источник из карточки-->
+
+<LinearLayout
+    android:background="?android:attr/selectableItemBackground"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cardView"
+
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="vertical">
 
-    app:cardCornerRadius="10dp"
-    app:cardElevation="5dp"
-    app:cardUseCompatPadding="true">
-
-    <LinearLayout
+    <androidx.cardview.widget.CardView
+        android:background="@drawable/ripple"
+        android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="5dp">
 
         <ImageView
             android:id="@+id/pictureImageView"
@@ -25,70 +29,38 @@
             android:contentDescription="@string/imageDescriprion"
             android:minWidth="@dimen/imageMinWidth"
             android:scaleType="centerCrop"
+            app:tintMode="add"
             tools:srcCompat="@tools:sample/avatars" />
+    </androidx.cardview.widget.CardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+
+        >
 
         <TextView
-            android:id="@+id/dateTextView"
-            style="@android:style/Widget.TextView.PopupMenu"
+            android:id="@+id/titleTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
-            android:background="#FAFADF"
+            android:layout_marginTop="20dp"
+            android:gravity="bottom"
+            android:textColor="@android:color/background_light"
+            android:textSize="18sp"
+            tools:text="Заголовок" />
 
-            android:gravity="bottom|end"
-            android:padding="@dimen/date_padding"
-            android:textColor="#3D3A3A"
-            tools:text="Дата" />
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/linkTextView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingTop="10dp">
-
-            <TextView
-                android:id="@+id/titleTextView"
-                style="@android:style/Widget.TextView.PopupMenu"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/date_padding"
-                tools:text="Заголовок" />
-
-            <TextView
-                android:id="@+id/summaryTextView"
-                style="@android:style/Widget.TextView.PopupMenu"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/date_padding"
-                android:visibility="gone"
-                tools:text="Описание"
-                tools:visibility="visible" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="bottom|end"
-                android:background="#FAFADF"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/linkTextView"
-                    style="@android:style/Widget.Holo.TextView"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="#FAFADF"
-                    android:gravity="end"
-                    android:padding="@dimen/footter_padding"
-                    android:textColor="#7A7580"
-                    android:textColorHighlight="#00F5E9E9"
-                    tools:text="Источник"
-                    tools:visibility="visible" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="end"
+            android:textColor="@android:color/background_light"
+            android:textSize="14sp"
+            tools:text="Источник"
+            tools:visibility="visible" />
     </LinearLayout>
+</LinearLayout>
 
-</androidx.cardview.widget.CardView>
