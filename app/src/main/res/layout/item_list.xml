@@ -37,15 +37,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:orientation="vertical"
-
-        >
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/titleTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:fontFamily="@font/elisabethische"
             android:gravity="bottom"
             android:textColor="@android:color/background_light"
             android:textSize="18sp"
@@ -56,6 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:fontFamily="@font/matador"
             android:gravity="end"
             android:textColor="@android:color/background_light"
             android:textSize="14sp"
