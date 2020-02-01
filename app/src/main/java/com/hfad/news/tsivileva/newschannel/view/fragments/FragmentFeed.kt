@@ -20,29 +20,36 @@ import com.hfad.news.tsivileva.newschannel.view.MainActivity
 import kotlinx.android.synthetic.main.fragment_feed.*
 import kotlinx.android.synthetic.main.fragment_feed.view.*
 
-class FragmentFeed(val mContext: Context) : Fragment(), IView {
-    private val paddings = 10
+class FragmentFeed() : Fragment(), IView {
 
-    val mCardClick = View.OnClickListener {
-        Log.d("myLog", "click on recyclerView item" + it)
+    private var mContext: Context? = null
+
+    private lateinit var mView: View
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        this.mContext=context
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_feed, container, false)
+    override fun onCreateView(inflater: LayoutInflater,container: ViewGroup?,savedInstanceState: Bundle?): View? {
+        mView = inflater.inflate(R.layout.fragment_feed, container, false)
 
-        view.resycler_view?.apply {
+        mView.resycler_view?.apply {
             adapter = AdapterNews(mCardClick)
             layoutManager = LinearLayoutManager(mContext)
             addItemDecoration(NewsDecorator(left = 10, top = 10, right = 10, bottom = 10))
         }
-        loadNews(HabrPresenter(this))
-        loadNews(ProgerPresenter(this))
-        return view
+
+        showLoading(true)
+        
+        HabrPresenter(this).getNews(true)
+        ProgerPresenter(this).getNews(true)
+
+        return mView
     }
 
-
     override fun showNews(i: NewsItem?) {
-        (resycler_view.getAdapter() as AdapterNews).add(i)
+        (resycler_view?.adapter as AdapterNews).add(i)
     }
 
     override fun showError(er: Throwable) {
@@ -50,10 +57,22 @@ class FragmentFeed(val mContext: Context) : Fragment(), IView {
     }
 
     override fun showComplete() {
-        Log.d(MainActivity.logname, "Закончено")
+        showLoading(false)
     }
 
-    fun loadNews(presenter: IPresenter) {
-        presenter.getNews(true)
+
+    val mCardClick = View.OnClickListener {
+        Log.d("myLog", "click on recyclerView item" + it)
     }
+
+    private fun showLoading(needShow:Boolean){
+        if(needShow){
+            resycler_view?.visibility = View.GONE
+            progressBar?.visibility = View.VISIBLE
+        }else{
+            resycler_view?.visibility = View.VISIBLE
+            progressBar?.visibility = View.GONE
+        }
+    }
+
 }

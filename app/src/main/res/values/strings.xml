@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">NewsChannel</string>
+    <string name="app_name_imaging"></string>
     <string name="resyclerN">resyclerID</string>
     <string name="imageDescriprion">Картинка</string>
+    <string name="update_menu_item_icon">Обновить</string>
 </resources>
