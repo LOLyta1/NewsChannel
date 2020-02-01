@@ -16,20 +16,27 @@ public class MainActivity extends AppCompatActivity //implements IView {
     public static final String logname = "mylog";
 
     private FragmentTransaction mFragmentTransaction;
+    private FragmentFeed fragmentFeed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        setUpLeftArea(getSupportFragmentManager(), new FragmentFeed(this));
-          }
 
-
-    private void setUpLeftArea(final FragmentManager manager, final Fragment fragment) {
-        mFragmentTransaction = manager.beginTransaction();
-        mFragmentTransaction.add(R.id.container, fragment);
+        fragmentFeed=new FragmentFeed();
+        mFragmentTransaction = getSupportFragmentManager().beginTransaction();
+        mFragmentTransaction.add(R.id.container, fragmentFeed);
         mFragmentTransaction.commit();
+
+        }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Fragment fragment=getSupportFragmentManager().findFragmentById(fragmentFeed.getId());
+        if(fragment!=null){
+            fragment.onDestroy();
+        }
     }
-
-
 }
