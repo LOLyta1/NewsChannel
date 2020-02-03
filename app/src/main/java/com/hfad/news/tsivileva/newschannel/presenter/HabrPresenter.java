@@ -38,6 +38,7 @@ public class HabrPresenter implements IPresenter {
     public void getNews(boolean isUpdate) {
         if(isUpdate){
             getObservableHabr().subscribeWith(getObserverHabr());
+            Log.d("mylog","HabrPresenter().getNews()");
         }
     }
 
