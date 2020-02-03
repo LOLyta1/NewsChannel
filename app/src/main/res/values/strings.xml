@@ -4,4 +4,7 @@
     <string name="resyclerN">resyclerID</string>
     <string name="imageDescriprion">Картинка</string>
     <string name="update_menu_item_icon">Обновить</string>
+    <string name="dialog_network_connection_lost">Потеряно интернет-соединение! Пожалуйста, обновитите страницу</string>
+    <string name="dialog_update_button">Обновить</string>
+    <string name="dialog_cancel_button">Отмена</string>
 </resources>

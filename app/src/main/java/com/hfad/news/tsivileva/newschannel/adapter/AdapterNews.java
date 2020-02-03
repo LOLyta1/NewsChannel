@@ -110,6 +110,10 @@ public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
 
     }
 
+    public void cleare(){
+       this.mList.clear();
+      notifyDataSetChanged();
+    }
     private void setValidText(View v, String text, String substitutionText) {
         if (text != null) {
             ((TextView) v).setText(text);
