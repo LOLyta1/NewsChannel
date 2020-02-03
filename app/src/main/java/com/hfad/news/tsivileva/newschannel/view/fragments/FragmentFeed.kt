@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.hfad.news.tsivileva.newschannel.adapter.AdapterNews
@@ -20,38 +21,29 @@ import com.hfad.news.tsivileva.newschannel.R
 import com.hfad.news.tsivileva.newschannel.view.IView
 import com.hfad.news.tsivileva.newschannel.view.MainActivity
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DisconnectedDialog
+import com.hfad.news.tsivileva.newschannel.view.dialogs.INetworkDialogListener
 import kotlinx.android.synthetic.main.fragment_feed.view.*
 
-class FragmentFeed() : Fragment(), IView {
-    private  var mConnectionManager:ConnectivityManager?=null
+class FragmentFeed() : Fragment(), IView,INetworkDialogListener {
 
+    private  var mConnectionManager:ConnectivityManager?=null
     private lateinit var mContext: Context
     private lateinit var mView: View
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
+    private var disconnectedDialog= DisconnectedDialog()
     private lateinit var mIView: IView
-    val request = NetworkRequest.Builder().build()
-
-    private var mConnectionCallbacks=object : ConnectivityManager.NetworkCallback() {
-        override fun onLost(network: Network) {
-            super.onLost(network)
-            val fragmentManager = activity?.supportFragmentManager
-            if (fragmentManager != null) {
-                DisconnectedDialog(mIView).show(fragmentManager, "disconnectes_dialog")
-            } else {
-                //nothing to do
-            }
-        }
-        override fun onAvailable(network: Network) {
-            super.onAvailable(network)
-            reloadNews(mIView)
-        }
-    }
-
-
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         this.mContext = context
+    }
+    override fun uploadClick() {
+        disconnectedDialog.dismiss()
+        reloadNews()
+    }
+
+    override fun cancelClick() {
+        disconnectedDialog.dismiss()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -61,44 +53,39 @@ class FragmentFeed() : Fragment(), IView {
             layoutManager = LinearLayoutManager(mContext)
             addItemDecoration(NewsDecorator(left = 10, top = 10, right = 10, bottom = 10))
         }
-
         mConnectionManager=activity?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        mConnectionManager?.registerNetworkCallback(request,mConnectionCallbacks)
-
         mView.progressBar.visibility = View.VISIBLE
         mIView = this
 
         mSwipeRefreshLayout = mView.swipeContainer
-        mSwipeRefreshLayout?.setOnRefreshListener { reloadNews(mIView) }
-        reloadNews(mIView)
+        mSwipeRefreshLayout?.setOnRefreshListener { reloadNews() }
+        reloadNews()
 
         return mView
     }
 
-    override fun reloadNews(iView: IView) {
+    fun reloadNews() {
         if(mConnectionManager?.activeNetwork!=null){
-            HabrPresenter(iView).getNews(true)
-            ProgerPresenter(iView).getNews(true)
+            HabrPresenter(mIView).getNews(true)
+            ProgerPresenter(mIView).getNews(true)
         }else{
             val fragmentManager = activity?.supportFragmentManager
             if (fragmentManager != null) {
-                DisconnectedDialog(iView).show(fragmentManager, "disconnectes_dialog")
+                disconnectedDialog.setTargetFragment(this, 10)
+                disconnectedDialog.show(fragmentManager,"disconnectes_dialog")
+//                disconnectedDialog.setListener(this)
             } else {
                 //nothing to do
             }
         }
     }
 
-
-
     override fun showNews(i: NewsItem?) {
-        Log.d(MainActivity.logname, "показать новости  - showNews()")
-        (mView.resycler_view.adapter as AdapterNews).add(i)
+       (mView.resycler_view.adapter as AdapterNews).add(i)
     }
 
     override fun showError(er: Throwable) {
         Toast.makeText(mContext,"Произошла ошибка при загрузке! ${er.message}",Toast.LENGTH_SHORT).show()
-
     }
 
     override fun showComplete() {
@@ -108,10 +95,5 @@ class FragmentFeed() : Fragment(), IView {
 
     val mCardClick = View.OnClickListener {
         Log.d("myLog", "click on recyclerView item" + it)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        mConnectionManager?.unregisterNetworkCallback(mConnectionCallbacks)
     }
 }
