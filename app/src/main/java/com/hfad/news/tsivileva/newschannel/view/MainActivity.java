@@ -28,16 +28,6 @@ public class MainActivity extends AppCompatActivity //implements IView {
         mFragmentTransaction = getSupportFragmentManager().beginTransaction();
         mFragmentTransaction.add(R.id.container, fragmentFeed);
         mFragmentTransaction.commit();
-
         }
 
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Fragment fragment=getSupportFragmentManager().findFragmentById(fragmentFeed.getId());
-        if(fragment!=null){
-            fragment.onDestroy();
-        }
-    }
 }
