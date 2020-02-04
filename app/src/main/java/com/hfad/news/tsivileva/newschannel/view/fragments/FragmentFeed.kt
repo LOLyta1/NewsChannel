@@ -1,5 +1,6 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
+import android.app.AlertDialog
 import android.content.Context
 import android.net.*
 import android.net.wifi.p2p.WifiP2pManager
@@ -31,7 +32,7 @@ class FragmentFeed() :
         DialogNet.INetworkDialogListener {
 
     private var swiper: SwipeRefreshLayout? = null
-
+    private val dialogTag = "disconnectes_dialog"
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
@@ -46,8 +47,8 @@ class FragmentFeed() :
             addItemDecoration(NewsDecorator(left = 10, top = 10, right = 10, bottom = 10))
         }
         swiper = view.swipe_container
-        swiper?.setOnRefreshListener { reloadNews() }
-        reloadNews()
+        swiper?.setOnRefreshListener { loadAllNews() }
+        loadAllNews()
     }
 
 
@@ -56,8 +57,14 @@ class FragmentFeed() :
     }
 
     override fun showError(er: Throwable) {
-        Toast.makeText(context, "Произошла ошибка при загрузке! ${er.message}", Toast.LENGTH_SHORT).show()
-        showComplete()
+        val fragmentManager = activity?.supportFragmentManager
+        if (fragmentManager != null) {
+            val dialog = DialogNet()
+            dialog.setTargetFragment(this, 10)
+            if (fragmentManager.findFragmentByTag(dialogTag) == null) {
+                dialog.show(fragmentManager, dialogTag)
+            }
+        }
     }
 
     override fun showComplete() {
@@ -65,10 +72,9 @@ class FragmentFeed() :
         view?.news_load_progress_bar?.visibility = View.GONE
     }
 
-
     override fun uploadClick(dialog: DialogNet) {
         dialog.dismiss()
-        reloadNews()
+        loadAllNews()
     }
 
     override fun cancelClick(dialog: DialogNet) {
@@ -76,35 +82,9 @@ class FragmentFeed() :
         showComplete()
     }
 
-    private fun reloadNews() {
-        val connManager: ConnectivityManager? = activity?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (connManager?.activeNetwork != null) {
-                loadAllNews(this)
-            } else {
-                showNetworkDialog(this@FragmentFeed, activity?.supportFragmentManager)
-            }
-        } else {
-            val connectionInfo = connManager?.activeNetworkInfo
-            when (connectionInfo?.type) {
-                ConnectivityManager.TYPE_WIFI, ConnectivityManager.TYPE_MOBILE -> loadAllNews(this)
-                else -> showNetworkDialog(this@FragmentFeed, activity?.supportFragmentManager)
-            }
-        }
+    private fun loadAllNews() {
+        HabrPresenter(this@FragmentFeed).getNews(true)
+        ProgerPresenter(this@FragmentFeed).getNews(true)
     }
 }
 
-    private fun loadAllNews(view: IView) {
-        HabrPresenter(view).getNews(true)
-        ProgerPresenter(view).getNews(true)
-    }
-
-    private fun showNetworkDialog(fragment: Fragment, manager: FragmentManager?) {
-        if (manager != null) {
-            DialogNet().apply {
-                setTargetFragment(fragment, 10)
-                show(manager, "disconnectes_dialog")
-            }
-        }
-    }
