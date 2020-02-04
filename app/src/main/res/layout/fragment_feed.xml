@@ -23,8 +23,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal|center_vertical" />
 
-
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/new_list_resycler_view"
             android:layout_width="match_parent"
