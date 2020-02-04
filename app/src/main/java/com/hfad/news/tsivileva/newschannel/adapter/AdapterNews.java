@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,11 +25,17 @@ import java.util.List;
  */
 public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
 
+    public interface IClickListener {
+        void onClick(NewsItem newsItem);
+    }
+
     /*список элементов*/
     private List<NewsItem> mList;
+    private IClickListener listener;
 
-    public AdapterNews() {
+    public AdapterNews(IClickListener listener) {
         this.mList = new ArrayList<>();
+        this.listener=listener;
     }
 
     @NonNull
@@ -81,6 +88,7 @@ public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
                         .error(R.drawable.no_photo)
                         .into(holder.imageView);
             }
+            holder.card.setOnClickListener(v -> listener.onClick(mList.get(position)));
         }
     }
 
@@ -96,8 +104,8 @@ public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
 
     }
     public void cleare(){
-       this.mList.clear();
-      notifyDataSetChanged();
+        this.mList.clear();
+        notifyDataSetChanged();
     }
 
     private void setValidText(View v, String text, String substitutionText) {
