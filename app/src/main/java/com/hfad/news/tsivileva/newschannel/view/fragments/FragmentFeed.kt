@@ -57,6 +57,7 @@ class FragmentFeed() :
 
     override fun showError(er: Throwable) {
         Toast.makeText(context, "Произошла ошибка при загрузке! ${er.message}", Toast.LENGTH_SHORT).show()
+        showComplete()
     }
 
     override fun showComplete() {
@@ -72,6 +73,7 @@ class FragmentFeed() :
 
     override fun cancelClick(dialog: DialogNet) {
         dialog.dismiss()
+        showComplete()
     }
 
     private fun reloadNews() {
