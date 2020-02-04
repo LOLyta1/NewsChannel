@@ -10,8 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 
-import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hfad.news.tsivileva.newschannel.R;
@@ -29,24 +27,15 @@ public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
     /*список элементов*/
     private List<NewsItem> mList;
 
-    private  View.OnClickListener mItemClickListener;
-
-    public AdapterNews(View.OnClickListener listener) {
-        this.mList = new ArrayList<NewsItem>();
-        this.mItemClickListener=listener;
+    public AdapterNews() {
+        this.mList = new ArrayList<>();
     }
 
     @NonNull
     @Override
     /*для каждого элемента списка "раздувает" представление при помощи разметки*/
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View cv = (View) LayoutInflater.
-                from(parent.getContext()).
-                inflate(R.layout.item_list, parent, false);
-
-     /*   if (mItemClickListener != null)
-            cv.setOnClickListener(mItemClickListener);*/
-
+        View cv = LayoutInflater. from(parent.getContext()). inflate(R.layout.item_list, parent, false);
         return new ViewHolder(cv);
     }
 
@@ -62,9 +51,9 @@ public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             this.card = itemView;
-            this.titleTextView = card.findViewById(R.id.titleTextView);
-            this.imageView = card.findViewById(R.id.pictureImageView);
-            this.linkView = card.findViewById(R.id.linkTextView);
+            this.titleTextView = card.findViewById(R.id.news_title_text_view);
+            this.imageView = card.findViewById(R.id.news_image_view);
+            this.linkView = card.findViewById(R.id.news_link_text_view);
         }
 
 
@@ -96,24 +85,21 @@ public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
     }
 
     /*получить размер списка элементов*/
-
     @Override
     public int getItemCount() {
         return mList.size();
     }
-
-    /*добавить элемент в список*/
 
     public void add(NewsItem newsItem) {
         this.mList.add(newsItem);
         notifyDataSetChanged();
 
     }
-
     public void cleare(){
        this.mList.clear();
       notifyDataSetChanged();
     }
+
     private void setValidText(View v, String text, String substitutionText) {
         if (text != null) {
             ((TextView) v).setText(text);
@@ -122,11 +108,4 @@ public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
         }
     }
 
-    public void setmItemClickListener(View.OnClickListener mItemClickListener) {
-        this.mItemClickListener = mItemClickListener;
-    }
-
-    public void setmList(List<NewsItem> mList) {
-        this.mList = mList;
-    }
 }
