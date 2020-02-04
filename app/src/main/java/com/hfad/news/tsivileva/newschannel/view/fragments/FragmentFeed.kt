@@ -25,14 +25,17 @@ import com.hfad.news.tsivileva.newschannel.R
 import com.hfad.news.tsivileva.newschannel.view.IView
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNet
 import kotlinx.android.synthetic.main.fragment_feed.view.*
+import kotlinx.android.synthetic.main.main_activity.*
 
 class FragmentFeed() :
         Fragment(),
         IView,
-        DialogNet.INetworkDialogListener {
+        DialogNet.INetworkDialogListener,
+        AdapterNews.IClickListener{
 
     private var swiper: SwipeRefreshLayout? = null
     private val dialogTag = "disconnectes_dialog"
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
@@ -42,7 +45,7 @@ class FragmentFeed() :
         view.news_load_progress_bar.visibility = View.VISIBLE
 
         view.new_list_resycler_view?.apply {
-            adapter = AdapterNews()
+            adapter = AdapterNews(this@FragmentFeed)
             layoutManager = LinearLayoutManager(context)
             addItemDecoration(NewsDecorator(left = 10, top = 10, right = 10, bottom = 10))
         }
@@ -86,5 +89,16 @@ class FragmentFeed() :
         HabrPresenter(this@FragmentFeed).getNews(true)
         ProgerPresenter(this@FragmentFeed).getNews(true)
     }
-}
 
+    override fun onClick(newsItem: NewsItem?) {
+        val fragment=FragmentFeedDetails()
+        fragment.news=newsItem
+
+        activity?.supportFragmentManager?.beginTransaction()?.
+                replace(R.id.container, fragment,"detail_fragment")?.
+                addToBackStack("detail_fragment")?.
+                commit()
+
+
+    }
+}
