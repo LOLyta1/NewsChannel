@@ -2,14 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/dialog_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
         android:text="@string/dialog_network_connection_lost_text" />
 
     <LinearLayout
@@ -18,15 +16,15 @@
         android:orientation="horizontal">
 
         <Button
-            style="@style/Widget.AppCompat.Button.Borderless"
             android:id="@+id/update_button"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dialog_update_button_text" />
 
         <Button
-            style="@style/Widget.AppCompat.Button.Borderless"
             android:id="@+id/cancel_button"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dialog_cancel_button_text" />

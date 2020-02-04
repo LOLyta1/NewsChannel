@@ -2,12 +2,17 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.content.Context
 import android.net.*
+import android.net.wifi.p2p.WifiP2pManager
+import android.os.Build
 import android.os.Bundle
+import android.telecom.Connection
+import android.telephony.AccessNetworkConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.hfad.news.tsivileva.newschannel.adapter.AdapterNews
@@ -70,20 +75,34 @@ class FragmentFeed() :
     }
 
     private fun reloadNews() {
-        val connManager = activity?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val connManager: ConnectivityManager? = activity?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        if (connManager.activeNetwork != null) {
-            HabrPresenter(this).getNews(true)
-            ProgerPresenter(this).getNews(true)
-        } else {
-            val fragmentManager = activity?.supportFragmentManager
-            if (fragmentManager != null) {
-                val _targetFragment=this
-                DialogNet().apply {
-                    setTargetFragment(_targetFragment, 10)
-                    show(fragmentManager, "disconnectes_dialog") }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (connManager?.activeNetwork != null) {
+                loadAllNews(this)
+            } else {
+                showNetworkDialog(this@FragmentFeed, activity?.supportFragmentManager)
             }
-
+        } else {
+            val connectionInfo = connManager?.activeNetworkInfo
+            when (connectionInfo?.type) {
+                ConnectivityManager.TYPE_WIFI, ConnectivityManager.TYPE_MOBILE -> loadAllNews(this)
+                else -> showNetworkDialog(this@FragmentFeed, activity?.supportFragmentManager)
+            }
         }
     }
 }
+
+    private fun loadAllNews(view: IView) {
+        HabrPresenter(view).getNews(true)
+        ProgerPresenter(view).getNews(true)
+    }
+
+    private fun showNetworkDialog(fragment: Fragment, manager: FragmentManager?) {
+        if (manager != null) {
+            DialogNet().apply {
+                setTargetFragment(fragment, 10)
+                show(manager, "disconnectes_dialog")
+            }
+        }
+    }
