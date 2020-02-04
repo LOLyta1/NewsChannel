@@ -15,7 +15,7 @@
 
     <androidx.cardview.widget.CardView
         android:background="@drawable/ripple"
-        android:id="@+id/cardView"
+        android:id="@+id/news_card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -23,10 +23,10 @@
         app:cardElevation="5dp">
 
         <ImageView
-            android:id="@+id/pictureImageView"
+            android:id="@+id/news_image_view"
             android:layout_width="match_parent"
             android:layout_height="@dimen/imageWidth"
-            android:contentDescription="@string/imageDescriprion"
+            android:contentDescription="@string/news_image_descriprion_text"
             android:minWidth="@dimen/imageMinWidth"
             android:scaleType="centerCrop"
             app:tintMode="add"
@@ -40,7 +40,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/titleTextView"
+            android:id="@+id/news_title_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -51,7 +51,7 @@
             tools:text="Заголовок" />
 
         <TextView
-            android:id="@+id/linkTextView"
+            android:id="@+id/news_link_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
