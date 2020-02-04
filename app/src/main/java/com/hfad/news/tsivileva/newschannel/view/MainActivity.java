@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity //implements IView {
         setContentView(R.layout.main_activity);
 
         fragmentFeed=new FragmentFeed();
-        mFragmentTransaction = getSupportFragmentManager().beginTransaction();
+        mFragmentTransaction= getSupportFragmentManager().beginTransaction();
         mFragmentTransaction.add(R.id.container, fragmentFeed);
         mFragmentTransaction.commit();
         }
