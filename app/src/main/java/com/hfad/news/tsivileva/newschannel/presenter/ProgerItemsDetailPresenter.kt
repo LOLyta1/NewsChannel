@@ -1,7 +1,8 @@
 package com.hfad.news.tsivileva.newschannel.presenter
 
+
 import android.util.Log
-import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.HabrItemsInfo
+import com.hfad.news.tsivileva.newschannel.Model.implementation.tproger.TProgerItemsInfo
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
 import com.hfad.news.tsivileva.newschannel.network.INetwork
 import com.hfad.news.tsivileva.newschannel.network.NetworkClientHabrDetails
@@ -11,33 +12,32 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableObserver
 import io.reactivex.schedulers.Schedulers
 
+class ProgerItemsDetailPresenter(val view: IView, var url:String?):IPresenter {
 
-class HabrItemsDetailPresenter(val view: IView,var url:String?) : IPresenter {
-
-var subscription: DisposableObserver<HabrItemsInfo>?=null
+    var subscription: DisposableObserver<TProgerItemsInfo>?=null
 
     override fun getNews(isUpdate: Boolean) {
-         subscription= createObservable()?.subscribeWith(createObserver())
+        subscription= createObservable()?.subscribeWith(createObserver())
     }
 
-    private fun createObservable(): Observable<HabrItemsInfo>? {
+    private fun createObservable(): Observable<TProgerItemsInfo>? {
         Log.d("mylog","HabrItemsDetailPresenter.createObservable() - URL :  ${url}")
 
         return NetworkClientHabrDetails().
                 instance(url).
                 create(INetwork::class.java).
-                loadHabrDetails()?.
-                subscribeOn(Schedulers.io())?.
+                loadProgDetails().
+                subscribeOn(Schedulers.io()).
                 observeOn(AndroidSchedulers.mainThread())
     }
 
-    private fun createObserver(): DisposableObserver<HabrItemsInfo> {
-        return object : DisposableObserver<HabrItemsInfo>() {
+    private fun createObserver(): DisposableObserver<TProgerItemsInfo> {
+        return object : DisposableObserver<TProgerItemsInfo>() {
             override fun onComplete() {
                 view.showComplete()
                 dispose()
             }
-            override fun onNext(t: HabrItemsInfo) {
+            override fun onNext(t: TProgerItemsInfo) {
                 view.showNews(NewsItem(title = t.title,summarry = t.content,date = t.date))
                 Log.d("mylog", "HabrItemDetailPresenter. onNext() , t.content="+t.content)
 
