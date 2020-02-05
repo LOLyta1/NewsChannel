@@ -1,37 +1,27 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
-import android.app.AlertDialog
-import android.content.Context
-import android.net.*
-import android.net.wifi.p2p.WifiP2pManager
-import android.os.Build
 import android.os.Bundle
-import android.telecom.Connection
-import android.telephony.AccessNetworkConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.hfad.news.tsivileva.newschannel.adapter.AdapterNews
-import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsDecorator
 import com.hfad.news.tsivileva.newschannel.presenter.HabrPresenter
 import com.hfad.news.tsivileva.newschannel.presenter.ProgerPresenter
 import com.hfad.news.tsivileva.newschannel.R
+import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
 import com.hfad.news.tsivileva.newschannel.view.IView
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNet
 import kotlinx.android.synthetic.main.fragment_feed.view.*
-import kotlinx.android.synthetic.main.main_activity.*
 
 class FragmentFeed() :
         Fragment(),
         IView,
         DialogNet.INetworkDialogListener,
-        AdapterNews.IClickListener{
+        AdapterNews.IClickListener {
 
     private var swiper: SwipeRefreshLayout? = null
     private val dialogTag = "disconnectes_dialog"
@@ -91,13 +81,12 @@ class FragmentFeed() :
     }
 
     override fun onClick(newsItem: NewsItem?) {
-        val fragment=FragmentFeedDetails()
-        fragment.news=newsItem
+        val fragment = FragmentFeedDetails()
+        val bundle = Bundle()
+        bundle.putParcelable("params", newsItem)
+        fragment.arguments= bundle
 
-        activity?.supportFragmentManager?.beginTransaction()?.
-                replace(R.id.container, fragment,"detail_fragment")?.
-                addToBackStack("detail_fragment")?.
-                commit()
+        activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.container, fragment, "detail_fragment")?.addToBackStack("detail_fragment")?.commit()
 
 
     }
