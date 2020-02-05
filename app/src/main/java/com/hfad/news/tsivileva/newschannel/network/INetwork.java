@@ -3,6 +3,7 @@ package com.hfad.news.tsivileva.newschannel.network;
 import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.Habr;
 import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.HabrItemsInfo;
 import com.hfad.news.tsivileva.newschannel.Model.implementation.tproger.TProger;
+import com.hfad.news.tsivileva.newschannel.Model.implementation.tproger.TProgerItemsInfo;
 
 import io.reactivex.Observable;
 import retrofit2.http.GET;
@@ -20,9 +21,11 @@ public interface INetwork {
     Observable<Habr> loadNews();
 
     @GET(".")
-    Observable<HabrItemsInfo> loadDetails();
-
-    @GET(".")
     Observable<TProger>loadTProger();
 
+    @GET(".")
+    Observable<HabrItemsInfo> loadHabrDetails();
+
+    @GET(".")
+    Observable<TProgerItemsInfo> loadProgDetails();
 }
