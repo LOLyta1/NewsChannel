@@ -1,6 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,6 +51,7 @@ class FragmentFeed() :
     }
 
     override fun showError(er: Throwable) {
+        er.printStackTrace()
         val fragmentManager = activity?.supportFragmentManager
         if (fragmentManager != null) {
             val dialog = DialogNet()
@@ -80,12 +82,13 @@ class FragmentFeed() :
         ProgerPresenter(this@FragmentFeed).getNews(true)
     }
 
-    override fun onClick(newsItem: NewsItem?) {
+    override fun newsClick(newsItem: NewsItem?) {
         val fragment = FragmentFeedDetails()
-        val bundle = Bundle()
-        bundle.putParcelable("params", newsItem)
-        fragment.arguments= bundle
-
+        fragment.arguments= Bundle().apply {
+            putString("http", newsItem?.link)
+            putString("img",newsItem?.picture)
+            Log.d("mylog","FragmentFeed - передать ссылку ${newsItem?.link}")
+        }
         activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.container, fragment, "detail_fragment")?.addToBackStack("detail_fragment")?.commit()
 
 

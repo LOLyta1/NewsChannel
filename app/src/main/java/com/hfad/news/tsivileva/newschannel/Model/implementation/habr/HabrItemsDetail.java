@@ -3,7 +3,9 @@ package com.hfad.news.tsivileva.newschannel.Model.implementation.habr;
  * Класс для хранения данных о картинке и описании статьи на Habr
  */
 public class HabrItemsDetail {
+    public HabrItemsDetail() {
 
+    }
          /*ссылка на картинку*/
         private String imageSrc;
 

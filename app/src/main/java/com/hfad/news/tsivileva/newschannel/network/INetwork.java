@@ -1,6 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.network;
 
 import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.Habr;
+import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.HabrItemsInfo;
 import com.hfad.news.tsivileva.newschannel.Model.implementation.tproger.TProger;
 
 import io.reactivex.Observable;
@@ -18,7 +19,8 @@ public interface INetwork {
     @GET(".")
     Observable<Habr> loadNews();
 
-
+    @GET(".")
+    Observable<HabrItemsInfo> loadDetails();
 
     @GET(".")
     Observable<TProger>loadTProger();
