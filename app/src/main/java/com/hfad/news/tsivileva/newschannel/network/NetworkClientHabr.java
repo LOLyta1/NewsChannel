@@ -1,6 +1,6 @@
 package com.hfad.news.tsivileva.newschannel.network;
 
-import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.HabrItemsDetail;
+import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.HabrItemsInfo;
 import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.HabrItemsDetailConverter;
 
 import org.simpleframework.xml.Serializer;
@@ -37,7 +37,7 @@ public class NetworkClientHabr {
         Strategy strategy = new RegistryStrategy(registry);
         Serializer serializer = new Persister(strategy);
         try {
-            registry.bind(HabrItemsDetail.class, HabrItemsDetailConverter.class);
+            registry.bind(HabrItemsInfo.class, HabrItemsDetailConverter.class);
         } catch (Exception e) {
             e.printStackTrace();
         }

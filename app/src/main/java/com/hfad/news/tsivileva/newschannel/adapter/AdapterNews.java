@@ -25,7 +25,7 @@ import java.util.List;
 public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
 
     public interface IClickListener {
-        void onClick(NewsItem newsItem);
+        void newsClick(NewsItem newsItem);
     }
 
     /*список элементов*/
@@ -87,7 +87,7 @@ public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
                         .error(R.drawable.no_photo)
                         .into(holder.imageView);
             }
-            holder.card.setOnClickListener(v -> listener.onClick(mList.get(position)));
+            holder.card.setOnClickListener(v -> listener.newsClick(mList.get(position)));
         }
     }
 

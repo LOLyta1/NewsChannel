@@ -56,8 +56,10 @@ public class HabrItemsDetailConverter implements Converter<HabrItemsDetail> {
 
         }
 
-        @Override
-        public void write(OutputNode node, HabrItemsDetail value) throws Exception {
+    @Override
+    public void write(OutputNode node, HabrItemsDetail value) throws Exception {
 
-        }
+    }
+
+
 }
