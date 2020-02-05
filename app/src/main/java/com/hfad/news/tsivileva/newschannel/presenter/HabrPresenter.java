@@ -2,10 +2,10 @@ package com.hfad.news.tsivileva.newschannel.presenter;
 
 import android.util.Log;
 
-import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem;
 import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.Habr;
 
 import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.HabrlItems;
+import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem;
 import com.hfad.news.tsivileva.newschannel.network.INetwork;
 import com.hfad.news.tsivileva.newschannel.network.NetworkClientHabr;
 import com.hfad.news.tsivileva.newschannel.view.IView;

@@ -3,8 +3,8 @@ package com.hfad.news.tsivileva.newschannel.presenter;
 import android.util.Log;
 
 
-import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem;
 import com.hfad.news.tsivileva.newschannel.Model.implementation.tproger.TProger;
+import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem;
 import com.hfad.news.tsivileva.newschannel.network.INetwork;
 
 import com.hfad.news.tsivileva.newschannel.network.NetworkClientProger;
