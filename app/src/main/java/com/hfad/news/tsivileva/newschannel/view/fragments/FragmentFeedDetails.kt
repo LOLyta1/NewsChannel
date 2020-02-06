@@ -34,16 +34,28 @@ class FragmentFeedDetails:Fragment(), IView{
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        view.news_details_progress_bar.visibility=View.VISIBLE
+        view.news_details_scroll_view.visibility=View.GONE
+        view.news_details_swipe_layout.setOnRefreshListener { loadNews() }
+        loadNews()
+
+    }
+
+    private fun loadNews(){
         if(newsHTTP?.contains("habr.com")==true){
             HabrItemsDetailPresenter(this,newsHTTP).getNews(true)
         }else
             if(newsHTTP?.contains("tproger.ru")==true){
                 ProgerItemsDetailPresenter(this,newsHTTP).getNews(true)
             }
-
     }
 
     override fun showNews(newsItem: NewsItem?) {
+        view?.news_details_scroll_view?.visibility=View.VISIBLE
+        view?.news_details_progress_bar?.visibility=View.GONE
+
+        view?.news_details_swipe_layout?.isRefreshing=false
+
         view?.news_details_text_view?.text=newsItem?.summarry
         view?.news_details_date_text_view?.text=newsItem?.date
         view?.news_details_title_text_view?.text=newsItem?.title
@@ -54,9 +66,14 @@ class FragmentFeedDetails:Fragment(), IView{
     }
 
     override fun showError(er: Throwable?) {
-        Toast.makeText(context,er?.message,Toast.LENGTH_LONG).show()
+        Toast.makeText(context,
+                       resources.getText(R.string.dialog_network_connection_lost_text),
+                        Toast.LENGTH_LONG).show()
+        view?.news_details_swipe_layout?.isRefreshing=false
     }
 
     override fun showComplete() {
      }
+
+
 }
