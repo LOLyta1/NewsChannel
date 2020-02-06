@@ -33,7 +33,7 @@ class FragmentFeed() :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.news_load_progress_bar.visibility = View.VISIBLE
+        view.news_progress_bar.visibility = View.VISIBLE
 
         view.new_list_resycler_view?.apply {
             adapter = AdapterNews(this@FragmentFeed)
@@ -64,7 +64,7 @@ class FragmentFeed() :
 
     override fun showComplete() {
         view?.swipe_container?.isRefreshing = false
-        view?.news_load_progress_bar?.visibility = View.GONE
+        view?.news_progress_bar?.visibility = View.GONE
     }
 
     override fun uploadClick(dialog: DialogNet) {
