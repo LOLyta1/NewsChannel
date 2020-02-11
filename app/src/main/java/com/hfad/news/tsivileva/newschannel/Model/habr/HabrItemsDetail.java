@@ -1,4 +1,4 @@
-package com.hfad.news.tsivileva.newschannel.Model.implementation.habr;
+package com.hfad.news.tsivileva.newschannel.model.habr;
 /*
  * Класс для хранения данных о картинке и описании статьи на Habr
  */

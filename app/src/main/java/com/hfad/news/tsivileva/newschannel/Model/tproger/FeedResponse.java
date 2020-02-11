@@ -1,5 +1,5 @@
 
-package com.hfad.news.tsivileva.newschannel.Model.implementation.tproger;
+package com.hfad.news.tsivileva.newschannel.model.tproger;
 /*
  * (Модель данных  TProger)
  * Класс Для работы с https://tproger.ru/feed/

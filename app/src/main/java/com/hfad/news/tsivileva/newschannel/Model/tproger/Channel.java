@@ -1,6 +1,5 @@
 
-package com.hfad.news.tsivileva.newschannel.Model.implementation.tproger;
-
+package com.hfad.news.tsivileva.newschannel.model.tproger;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;

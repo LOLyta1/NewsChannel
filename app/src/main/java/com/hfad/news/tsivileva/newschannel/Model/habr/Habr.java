@@ -1,4 +1,6 @@
-package com.hfad.news.tsivileva.newschannel.Model.implementation.habr;
+package com.hfad.news.tsivileva.newschannel.model.habr;
+
+
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;

@@ -1,9 +1,9 @@
 package com.hfad.news.tsivileva.newschannel.network;
 
-import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.Habr;
-import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.HabrItemsInfo;
-import com.hfad.news.tsivileva.newschannel.Model.implementation.tproger.TProger;
-import com.hfad.news.tsivileva.newschannel.Model.implementation.tproger.TProgerItemsInfo;
+import com.hfad.news.tsivileva.newschannel.model.habr.Habr;
+import com.hfad.news.tsivileva.newschannel.model.habr.HabrItemsInfo;
+import com.hfad.news.tsivileva.newschannel.model.tproger.TProger;
+import com.hfad.news.tsivileva.newschannel.model.tproger.TProgerItemsInfo;
 
 import io.reactivex.Observable;
 import retrofit2.http.GET;

@@ -2,14 +2,18 @@ package com.hfad.news.tsivileva.newschannel.presenter;
 
 import android.util.Log;
 
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
-import com.hfad.news.tsivileva.newschannel.Model.implementation.tproger.TProger;
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem;
+import com.hfad.news.tsivileva.newschannel.model.tproger.Item;
+import com.hfad.news.tsivileva.newschannel.model.tproger.TProger;
 import com.hfad.news.tsivileva.newschannel.network.INetwork;
 
 import com.hfad.news.tsivileva.newschannel.network.NetworkClientProger;
 import com.hfad.news.tsivileva.newschannel.view.IView;
 import com.hfad.news.tsivileva.newschannel.view.MainActivity;
+import com.hfad.news.tsivileva.newschannel.view_model.SharedViewModel;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -77,20 +81,19 @@ public class ProgerPresenter implements IPresenter {
 
                  if(prog.getChannel().getItem().size()>0){
 
-                    for (com.hfad.news.tsivileva.newschannel.Model.implementation.tproger.Item i:prog.getChannel().getItem()
-                         ) {
+                   //  SharedViewModel model= ViewModelProviders.of(mView).
+                    /* for (Item i:prog.getChannel().getItem()) {
+                         NewsItem newsItem =new NewsItem();
+                         newsItem.setDate(i.getPubDate());
+                         newsItem.setTitle(i.getTitle());
+                         newsItem.setLink(i.getLink());
+                         newsItem.setPicture("https://pbs.twimg.com/profile_images/857551974442651648/D5cZLXTf.jpg");
+                         newsItem.setSummarry(i.getDescription());
 
-                        NewsItem newsItem =new NewsItem();
-                        newsItem.setDate(i.getPubDate());
-                        newsItem.setTitle(i.getTitle());
-                        newsItem.setLink(i.getLink());
-                        newsItem.setPicture("https://pbs.twimg.com/profile_images/857551974442651648/D5cZLXTf.jpg");
-                        newsItem.setSummarry(i.getDescription());
 
-                        mView.showNews(newsItem);
-                    }
-
+                     }*/
                 }
+                mView.showNews();
             }
 
             @Override

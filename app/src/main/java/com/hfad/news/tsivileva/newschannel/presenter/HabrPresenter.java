@@ -2,10 +2,9 @@ package com.hfad.news.tsivileva.newschannel.presenter;
 
 import android.util.Log;
 
-import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.Habr;
-
-import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.HabrlItems;
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem;
+import com.hfad.news.tsivileva.newschannel.model.habr.Habr;
+import com.hfad.news.tsivileva.newschannel.model.habr.HabrlItems;
 import com.hfad.news.tsivileva.newschannel.network.INetwork;
 import com.hfad.news.tsivileva.newschannel.network.NetworkClientHabr;
 import com.hfad.news.tsivileva.newschannel.view.IView;
@@ -78,7 +77,7 @@ public class HabrPresenter implements IPresenter {
 
                 if(habr.getHabrlItems().size()>0){
 
-                    int last=habr.getHabrlItems().size()-1;
+
                     for (HabrlItems i:habr.getHabrlItems()
                          ) {
                         NewsItem newsItem =new NewsItem();
@@ -87,7 +86,7 @@ public class HabrPresenter implements IPresenter {
                         newsItem.setLink(i.getLink());
                         newsItem.setPicture(i.getHabrItemsDetail().getImageSrc());
                         newsItem.setSummarry(i.getHabrItemsDetail().getDescription());
-                        mView.showNews(newsItem);
+                     //  mView.showNews(newsItem);
                     }
 
                 }

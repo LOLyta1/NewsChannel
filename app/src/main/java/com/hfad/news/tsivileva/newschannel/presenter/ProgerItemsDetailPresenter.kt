@@ -2,8 +2,9 @@ package com.hfad.news.tsivileva.newschannel.presenter
 
 
 import android.util.Log
-import com.hfad.news.tsivileva.newschannel.Model.implementation.tproger.TProgerItemsInfo
+
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
+import com.hfad.news.tsivileva.newschannel.model.tproger.TProgerItemsInfo
 import com.hfad.news.tsivileva.newschannel.network.INetwork
 import com.hfad.news.tsivileva.newschannel.network.NetworkClientHabrDetails
 import com.hfad.news.tsivileva.newschannel.view.IView
@@ -38,7 +39,7 @@ class ProgerItemsDetailPresenter(val view: IView, var url:String?):IPresenter {
                 dispose()
             }
             override fun onNext(t: TProgerItemsInfo) {
-                view.showNews(NewsItem(title = t.title,summarry = t.content,date = t.date))
+              //  view.showNews(NewsItem(title = t.title,summarry = t.content,date = t.date))
                 Log.d("mylog", "HabrItemDetailPresenter. onNext() , t.content="+t.content)
 
             }

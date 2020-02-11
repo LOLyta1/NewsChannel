@@ -1,8 +1,9 @@
 package com.hfad.news.tsivileva.newschannel.presenter
 
 import android.util.Log
-import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.HabrItemsInfo
+
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
+import com.hfad.news.tsivileva.newschannel.model.habr.HabrItemsInfo
 import com.hfad.news.tsivileva.newschannel.network.INetwork
 import com.hfad.news.tsivileva.newschannel.network.NetworkClientHabrDetails
 import com.hfad.news.tsivileva.newschannel.view.IView
@@ -38,7 +39,7 @@ var subscription: DisposableObserver<HabrItemsInfo>?=null
                 dispose()
             }
             override fun onNext(t: HabrItemsInfo) {
-                view.showNews(NewsItem(title = t.title,summarry = t.content,date = t.date))
+               // view.showNews(NewsItem(title = t.title,summarry = t.content,date = t.date))
                 Log.d("mylog", "HabrItemDetailPresenter. onNext() , t.content="+t.content)
 
             }

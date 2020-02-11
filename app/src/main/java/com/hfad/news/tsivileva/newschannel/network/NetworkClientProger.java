@@ -20,7 +20,7 @@ public class NetworkClientProger {
         /*адаптор для выполнения запросов не в GUI-потоке, а через планировщик*/
         RxJava2CallAdapterFactory rxAdapter = RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io());
 
-        if(retrofit==null){
+
             OkHttpClient.Builder builder = new OkHttpClient.Builder();
             OkHttpClient okHttpClient = builder.build();
 
@@ -33,7 +33,6 @@ public class NetworkClientProger {
                     .build();
 
 
-        }
         return retrofit;
     }
 }

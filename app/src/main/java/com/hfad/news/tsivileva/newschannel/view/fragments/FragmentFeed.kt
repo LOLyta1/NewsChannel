@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.hfad.news.tsivileva.newschannel.adapter.AdapterNews
@@ -16,16 +18,34 @@ import com.hfad.news.tsivileva.newschannel.R
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
 import com.hfad.news.tsivileva.newschannel.view.IView
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNet
+import com.hfad.news.tsivileva.newschannel.view_model.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_feed.view.*
 
 class FragmentFeed() :
         Fragment(),
-        IView,
+      //  IView,
         DialogNet.INetworkDialogListener,
         AdapterNews.IClickListener {
 
     private var swiper: SwipeRefreshLayout? = null
     private val dialogTag = "disconnectes_dialog"
+
+    lateinit var viewModel:SharedViewModel
+
+    val dataObserver= Observer<MutableList<NewsItem>>{
+        view?.new_list_resycler_view?.visibility=View.VISIBLE
+        val _adapter=view?.new_list_resycler_view?.adapter as AdapterNews
+        _adapter.setmList(it)
+     }
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel=ViewModelProviders.of(this).get(SharedViewModel::class.java)
+       viewModel.newsMutableLiveData.observe(this,dataObserver)
+    }
+
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_feed, container, false)
@@ -46,11 +66,12 @@ class FragmentFeed() :
     }
 
 
-    override fun showNews(i: NewsItem?) {
-        (view?.new_list_resycler_view?.adapter as AdapterNews).add(i)
+    fun showNews() {
+       // (view?.new_list_resycler_view?.adapter as AdapterNews).add(i)
     }
 
-    override fun showError(er: Throwable) {
+    //Ниже - переделать, т.к. необходима обработка ошибок сети
+ /*   override fun showError(er: Throwable) {
         er.printStackTrace()
         val fragmentManager = activity?.supportFragmentManager
         if (fragmentManager != null) {
@@ -61,11 +82,11 @@ class FragmentFeed() :
             }
         }
     }
-
-    override fun showComplete() {
+*/
+ /*   override fun showComplete() {
         view?.swipe_container?.isRefreshing = false
         view?.news_progress_bar?.visibility = View.GONE
-    }
+    }*/
 
     override fun uploadClick(dialog: DialogNet) {
         dialog.dismiss()
@@ -74,23 +95,27 @@ class FragmentFeed() :
 
     override fun cancelClick(dialog: DialogNet) {
         dialog.dismiss()
-        showComplete()
+       // showComplete()
     }
 
     private fun loadAllNews() {
-        HabrPresenter(this@FragmentFeed).getNews(true)
-        ProgerPresenter(this@FragmentFeed).getNews(true)
+        view?.swipe_container?.isRefreshing = false
+        view?.news_progress_bar?.visibility = View.GONE
+        viewModel.getAllNews()
+
+      //  HabrPresenter(this@FragmentFeed).getNews(true)
+       // ProgerPresenter(this@FragmentFeed).getNews(true)
     }
 
     override fun newsClick(newsItem: NewsItem?) {
-        val fragment = FragmentFeedDetails()
+      /*  val fragment = FragmentFeedDetails()
         fragment.arguments= Bundle().apply {
             putString("http", newsItem?.link)
             putString("img",newsItem?.picture)
             Log.d("mylog","FragmentFeed - передать ссылку ${newsItem?.link}")
         }
         activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.container, fragment, "detail_fragment")?.addToBackStack("detail_fragment")?.commit()
-
+*/
 
     }
 }

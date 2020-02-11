@@ -50,8 +50,8 @@ class FragmentFeedDetails:Fragment(), IView{
             }
     }
 
-    override fun showNews(newsItem: NewsItem?) {
-        view?.news_details_scroll_view?.visibility=View.VISIBLE
+    override fun showNews() {
+       /* view?.news_details_scroll_view?.visibility=View.VISIBLE
         view?.news_details_progress_bar?.visibility=View.GONE
 
         view?.news_details_swipe_layout?.isRefreshing=false
@@ -62,7 +62,7 @@ class FragmentFeedDetails:Fragment(), IView{
         view?.news_details_link_text_view?.text=newsHTTP
         Picasso.get().load(imageHTTP).placeholder(R.drawable.no_photo)
                 .error(R.drawable.no_photo)
-                .into(view?.news_details_image_view);
+                .into(view?.news_details_image_view);*/
     }
 
     override fun showError(er: Throwable?) {

@@ -1,4 +1,4 @@
-package com.hfad.news.tsivileva.newschannel.Model.implementation.habr
+package com.hfad.news.tsivileva.newschannel.model.habr;
 
 import pl.droidsonroids.jspoon.annotation.Selector
 

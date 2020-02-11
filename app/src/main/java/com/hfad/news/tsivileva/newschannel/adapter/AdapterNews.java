@@ -28,9 +28,15 @@ public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
         void newsClick(NewsItem newsItem);
     }
 
+    public void setmList(List<NewsItem> mList) {
+        this.mList = mList;
+        notifyDataSetChanged();
+    }
+
     /*список элементов*/
     private List<NewsItem> mList;
     private IClickListener listener;
+
 
     public AdapterNews(IClickListener listener) {
         this.mList = new ArrayList<>();

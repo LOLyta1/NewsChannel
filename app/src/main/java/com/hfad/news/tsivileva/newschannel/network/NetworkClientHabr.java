@@ -1,7 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.network;
 
-import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.HabrItemsInfo;
-import com.hfad.news.tsivileva.newschannel.Model.implementation.habr.HabrItemsDetailConverter;
+import com.hfad.news.tsivileva.newschannel.model.habr.HabrItemsDetailConverter;
+import com.hfad.news.tsivileva.newschannel.model.habr.HabrItemsInfo;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.Registry;
@@ -23,10 +23,6 @@ public class NetworkClientHabr {
 
     public static Retrofit retrofit;
 
-
-    public void NetworkClient(){
-
-    }
 
     public static Retrofit getRetrofit( ){
 
