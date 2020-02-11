@@ -4,7 +4,7 @@ import android.util.Log;
 
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem;
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr;
-import com.hfad.news.tsivileva.newschannel.model.habr.HabrlItems;
+
 import com.hfad.news.tsivileva.newschannel.network.INetwork;
 import com.hfad.news.tsivileva.newschannel.network.NetworkClientHabr;
 import com.hfad.news.tsivileva.newschannel.view.IView;
@@ -78,12 +78,12 @@ public class HabrPresenter implements IPresenter {
                 if(habr.getHabrlItems().size()>0){
 
 
-                    for (HabrlItems i:habr.getHabrlItems()
+                    for (Habr.HabrlItems i: habr.getHabrlItems()
                          ) {
                         NewsItem newsItem =new NewsItem();
                         newsItem.setDate(i.getDate());
                         newsItem.setTitle(i.getTitle());
-                        newsItem.setLink(i.getLink());
+                        newsItem.setLink(i.getTitle());
                         newsItem.setPicture(i.getHabrItemsDetail().getImageSrc());
                         newsItem.setSummarry(i.getHabrItemsDetail().getDescription());
                      //  mView.showNews(newsItem);

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr
-import com.hfad.news.tsivileva.newschannel.model.habr.HabrlItems
+
 import com.hfad.news.tsivileva.newschannel.model.tproger.Item
 import com.hfad.news.tsivileva.newschannel.model.tproger.TProger
 import com.hfad.news.tsivileva.newschannel.network.INetwork
@@ -30,7 +30,6 @@ class SharedViewModel : ViewModel() {
     fun getAllNews() {
         val habrObservable: Observable<Habr> = NetworkClientHabr.getRetrofit().create(INetwork::class.java).loadNews()
         val progerObservable: Observable<TProger> = NetworkClientProger.getRetrofit().create(INetwork::class.java).loadTProger()
-
 
         val observable:Observable<Any> = Observable.merge(habrObservable,progerObservable)
         val observer=object:DisposableObserver<Any>(){
@@ -57,13 +56,13 @@ class SharedViewModel : ViewModel() {
 
                      }
                      is Habr->{
-                         t.habrlItems.forEach {
+                         t.habrlItems?.forEach {
                              var newsItem=NewsItem()
                              newsItem.date=it.date
                              newsItem.link=it.link
                              newsItem.title=it.title
-                             newsItem.summarry=it.habrItemsDetail.description
-                             newsItem.picture=it.habrItemsDetail.imageSrc
+                             newsItem.summarry=it.habrItemsDetail?.description
+                             newsItem.picture=it.habrItemsDetail?.imageSrc
                              Log.d("mylog","onNext-TProger")
                              addNews(newsItem)
                          }
@@ -74,7 +73,7 @@ class SharedViewModel : ViewModel() {
             }
 
             override fun onError(e: Throwable) {
-                Log.d("mylog","error")
+                Log.d("mylog","error ${e.message}")
             }
 
         }
