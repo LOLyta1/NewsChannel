@@ -63,7 +63,8 @@ class SharedViewModel : ViewModel() {
                              newsItem.title=it.title
                              newsItem.summarry=it.habrItemsDetail?.description
                              newsItem.picture=it.habrItemsDetail?.imageSrc
-                             Log.d("mylog","onNext-TProger")
+                             Log.d("mylog","onNext-Habr, image = ${newsItem.picture}, description=${newsItem.summarry} ")
+
                              addNews(newsItem)
                          }
 

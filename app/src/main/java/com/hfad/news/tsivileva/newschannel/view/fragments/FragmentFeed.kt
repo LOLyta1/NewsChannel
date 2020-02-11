@@ -1,7 +1,6 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,11 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.hfad.news.tsivileva.newschannel.adapter.AdapterNews
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsDecorator
-import com.hfad.news.tsivileva.newschannel.presenter.HabrPresenter
-import com.hfad.news.tsivileva.newschannel.presenter.ProgerPresenter
 import com.hfad.news.tsivileva.newschannel.R
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
-import com.hfad.news.tsivileva.newschannel.view.IView
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNet
 import com.hfad.news.tsivileva.newschannel.view_model.SharedViewModel
 import kotlinx.android.synthetic.main.fragment_feed.view.*
@@ -66,27 +62,6 @@ class FragmentFeed() :
     }
 
 
-    fun showNews() {
-       // (view?.new_list_resycler_view?.adapter as AdapterNews).add(i)
-    }
-
-    //Ниже - переделать, т.к. необходима обработка ошибок сети
- /*   override fun showError(er: Throwable) {
-        er.printStackTrace()
-        val fragmentManager = activity?.supportFragmentManager
-        if (fragmentManager != null) {
-            val dialog = DialogNet()
-            dialog.setTargetFragment(this, 10)
-            if (fragmentManager.findFragmentByTag(dialogTag) == null) {
-                dialog.show(fragmentManager, dialogTag)
-            }
-        }
-    }
-*/
- /*   override fun showComplete() {
-        view?.swipe_container?.isRefreshing = false
-        view?.news_progress_bar?.visibility = View.GONE
-    }*/
 
     override fun uploadClick(dialog: DialogNet) {
         dialog.dismiss()
@@ -103,8 +78,6 @@ class FragmentFeed() :
         view?.news_progress_bar?.visibility = View.GONE
         viewModel.getAllNews()
 
-      //  HabrPresenter(this@FragmentFeed).getNews(true)
-       // ProgerPresenter(this@FragmentFeed).getNews(true)
     }
 
     override fun newsClick(newsItem: NewsItem?) {

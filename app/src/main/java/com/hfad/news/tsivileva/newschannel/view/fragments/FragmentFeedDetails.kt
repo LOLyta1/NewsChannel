@@ -1,20 +1,14 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.hfad.news.tsivileva.newschannel.R
-import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
-import com.hfad.news.tsivileva.newschannel.network.NetworkClientHabrDetails
 import com.hfad.news.tsivileva.newschannel.presenter.HabrItemsDetailPresenter
-import com.hfad.news.tsivileva.newschannel.presenter.ProgerItemsDetailPresenter
 import com.hfad.news.tsivileva.newschannel.view.IView
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
 class FragmentFeedDetails:Fragment(), IView{
@@ -46,7 +40,7 @@ class FragmentFeedDetails:Fragment(), IView{
             HabrItemsDetailPresenter(this,newsHTTP).getNews(true)
         }else
             if(newsHTTP?.contains("tproger.ru")==true){
-                ProgerItemsDetailPresenter(this,newsHTTP).getNews(true)
+                //ProgerItemsDetailPresenter(this,newsHTTP).getNews(true)
             }
     }
 
