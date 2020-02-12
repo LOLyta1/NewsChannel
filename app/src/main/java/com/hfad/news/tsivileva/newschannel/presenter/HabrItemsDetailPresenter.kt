@@ -2,10 +2,9 @@ package com.hfad.news.tsivileva.newschannel.presenter
 
 import android.util.Log
 
-import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrItemsInfo
-import com.hfad.news.tsivileva.newschannel.network.INetwork
-import com.hfad.news.tsivileva.newschannel.network.NetworkClientHabrDetails
+import com.hfad.news.tsivileva.newschannel.repository.remote.INetwork
+import com.hfad.news.tsivileva.newschannel.repository.remote.NetworkClientHabrDetails
 import com.hfad.news.tsivileva.newschannel.view.IView
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers

@@ -1,4 +1,4 @@
-package com.hfad.news.tsivileva.newschannel.network
+package com.hfad.news.tsivileva.newschannel.repository.remote
 
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient

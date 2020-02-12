@@ -1,4 +1,4 @@
-package com.hfad.news.tsivileva.newschannel.network;
+package com.hfad.news.tsivileva.newschannel.repository.remote;
 
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr;
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrItemsInfo;
