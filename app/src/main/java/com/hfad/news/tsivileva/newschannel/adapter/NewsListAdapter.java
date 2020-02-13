@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hfad.news.tsivileva.newschannel.R;
-import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ import java.util.List;
 /*
  * Адаптер для RecyclerView
  */
-public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
+public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHolder> {
 
     public interface IClickListener {
         void newsClick(int position);
@@ -38,7 +37,7 @@ public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
     private IClickListener listener;
 
 
-    public AdapterNews(IClickListener listener) {
+    public NewsListAdapter(IClickListener listener) {
         this.mList = new ArrayList<>();
         this.listener=listener;
     }

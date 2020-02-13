@@ -1,8 +1,8 @@
-package com.hfad.news.tsivileva.newschannel.model.tproger;
+package com.hfad.news.tsivileva.newschannel.model.proger;
 
 import pl.droidsonroids.jspoon.annotation.Selector
 
-class TProgerItemsInfo {
+class ProgerContent {
     @Selector(".entry-content")
     var content:String?=null
 
