@@ -1,11 +1,16 @@
 package com.hfad.news.tsivileva.newschannel.repository.remote;
 
+import androidx.lifecycle.LiveData;
+
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr;
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrItemsInfo;
 import com.hfad.news.tsivileva.newschannel.model.tproger.TProger;
 import com.hfad.news.tsivileva.newschannel.model.tproger.TProgerItemsInfo;
 
+import io.reactivex.Flowable;
 import io.reactivex.Observable;
+import io.reactivex.internal.operators.observable.ObservableAll;
+import me.linshen.retrofit2.adapter.ApiResponse;
 import retrofit2.http.GET;
 
 
@@ -14,14 +19,11 @@ import retrofit2.http.GET;
  * */
 public interface INetwork {
 
-    /*параметры для get-запроса - знак точки,т.е.весь адрес полностью*/
-    /*формат запрашиваемых данных - observable*/
+    @GET(".")
+    Observable<Habr> loadHabr();
 
     @GET(".")
-    Observable<Habr> loadNews();
-
-    @GET(".")
-    Observable<TProger>loadTProger();
+    Observable<TProger> loadProger();
 
     @GET(".")
     Observable<HabrItemsInfo> loadHabrDetails();

@@ -14,36 +14,36 @@ class Habr {
 
     @field:ElementList(name = "item", inline = true)
     @field:Path("channel")
-    var habrlItems: List<HabrlItems>? = null
+    var items: List<HabrlItems>? = null
 
     /*Одна новость на странице:*/
-        @Root(name = "item", strict = false)
-        class HabrlItems(){
+    @Root(name = "item", strict = false)
+    class HabrlItems() {
 
-            @field:Element(name = "title", required = false)
-            var title: String? = null
+        @field:Element(name = "title", required = false)
+        var title: String? = null
 
-            @field:Element(name = "link", required = false)
-            var link: String? = null
+        @field:Element(name = "link", required = false)
+        var link: String? = null
 
-            @field:Element(name = "description", required = false,data=true)
-            //@Convert(HabrItemsConverter::class)
-            var habrItemsDetail: HabrItemsDetail? = null
+        @field:Element(name = "description", required = false, data = true)
+        //@Convert(HabrItemsConverter::class)
+        var habrItemsDetail: HabrItemsDetail? = null
 
-            @field:Element(name = "pubDate", required = false)
-            var date: String? = null
+        @field:Element(name = "pubDate", required = false)
+        var date: String? = null
 
 
         /*Описание и картинка для каждой новости*/
-            @Root(name = "description")
-           class HabrItemsDetail {
+        @Root(name = "description")
+        class HabrItemsDetail {
             @field:Element(required = false)
             var imageSrc: String? = null
 
-            @field:Attribute(required = false)
+            @field:Element(required = false)
             var description: String? = null
         }
-   }
+    }
 
 }
 

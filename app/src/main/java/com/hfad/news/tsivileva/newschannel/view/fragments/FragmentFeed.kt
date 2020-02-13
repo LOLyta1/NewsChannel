@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -14,37 +15,41 @@ import com.hfad.news.tsivileva.newschannel.adapter.items.NewsDecorator
 import com.hfad.news.tsivileva.newschannel.R
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNet
-import com.hfad.news.tsivileva.newschannel.view_model.SharedViewModel
+import com.hfad.news.tsivileva.newschannel.view_model.AllNewsViewModel
 import kotlinx.android.synthetic.main.fragment_feed.view.*
 
 class FragmentFeed() :
         Fragment(),
-      //  IView,
         DialogNet.INetworkDialogListener,
         AdapterNews.IClickListener {
 
     private var swiper: SwipeRefreshLayout? = null
-    private val dialogTag = "disconnectes_dialog"
+    lateinit var viewModel: AllNewsViewModel
 
-    lateinit var viewModel:SharedViewModel
-
-    val dataObserver= Observer<MutableList<NewsItem>>{
-        view?.new_list_resycler_view?.visibility=View.VISIBLE
-        val _adapter=view?.new_list_resycler_view?.adapter as AdapterNews
+    val dataObserver = Observer<MutableList<NewsItem>> {
+        view?.new_list_resycler_view?.visibility = View.VISIBLE
+        val _adapter = view?.new_list_resycler_view?.adapter as AdapterNews
         _adapter.setmList(it)
-     }
+    }
+
+    val loadingMessageObserver=Observer<String>{
+        Toast.makeText(context,it,Toast.LENGTH_LONG).show()
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel=ViewModelProviders.of(this).get(SharedViewModel::class.java)
-       viewModel.newsMutableLiveData.observe(this,dataObserver)
+        activity?.let {
+            viewModel=ViewModelProviders.of(it).get(AllNewsViewModel::class.java)
+            viewModel.newsMutLiveData.observe(this,dataObserver)
+            viewModel.newsMessage.observe(this,loadingMessageObserver)
+        }
     }
-
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_feed, container, false)
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -58,9 +63,11 @@ class FragmentFeed() :
         }
         swiper = view.swipe_container
         swiper?.setOnRefreshListener { loadAllNews() }
-        loadAllNews()
-    }
+        view.swipe_container?.isRefreshing = false
+        view.news_progress_bar?.visibility = View.GONE
+        viewModel.getHabrNews()
 
+    }
 
 
     override fun uploadClick(dialog: DialogNet) {
@@ -70,25 +77,22 @@ class FragmentFeed() :
 
     override fun cancelClick(dialog: DialogNet) {
         dialog.dismiss()
-       // showComplete()
     }
 
     private fun loadAllNews() {
-        view?.swipe_container?.isRefreshing = false
-        view?.news_progress_bar?.visibility = View.GONE
-        viewModel.getAllNews()
+
 
     }
 
     override fun newsClick(newsItem: NewsItem?) {
-      /*  val fragment = FragmentFeedDetails()
-        fragment.arguments= Bundle().apply {
-            putString("http", newsItem?.link)
-            putString("img",newsItem?.picture)
-            Log.d("mylog","FragmentFeed - передать ссылку ${newsItem?.link}")
-        }
-        activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.container, fragment, "detail_fragment")?.addToBackStack("detail_fragment")?.commit()
-*/
+        /*  val fragment = FragmentFeedDetails()
+          fragment.arguments= Bundle().apply {
+              putString("http", newsItem?.link)
+              putString("img",newsItem?.picture)
+              Log.d("mylog","FragmentFeed - передать ссылку ${newsItem?.link}")
+          }
+          activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.container, fragment, "detail_fragment")?.addToBackStack("detail_fragment")?.commit()
+  */
 
     }
 }
