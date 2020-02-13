@@ -9,6 +9,7 @@ import com.hfad.news.tsivileva.newschannel.model.tproger.TProgerItemsInfo;
 
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.internal.operators.observable.ObservableAll;
 import me.linshen.retrofit2.adapter.ApiResponse;
 import retrofit2.http.GET;
@@ -26,8 +27,8 @@ public interface INetwork {
     Observable<TProger> loadProger();
 
     @GET(".")
-    Observable<HabrItemsInfo> loadHabrDetails();
+    Single<HabrItemsInfo> loadHabrDetails();
 
     @GET(".")
-    Observable<TProgerItemsInfo> loadProgDetails();
+    Single<TProgerItemsInfo> loadProgDetails();
 }

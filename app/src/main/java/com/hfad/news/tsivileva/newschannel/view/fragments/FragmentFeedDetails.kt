@@ -4,20 +4,28 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.hfad.news.tsivileva.newschannel.R
-import com.hfad.news.tsivileva.newschannel.view.IView
+import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
+import com.hfad.news.tsivileva.newschannel.view_model.NewsViewModel
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
-class FragmentFeedDetails:Fragment(), IView{
-    var newsHTTP: String?=null
-    var imageHTTP:String?=null
+class FragmentFeedDetails:Fragment() {
+   private var newsPosition: Int?=null
+  private lateinit var viewModel : NewsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        newsHTTP=arguments?.getString("http")
-        imageHTTP=arguments?.getString("img")
+        newsPosition=arguments?.getInt("index")
+
+        if(activity!=null &&  newsPosition!=null){
+            viewModel=ViewModelProviders.of(activity!!).get(NewsViewModel::class.java)
+            viewModel.newsLiveData.observe(this, Observer{ t->showNews(t[newsPosition!!])} )
+
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -27,46 +35,43 @@ class FragmentFeedDetails:Fragment(), IView{
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.news_details_progress_bar.visibility=View.VISIBLE
-        view.news_details_scroll_view.visibility=View.GONE
-        view.news_details_swipe_layout.setOnRefreshListener { loadNews() }
-        loadNews()
-
+        showLoadingUi(true)
+        view.news_details_swipe_layout.setOnRefreshListener {loadNewsDetails()}
+        loadNewsDetails()
     }
 
-    private fun loadNews(){
-        if(newsHTTP?.contains("habr.com")==true){
 
-        }else
-            if(newsHTTP?.contains("tproger.ru")==true){
-                //ProgerItemsDetailPresenter(this,newsHTTP).getNews(true)
-            }
+
+    private fun loadNewsDetails(){
+       if(newsPosition!=null){
+           val item=viewModel.newsLiveData.value?.get(newsPosition!!)
+           if(item?.content==null){
+               viewModel.loadHabrNewsDetails(item)
+           }
+       }
     }
 
-    override fun showNews() {
-       /* view?.news_details_scroll_view?.visibility=View.VISIBLE
+    fun showNews(newsItem:NewsItem?) {
+       view?.news_details_scroll_view?.visibility=View.VISIBLE
         view?.news_details_progress_bar?.visibility=View.GONE
-
         view?.news_details_swipe_layout?.isRefreshing=false
-
-        view?.news_details_text_view?.text=newsItem?.summarry
+        view?.news_details_text_view?.text=newsItem?.content
         view?.news_details_date_text_view?.text=newsItem?.date
         view?.news_details_title_text_view?.text=newsItem?.title
-        view?.news_details_link_text_view?.text=newsHTTP
-        Picasso.get().load(imageHTTP).placeholder(R.drawable.no_photo)
+        view?.news_details_link_text_view?.text=newsItem?.link
+        Picasso.get().load(newsItem?.picture).placeholder(R.drawable.no_photo)
                 .error(R.drawable.no_photo)
-                .into(view?.news_details_image_view);*/
+                .into(view?.news_details_image_view);
     }
 
-    override fun showError(er: Throwable?) {
-        Toast.makeText(context,
-                       resources.getText(R.string.dialog_network_connection_lost_text),
-                        Toast.LENGTH_LONG).show()
-        view?.news_details_swipe_layout?.isRefreshing=false
+    private fun showLoadingUi(isNeedToShow : Boolean){
+        if(isNeedToShow){
+            view?.news_details_progress_bar?.visibility=View.VISIBLE
+            view?.news_details_scroll_view?.visibility=View.GONE
+        }else{
+            view?.news_details_progress_bar?.visibility=View.GONE
+            view?.news_details_scroll_view?.visibility=View.VISIBLE
+        }
     }
-
-    override fun showComplete() {
-     }
-
 
 }

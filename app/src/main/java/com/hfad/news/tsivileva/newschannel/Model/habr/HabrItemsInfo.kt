@@ -2,7 +2,7 @@ package com.hfad.news.tsivileva.newschannel.model.habr;
 
 import pl.droidsonroids.jspoon.annotation.Selector
 
-class HabrItemsInfo {
+class HabrItemsInfo{
     @Selector(".post__title-text")
     var title: String? = null
 

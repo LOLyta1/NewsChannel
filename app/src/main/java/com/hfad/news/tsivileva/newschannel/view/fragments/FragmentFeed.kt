@@ -15,7 +15,7 @@ import com.hfad.news.tsivileva.newschannel.adapter.items.NewsDecorator
 import com.hfad.news.tsivileva.newschannel.R
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNet
-import com.hfad.news.tsivileva.newschannel.view_model.AllNewsViewModel
+import com.hfad.news.tsivileva.newschannel.view_model.NewsViewModel
 import kotlinx.android.synthetic.main.fragment_feed.view.*
 
 class FragmentFeed() :
@@ -24,7 +24,7 @@ class FragmentFeed() :
         AdapterNews.IClickListener {
 
     private var swiper: SwipeRefreshLayout? = null
-    lateinit var viewModel: AllNewsViewModel
+    lateinit var viewModel: NewsViewModel
 
     val dataObserver = Observer<MutableList<NewsItem>> {
         view?.new_list_resycler_view?.visibility = View.VISIBLE
@@ -32,24 +32,27 @@ class FragmentFeed() :
         _adapter.setmList(it)
     }
 
-    val loadingMessageObserver=Observer<String>{
-        Toast.makeText(context,it,Toast.LENGTH_LONG).show()
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activity?.let {
-            viewModel=ViewModelProviders.of(it).get(AllNewsViewModel::class.java)
-            viewModel.newsMutLiveData.observe(this,dataObserver)
-            viewModel.newsMessage.observe(this,loadingMessageObserver)
+        activity?.let { activity ->
+            val manager=activity.supportFragmentManager
+            viewModel=ViewModelProviders.of(activity).get(NewsViewModel::class.java)
+            viewModel.newsLiveData.observe(this,dataObserver)
+
+            viewModel.newsLoaded.observe(this, Observer {
+               if(it==true){
+                   Toast.makeText(context,"загрузка завершена",Toast.LENGTH_LONG).show()
+                   showLoadingUi(false)
+               }
+            })
+            viewModel.error.observe(this, Observer { DialogNet().show(manager,"dialog_error") })
         }
     }
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_feed, container, false)
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -62,37 +65,60 @@ class FragmentFeed() :
             addItemDecoration(NewsDecorator(left = 10, top = 10, right = 10, bottom = 10))
         }
         swiper = view.swipe_container
-        swiper?.setOnRefreshListener { loadAllNews() }
-        view.swipe_container?.isRefreshing = false
-        view.news_progress_bar?.visibility = View.GONE
-        viewModel.getHabrNews()
+        swiper?.setOnRefreshListener {
+                viewModel.cleareNews()
+                viewModel.loadNews()
+            }
+
+        val count= viewModel.newsLiveData.value?.count()
+        if(count!=null && count==0){
+            viewModel.loadNews()
+            showLoadingUi(true)
+        }else if( count!=null && count>0){
+            showLoadingUi(false)
+        }
 
     }
 
-
     override fun uploadClick(dialog: DialogNet) {
         dialog.dismiss()
-        loadAllNews()
+        showLoadingUi(true)
+        viewModel.loadNews()
     }
 
     override fun cancelClick(dialog: DialogNet) {
         dialog.dismiss()
+        viewModel.error.removeObservers(this)
     }
 
-    private fun loadAllNews() {
 
-
-    }
-
-    override fun newsClick(newsItem: NewsItem?) {
-        /*  val fragment = FragmentFeedDetails()
+    override fun newsClick(position: Int) {
+         val fragment = FragmentFeedDetails()
           fragment.arguments= Bundle().apply {
-              putString("http", newsItem?.link)
-              putString("img",newsItem?.picture)
-              Log.d("mylog","FragmentFeed - передать ссылку ${newsItem?.link}")
+              putInt("index", position)
           }
-          activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.container, fragment, "detail_fragment")?.addToBackStack("detail_fragment")?.commit()
-  */
+          activity?.supportFragmentManager?.
+                  beginTransaction()?.
+                  hide(this)?.
+                  add(R.id.container, fragment, "detail_fragment")?.
+                  addToBackStack("detail_fragment")?.
+                  commit()
+    }
 
+
+    fun showLoadingUi(needShow: Boolean){
+        if(needShow){
+            view?.swipe_container?.isRefreshing = true
+            view?.news_progress_bar?.visibility = View.VISIBLE
+        }else{
+            view?.swipe_container?.isRefreshing = false
+            view?.news_progress_bar?.visibility = View.GONE
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.stopSubscription()
+        viewModel.subscription.removeObservers(this)
     }
 }
