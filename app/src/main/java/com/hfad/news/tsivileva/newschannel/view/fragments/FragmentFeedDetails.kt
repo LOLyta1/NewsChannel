@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.hfad.news.tsivileva.newschannel.R
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
+import com.hfad.news.tsivileva.newschannel.adapter.items.Sources
 import com.hfad.news.tsivileva.newschannel.view_model.NewsViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
@@ -41,12 +42,16 @@ class FragmentFeedDetails:Fragment() {
     }
 
 
-
-    private fun loadNewsDetails(){
-       if(newsPosition!=null){
+     private fun loadNewsDetails(){
+   /*в списке загруженных Item-ов найти тот на который кликнули, и если содержимого нет, то загрузить его по ссылке*/
+         if(newsPosition!=null){
            val item=viewModel.newsLiveData.value?.get(newsPosition!!)
+
            if(item?.content==null){
-               viewModel.loadHabrNewsDetails(item)
+               when(item?.sourceKind){
+                   Sources.HABR ->  viewModel.loadHabrNewsDetails(item)
+                   Sources.TProger -> viewModel.loadProgerNewsDetails(item)
+               }
            }
        }
     }

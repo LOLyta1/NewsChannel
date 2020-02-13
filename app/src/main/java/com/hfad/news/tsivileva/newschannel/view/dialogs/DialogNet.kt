@@ -1,10 +1,12 @@
 package com.hfad.news.tsivileva.newschannel.view.dialogs
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
 import com.hfad.news.tsivileva.newschannel.R
 import kotlinx.android.synthetic.main.dialog_network.view.*
 
@@ -25,5 +27,11 @@ class DialogNet() : DialogFragment() {
         val target = this.targetFragment as? INetworkDialogListener
         view.update_button.setOnClickListener { target?.uploadClick(this) }
         view.cancel_button.setOnClickListener { target?.cancelClick(this) }
+    }
+
+    override fun show(manager: FragmentManager, tag: String?) {
+        if(manager.findFragmentByTag(tag)==null){
+            super.show(manager, tag)
+        }
     }
 }

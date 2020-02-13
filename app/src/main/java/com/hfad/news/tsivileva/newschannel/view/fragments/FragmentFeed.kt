@@ -46,7 +46,12 @@ class FragmentFeed() :
                    showLoadingUi(false)
                }
             })
-            viewModel.error.observe(this, Observer { DialogNet().show(manager,"dialog_error") })
+
+            viewModel.error.observe(this, Observer { DialogNet().apply {
+                setTargetFragment(this@FragmentFeed,10)
+                show(manager,"dialog_error")
+            }
+               })
         }
     }
 
@@ -70,6 +75,7 @@ class FragmentFeed() :
                 viewModel.loadNews()
             }
 
+        /*кэширование - если не было загружено ни 1 элемента, загрузить*/
         val count= viewModel.newsLiveData.value?.count()
         if(count!=null && count==0){
             viewModel.loadNews()
@@ -77,7 +83,6 @@ class FragmentFeed() :
         }else if( count!=null && count>0){
             showLoadingUi(false)
         }
-
     }
 
     override fun uploadClick(dialog: DialogNet) {
@@ -88,7 +93,9 @@ class FragmentFeed() :
 
     override fun cancelClick(dialog: DialogNet) {
         dialog.dismiss()
-        viewModel.error.removeObservers(this)
+        showLoadingUi(false)
+        viewModel.stopSubscription()
+        viewModel.newsLiveData.removeObservers(this)
     }
 
 
@@ -96,11 +103,11 @@ class FragmentFeed() :
          val fragment = FragmentFeedDetails()
           fragment.arguments= Bundle().apply {
               putInt("index", position)
+
           }
           activity?.supportFragmentManager?.
                   beginTransaction()?.
-                  hide(this)?.
-                  add(R.id.container, fragment, "detail_fragment")?.
+                  replace(R.id.container, fragment, "detail_fragment")?.
                   addToBackStack("detail_fragment")?.
                   commit()
     }

@@ -5,9 +5,11 @@ import androidx.lifecycle.MutableLiveData
 
 import androidx.lifecycle.ViewModel
 import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
+import com.hfad.news.tsivileva.newschannel.adapter.items.Sources
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrItemsInfo
 import com.hfad.news.tsivileva.newschannel.model.tproger.TProger
+import com.hfad.news.tsivileva.newschannel.model.tproger.TProgerItemsInfo
 
 import com.hfad.news.tsivileva.newschannel.repository.remote.*
 import io.reactivex.SingleObserver
@@ -21,7 +23,6 @@ class NewsViewModel : ViewModel() {
 
     var newsLoaded = MutableLiveData<Boolean>()
     var habrLoaded = MutableLiveData<Boolean>()
-
     var error = MutableLiveData<String>()
 
 
@@ -64,7 +65,6 @@ class NewsViewModel : ViewModel() {
 
 
     fun loadHabrNewsDetails(item: NewsItem?) {
-
            var observer=object : SingleObserver<HabrItemsInfo> {
                override fun onError(e: Throwable) {
                    Log.d("my_log","loadHabrNewsInfo() - onError : ${e.message}")
@@ -83,6 +83,24 @@ class NewsViewModel : ViewModel() {
          }
    }
 
+    fun loadProgerNewsDetails(item: NewsItem?) {
+        var observer=object : SingleObserver<TProgerItemsInfo> {
+            override fun onError(e: Throwable) {
+                Log.d("my_log","loadHabrNewsInfo() - onError : ${e.message}")
+                e.printStackTrace()
+            }
+            override fun onSuccess(t: TProgerItemsInfo) {
+                val index=newsArray.indexOf(item)
+                item?.content=t.content
+                updateHabrNews(index,item)
+            }
+            override fun onSubscribe(d: Disposable) {
+            }
+        }
+        item?.link?.let {
+            RemoteRepository().createObservableProgerItem(it).subscribeWith(observer)
+        }
+    }
 
 
     private fun parsNext(list: MutableList<List<Any>?>) {
@@ -91,17 +109,18 @@ class NewsViewModel : ViewModel() {
                 when (it) {
                     is Habr.HabrlItems -> {
                         var newsItem = NewsItem()
-                        Log.d("mylog", "onNext - habr")
+                        newsItem.sourceKind=Sources.HABR
                         newsItem.link = it.link
                         newsItem.picture = it.habrItemsDetail?.imageSrc
                         newsItem.title = it.title
                         newsItem.date = it.date
+
                         addNews(newsItem)
 
                     }
                     is TProger.Channel.Item -> {
                         var newsItem = NewsItem()
-                        Log.d("mylog", "onNext - proger")
+                        newsItem.sourceKind=Sources.TProger
                         newsItem.link = it.link
                         newsItem.title = it.title
                         newsItem.date = it.pubDate
