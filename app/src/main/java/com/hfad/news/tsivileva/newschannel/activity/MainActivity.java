@@ -1,4 +1,4 @@
-package com.hfad.news.tsivileva.newschannel.view;
+package com.hfad.news.tsivileva.newschannel.activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

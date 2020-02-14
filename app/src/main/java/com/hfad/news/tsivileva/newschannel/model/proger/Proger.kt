@@ -1,9 +1,9 @@
-package com.hfad.news.tsivileva.newschannel.model.tproger
+package com.hfad.news.tsivileva.newschannel.model.proger
 
 import org.simpleframework.xml.*
 
 @Root(name = "rss", strict = false)
-class TProger {
+class Proger {
     @field:Element
     var channel: Channel? = null
     @field:Element(required = false)

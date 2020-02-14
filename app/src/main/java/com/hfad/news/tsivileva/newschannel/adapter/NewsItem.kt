@@ -1,4 +1,4 @@
-package com.hfad.news.tsivileva.newschannel.adapter.items
+package com.hfad.news.tsivileva.newschannel.adapter
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize

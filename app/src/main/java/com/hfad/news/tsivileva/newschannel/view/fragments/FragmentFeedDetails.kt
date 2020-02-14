@@ -6,16 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.hfad.news.tsivileva.newschannel.R
-import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
-import com.hfad.news.tsivileva.newschannel.adapter.items.Sources
+import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.view_model.NewsViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
 class FragmentFeedDetails:Fragment() {
-   private var newsPosition: Int?=null
+    private var newsPosition: Int?=null
   private lateinit var viewModel : NewsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,8 +22,8 @@ class FragmentFeedDetails:Fragment() {
         newsPosition=arguments?.getInt("index")
 
         if(activity!=null &&  newsPosition!=null){
-            viewModel=ViewModelProviders.of(activity!!).get(NewsViewModel::class.java)
-            viewModel.newsLiveData.observe(this, Observer{ t->showNews(t[newsPosition!!])} )
+            viewModel= ViewModelProvider(activity!!).get(NewsViewModel::class.java)
+          //  viewModel.newsListLiveData.observe(this, Observer{ t->showNews(t[newsPosition!!])} )
 
         }
     }
@@ -42,21 +41,17 @@ class FragmentFeedDetails:Fragment() {
     }
 
 
-     private fun loadNewsDetails(){
-   /*в списке загруженных Item-ов найти тот на который кликнули, и если содержимого нет, то загрузить его по ссылке*/
-         if(newsPosition!=null){
-           val item=viewModel.newsLiveData.value?.get(newsPosition!!)
 
+    private fun loadNewsDetails(){
+       if(newsPosition!=null){
+           val item=viewModel.newsListLiveData.value?.get(newsPosition!!)
            if(item?.content==null){
-               when(item?.sourceKind){
-                   Sources.HABR ->  viewModel.loadHabrNewsDetails(item)
-                   Sources.TProger -> viewModel.loadProgerNewsDetails(item)
-               }
+            //   viewModel.loadHabrNewsDetails(item)
            }
        }
     }
 
-    fun showNews(newsItem:NewsItem?) {
+    fun showNews(newsItem: NewsItem?) {
        view?.news_details_scroll_view?.visibility=View.VISIBLE
         view?.news_details_progress_bar?.visibility=View.GONE
         view?.news_details_swipe_layout?.isRefreshing=false

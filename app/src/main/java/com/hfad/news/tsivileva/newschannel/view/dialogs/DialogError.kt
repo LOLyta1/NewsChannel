@@ -11,11 +11,11 @@ import com.hfad.news.tsivileva.newschannel.R
 import kotlinx.android.synthetic.main.dialog_network.view.*
 
 
-class DialogNet() : DialogFragment() {
+class DialogError() : DialogFragment() {
 
     interface INetworkDialogListener {
-        fun uploadClick(dialog: DialogNet)
-        fun cancelClick(dialog: DialogNet)
+        fun dialogUploadClick(dialog: DialogError)
+        fun dialogCancelClick(dialog: DialogError)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -25,8 +25,8 @@ class DialogNet() : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val target = this.targetFragment as? INetworkDialogListener
-        view.update_button.setOnClickListener { target?.uploadClick(this) }
-        view.cancel_button.setOnClickListener { target?.cancelClick(this) }
+        view.update_button.setOnClickListener { target?.dialogUploadClick(this) }
+        view.cancel_button.setOnClickListener { target?.dialogCancelClick(this) }
     }
 
     override fun show(manager: FragmentManager, tag: String?) {
