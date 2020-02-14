@@ -89,7 +89,7 @@ fun getManager(fragmentActivity: FragmentActivity?): FragmentManager {
     }
 }
 
-fun findNew(array: MutableList<NewsItem>?, url: String?): NewsItem? {
+fun findNew(array: MutableList<NewsItem>, url: String?): NewsItem? {
     array?.forEach {
         if (it.link?.compareTo(url.toNonNullString()) == 0) {
             return it

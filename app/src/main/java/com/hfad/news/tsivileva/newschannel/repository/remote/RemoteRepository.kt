@@ -128,8 +128,7 @@ class RemoteRepository {
     }
 
     inner class NewsContent() {
-        val cachedArray=mutableListOf(NewsItem())
-        val cachedList= MutableLiveData(cachedArray)
+         val cachedList= mutableListOf(NewsItem())
 
         val newsContentLiveData = MutableLiveData(NewsItem())
         val loadingSuccessful = MutableLiveData<Boolean>()
@@ -154,10 +153,7 @@ class RemoteRepository {
             subscriptionProgerLiveData.value?.dispose()
         }
 
-        fun addCache(item:NewsItem){
-            cachedArray.add(item)
-            cachedList.postValue(cachedArray)
-        }
+
         private fun createObserverHabr(): SingleObserver<HabrContent> {
             var id=0L
             return object : SingleObserver<HabrContent> {
@@ -166,7 +162,7 @@ class RemoteRepository {
                     val newsItem=NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id=id, sourceKind = Sources.HABR)
                     loadingSuccessful.postValue(true)
                     newsContentLiveData.postValue(newsItem)
-                    addCache(newsItem)
+                    cachedList.add(newsItem)
                 }
                 override fun onSubscribe(d: Disposable) {subscriptionProgerLiveData.postValue(d)}
                 override fun onError(e: Throwable) = loadingSuccessful.postValue(false)
@@ -181,7 +177,7 @@ class RemoteRepository {
                     val newsItem=NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id=id, sourceKind = Sources.HABR)
                     loadingSuccessful.postValue(true)
                     newsContentLiveData.postValue( newsItem)
-                    addCache(newsItem)
+                    cachedList.add(newsItem)
                 }
                 override fun onSubscribe(d: Disposable){ subscriptionProgerLiveData.postValue(d)}
                 override fun onError(e: Throwable)  = loadingSuccessful.postValue(false)

@@ -45,7 +45,7 @@ class FragmentFeedDetails : Fragment() {
         viewModel = getNewsContentViewModel()
         viewModel.newContentLiveData.observe(this, loadingHabrObserver)
         viewModel.loadingNewsSuccessful.observe(this, loadingStatusObserver)
-        viewModel.cached.observe(this, Observer { t -> Log.d("mylog","ЛИСТ  ")})
+
 
     }
 
@@ -64,25 +64,25 @@ class FragmentFeedDetails : Fragment() {
     private fun loadNewsContent() {
         val url = contentUrl.toNonNullString()
 
-       //var newsItem= findNew(viewModel.getCached(),contentUrl)
-      //  Log.d("my_log","КЭШ:")
-       // viewModel.getCached()?.forEach{
-      //      print(it)
-      //  }
-        //if(newsItem==null){
-            //Log.d("my_log","в кэше нет элемента с ссылкой ${contentUrl}")
+       var newsItem= findNew(viewModel.cached,contentUrl)
+       Log.d("my_log","КЭШ:")
+        viewModel.cached.forEach{
+           print(it)
+        }
+        if(newsItem==null){
+            Log.d("my_log","в кэше нет элемента с ссылкой ${contentUrl}")
             if (url.contains("habr.com")) {
                 viewModel.loadHabrContent(url)
             } else {
                 viewModel.loadProgerContent(url)
             }
-      /*  }
+       }
         else{
             Log.d("my_log","в кэше есть элемент с ссылкой ${contentUrl} - ${newsItem}")
 
             loadingBar(hidden = true)
             showNews(newsItem)
-        }*/
+        }
     }
 
     fun showNews(newsItem: NewsItem?) {
