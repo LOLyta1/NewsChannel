@@ -6,7 +6,9 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
+import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentFeed
 import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentFeedDetails
 import com.hfad.news.tsivileva.newschannel.view_model.NewsContentViewModel
@@ -50,39 +52,48 @@ fun FragmentFeed.loadingBar(hidden: Boolean) {
     }
 }
 
-fun FragmentFeedDetails.loadingBar(hidden: Boolean){
-    if(hidden){
-        view?.news_details_progress_bar?.visibility=View.GONE
-        view?.news_details_scroll_view?.visibility=View.VISIBLE
-    }else{
-        view?.news_details_progress_bar?.visibility=View.VISIBLE
-        view?.news_details_scroll_view?.visibility=View.GONE
+fun FragmentFeedDetails.loadingBar(hidden: Boolean) {
+    if (hidden) {
+        view?.news_details_progress_bar?.visibility = View.GONE
+        view?.news_details_scroll_view?.visibility = View.VISIBLE
+    } else {
+        view?.news_details_progress_bar?.visibility = View.VISIBLE
+        view?.news_details_scroll_view?.visibility = View.GONE
     }
 }
 
-fun String?.toNonNullString() : String{
-    if (this==null){
+fun String?.toNonNullString(): String {
+    if (this == null) {
         val exception = NullPointerException("URL is empty!").apply { printStackTrace() }
         throw exception
-    }else{
+    } else {
         return this
     }
 }
 
-fun Int?.toNonNullInt() : Int {
-    if (this==null){
+fun Int?.toNonNullInt(): Int {
+    if (this == null) {
         val exception = NullPointerException("URL is empty!").apply { printStackTrace() }
         throw exception
-    }else{
+    } else {
         return this
     }
 }
 
-fun getManager(fragmentActivity: FragmentActivity?) : FragmentManager{
-    if(fragmentActivity!=null){
+fun getManager(fragmentActivity: FragmentActivity?): FragmentManager {
+    if (fragmentActivity != null) {
         return fragmentActivity.supportFragmentManager
-    }else{
-        val  exception = NullPointerException("manager is not created! ").apply{printStackTrace()}
+    } else {
+        val exception = NullPointerException("manager is not created! ").apply { printStackTrace() }
         throw exception
     }
+}
+
+fun findNew(array: MutableList<NewsItem>?, url: String?): NewsItem? {
+    array?.forEach {
+        if (it.link?.compareTo(url.toNonNullString()) == 0) {
+            return it
+        }
+    }
+  return null
 }

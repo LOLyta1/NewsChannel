@@ -12,13 +12,21 @@ class NewsContentViewModel : ViewModel() {
 
     val newContentLiveData = repository.newsContentLiveData
     val loadingNewsSuccessful = repository.loadingSuccessful
+    val cached=repository.cachedList
 
 
-    fun loadHabrContent(url: String) = repository.loadHabr(url)
-    fun stopLoadHabr() = repository.stopLoadHabr()
+    fun loadHabrContent(url: String) {
+        repository.loadHabr(url)
+    }
 
-    fun loadProgerContent(url: String) = repository.loadProger(url)
-    fun stopLoadProger() = repository.stopLoadProger()
+    fun loadProgerContent(url: String) {
+        repository.loadProger(url)
+    }
+
+    fun stopLoad() {
+        repository.stopLoadHabr()
+        repository.stopLoadProger()
+    }
 
 
 }

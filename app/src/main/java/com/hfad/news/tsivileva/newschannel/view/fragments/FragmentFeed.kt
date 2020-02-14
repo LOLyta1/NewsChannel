@@ -88,7 +88,6 @@ class FragmentFeed() :
         val fragment = FragmentFeedDetails()
         fragment.arguments = Bundle().apply {
             putString("url", url)
-            putInt("position", position)
         }
         activity?.supportFragmentManager?.beginTransaction()?.hide(this)?.add(R.id.container, fragment, "detail_fragment")?.addToBackStack("detail_fragment")?.commit()
     }

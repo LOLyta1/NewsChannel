@@ -14,4 +14,5 @@ class ProgerContent {
     var title:String?=null
 
     var image= "https://tproger.ru/apple-touch-icon.png"
+
 }

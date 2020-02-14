@@ -128,9 +128,11 @@ class RemoteRepository {
     }
 
     inner class NewsContent() {
+        val cachedArray=mutableListOf(NewsItem())
+        val cachedList= MutableLiveData(cachedArray)
 
         val newsContentLiveData = MutableLiveData(NewsItem())
-        val loadingSuccessful = MutableLiveData(false)
+        val loadingSuccessful = MutableLiveData<Boolean>()
 
         private var subscriptionHabrLiveData = MutableLiveData<Disposable>()
         private var subscriptionProgerLiveData = MutableLiveData<Disposable>()
@@ -152,13 +154,19 @@ class RemoteRepository {
             subscriptionProgerLiveData.value?.dispose()
         }
 
+        fun addCache(item:NewsItem){
+            cachedArray.add(item)
+            cachedList.postValue(cachedArray)
+        }
         private fun createObserverHabr(): SingleObserver<HabrContent> {
             var id=0L
             return object : SingleObserver<HabrContent> {
                 override fun onSuccess(t: HabrContent) {
                     id++
+                    val newsItem=NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id=id, sourceKind = Sources.HABR)
                     loadingSuccessful.postValue(true)
-                    newsContentLiveData.postValue( NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id=id, sourceKind = Sources.HABR) )
+                    newsContentLiveData.postValue(newsItem)
+                    addCache(newsItem)
                 }
                 override fun onSubscribe(d: Disposable) {subscriptionProgerLiveData.postValue(d)}
                 override fun onError(e: Throwable) = loadingSuccessful.postValue(false)
@@ -170,8 +178,10 @@ class RemoteRepository {
             return object:SingleObserver<ProgerContent>{
                 override fun onSuccess(t: ProgerContent) {
                     id++
+                    val newsItem=NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id=id, sourceKind = Sources.HABR)
                     loadingSuccessful.postValue(true)
-                    newsContentLiveData.postValue( NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id=id, sourceKind = Sources.Proger))
+                    newsContentLiveData.postValue( newsItem)
+                    addCache(newsItem)
                 }
                 override fun onSubscribe(d: Disposable){ subscriptionProgerLiveData.postValue(d)}
                 override fun onError(e: Throwable)  = loadingSuccessful.postValue(false)
