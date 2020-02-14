@@ -1,5 +1,6 @@
 package com.hfad.news.tsivileva.newschannel.model.proger;
 
+import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import pl.droidsonroids.jspoon.annotation.Selector
 
 class ProgerContent {
@@ -11,4 +12,6 @@ class ProgerContent {
 
     @Selector(".entry-title")
     var title:String?=null
+
+    var image= "https://tproger.ru/apple-touch-icon.png"
 }

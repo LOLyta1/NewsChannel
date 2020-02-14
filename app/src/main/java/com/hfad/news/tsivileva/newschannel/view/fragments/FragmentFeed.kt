@@ -17,6 +17,7 @@ import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogError
 import com.hfad.news.tsivileva.newschannel.view_model.NewsViewModel
 import kotlinx.android.synthetic.main.fragment_feed.view.*
+import java.text.FieldPosition
 
 class FragmentFeed() :
         Fragment(),
@@ -26,27 +27,31 @@ class FragmentFeed() :
     private var swiper: SwipeRefreshLayout? = null
     lateinit var viewModel: NewsViewModel
 
-    val newsListObserver = Observer<MutableList<NewsItem>> {
+    val loadingNewsListObserver = Observer<MutableList<NewsItem>> {
         getNewsRecyclerAdapter().setmList(it)
     }
 
-    val loadingObserver = Observer<Boolean> { success ->
+    val loadingStatusObserver = Observer<Boolean> { success ->
         if (success) {
-            loadingBar(hiden = true)
+            loadingBar(hidden = true)
+            this.view?.swipe_container?.isRefreshing = false
             Toast.makeText(context, resources.getText(R.string.load_is_successful_text), Toast.LENGTH_LONG).show()
         } else {
-            DialogError().apply {
-                setTargetFragment(this@FragmentFeed, 10)
-                show(getManager(), "dialog_error")
+            this.view?.swipe_container?.isRefreshing = true
+            val dialog = DialogError()
+            dialog.setTargetFragment(this@FragmentFeed, 10)
+            activity?.let {
+                dialog.show(it.supportFragmentManager, "dialog_error")
             }
         }
+        viewModel.stopLoad()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = getNewsViewModel()
-        viewModel.newsListLiveData.observe(this, newsListObserver)
-        viewModel.loadSuccessfulLiveData.observe(this, loadingObserver)
+        viewModel.newsListLiveData.observe(this, loadingNewsListObserver)
+        viewModel.loadSuccessfulLiveData.observe(this, loadingStatusObserver)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -55,7 +60,8 @@ class FragmentFeed() :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadingBar(hiden = false)
+        loadingBar(hidden = false)
+        view.swipe_container?.isRefreshing = false
         view.news_resycler_view?.apply {
             adapter = NewsListAdapter(this@FragmentFeed)
             layoutManager = LinearLayoutManager(context)
@@ -73,15 +79,18 @@ class FragmentFeed() :
 
     override fun dialogCancelClick(dialog: DialogError) {
         dialog.dismiss()
+        loadingBar(hidden = true)
+        view?.swipe_container?.isRefreshing = false
     }
 
 
-    override fun newsClick(position: Int) {
+    override fun newsClick(url: String, position: Int) {
         val fragment = FragmentFeedDetails()
         fragment.arguments = Bundle().apply {
-            putInt("index", position)
+            putString("url", url)
+            putInt("position", position)
         }
-      //  activity?.supportFragmentManager?.beginTransaction()?.hide(this)?.add(R.id.container, fragment, "detail_fragment")?.addToBackStack("detail_fragment")?.commit()
+        activity?.supportFragmentManager?.beginTransaction()?.hide(this)?.add(R.id.container, fragment, "detail_fragment")?.addToBackStack("detail_fragment")?.commit()
     }
 }
 
