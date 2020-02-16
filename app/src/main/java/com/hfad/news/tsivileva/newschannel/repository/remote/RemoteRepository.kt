@@ -3,11 +3,13 @@ package com.hfad.news.tsivileva.newschannel.repository.remote
 import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.Sources
+import com.hfad.news.tsivileva.newschannel.findNews
+import com.hfad.news.tsivileva.newschannel.isNewsInCache
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
 import com.hfad.news.tsivileva.newschannel.model.proger.Proger
 import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
-import com.hfad.news.tsivileva.newschannel.printCachedLiveData
+import com.hfad.news.tsivileva.newschannel.printCachedMutableList
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.SingleObserver
@@ -30,21 +32,23 @@ enum class RemoteRepositoryTypes {
 
 
 class RemoteRepository {
-    private fun createRetrofit(baseUrl: String, type: RemoteRepositoryTypes): Retrofit {
-        val factory: Converter.Factory = when (type) {
-            RemoteRepositoryTypes.SIMPLE_XML -> SimpleXmlConverterFactory.create()
-            RemoteRepositoryTypes.JSPOON -> JspoonConverterFactory.create()
+    companion object {
+        fun createRetrofit(baseUrl: String, type: RemoteRepositoryTypes): Retrofit {
+            val factory: Converter.Factory = when (type) {
+                RemoteRepositoryTypes.SIMPLE_XML -> SimpleXmlConverterFactory.create()
+                RemoteRepositoryTypes.JSPOON -> JspoonConverterFactory.create()
+            }
+            return Retrofit.Builder()
+                    .baseUrl(baseUrl)
+                    .addConverterFactory(factory)
+                    .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
+                    .client(OkHttpClient.Builder().build())
+                    .build()
         }
-        return Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .addConverterFactory(factory)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
-                .client(OkHttpClient.Builder().build())
-                .build()
     }
 
 
-    inner class AllNews() {
+    class AllNews() {
         private val HABR_URL = "https://habr.com/ru/rss/all/"
         private val PROGER_URL = "https://tproger.ru/feed/"
 
@@ -91,15 +95,15 @@ class RemoteRepository {
         }
 
         private fun parseNews(list: MutableList<List<Any>?>) {
-            var index=0L
+            var index = 0L
             list.forEach { list1 ->
                 list1?.forEach {
                     index++
                     when (it) {
                         is Habr.HabrlItems -> {
                             var newsItem = NewsItem()
-                            newsItem.sourceKind=Sources.HABR
-                            newsItem.id=index
+                            newsItem.sourceKind = Sources.HABR
+                            newsItem.id = index
                             newsItem.link = it.link
                             newsItem.picture = it.habrItemsDetail?.imageSrc
                             newsItem.title = it.title
@@ -110,13 +114,13 @@ class RemoteRepository {
 
                         is Proger.Channel.Item -> {
                             var newsItem = NewsItem()
-                            newsItem.sourceKind=Sources.Proger
-                            newsItem.id=index
+                            newsItem.sourceKind = Sources.Proger
+                            newsItem.id = index
                             newsItem.link = it.link
                             newsItem.title = it.title
                             newsItem.date = it.pubDate
                             newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
-                            newsItem.sourceKind=Sources.Proger
+                            newsItem.sourceKind = Sources.Proger
 
                             newsArray.add(newsItem)
                             newsLiveData.postValue(newsArray)
@@ -127,65 +131,70 @@ class RemoteRepository {
         }
     }
 
-    inner class NewsContent() {
-        private val cahedArray= mutableListOf(NewsItem())
-        val cachedList=MutableLiveData(cahedArray)
-
-        val newsContentLiveData = MutableLiveData(NewsItem())
+    class NewsContent() {
+        val contentLiveData = MutableLiveData(NewsItem())
         val loadingSuccessful = MutableLiveData<Boolean>()
+        val cachedList = mutableListOf<NewsItem>()
 
         private var subscriptionHabrLiveData = MutableLiveData<Disposable>()
         private var subscriptionProgerLiveData = MutableLiveData<Disposable>()
 
-
-        fun loadHabr(url: String){
-           createObservableHabrItem(url).subscribe(createObserverHabr())
+        fun loadHabr(url: String) {
+            createObservableHabrItem(url).subscribe(createObserverHabr())
         }
 
-        fun loadProger(url: String){
+        fun loadProger(url: String) {
             createObservableProgerItem(url).subscribe(createObserverProger())
         }
 
-        fun stopLoadHabr(){
+        fun stopLoadHabr() {
             subscriptionHabrLiveData.value?.dispose()
         }
 
-        fun stopLoadProger(){
+        fun stopLoadProger() {
             subscriptionProgerLiveData.value?.dispose()
         }
 
-
         private fun createObserverHabr(): SingleObserver<HabrContent> {
-            var id=0L
+            var id = 0L
             return object : SingleObserver<HabrContent> {
                 override fun onSuccess(t: HabrContent) {
                     id++
-                    val newsItem=NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id=id, sourceKind = Sources.HABR)
+                    val newsItem = NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id = id, sourceKind = Sources.HABR)
                     loadingSuccessful.postValue(true)
-                    newsContentLiveData.postValue(newsItem)
-                    cahedArray.add(newsItem)
-                    cachedList.postValue(cahedArray)
-                    printCachedLiveData("NewsContent","createObserverHabr()",cachedList)
+                    contentLiveData.postValue(newsItem)
+                    if(isNewsInCache(cachedList,newsItem)==newsItem){
+                        cachedList.add(newsItem)
+                    }
+                    printCachedMutableList("NewsContent", "createObserverProger()", cachedList)
+
                 }
-                override fun onSubscribe(d: Disposable) {subscriptionProgerLiveData.postValue(d)}
+
+                override fun onSubscribe(d: Disposable) {
+                    subscriptionProgerLiveData.postValue(d)
+                }
+
                 override fun onError(e: Throwable) = loadingSuccessful.postValue(false)
             }
         }
 
-        private fun createObserverProger(): SingleObserver<ProgerContent>{
-            var id=0L
-            return object:SingleObserver<ProgerContent>{
+        private fun createObserverProger(): SingleObserver<ProgerContent> {
+            var id = 0L
+            return object : SingleObserver<ProgerContent> {
                 override fun onSuccess(t: ProgerContent) {
                     id++
-                    val newsItem=NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id=id, sourceKind = Sources.HABR)
+                    val newsItem = NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id = id, sourceKind = Sources.HABR)
                     loadingSuccessful.postValue(true)
-                    newsContentLiveData.postValue( newsItem)
-                    cahedArray.add(newsItem)
-                    cachedList.postValue(cahedArray)
-                    printCachedLiveData("NewsContent","createObserverProger()",cachedList)
+                    contentLiveData.postValue(newsItem)
+                    cachedList.add(newsItem)
+                    printCachedMutableList("NewsContent", "createObserverProger()", cachedList)
                 }
-                override fun onSubscribe(d: Disposable){ subscriptionProgerLiveData.postValue(d)}
-                override fun onError(e: Throwable)  = loadingSuccessful.postValue(false)
+
+                override fun onSubscribe(d: Disposable) {
+                    subscriptionProgerLiveData.postValue(d)
+                }
+
+                override fun onError(e: Throwable) = loadingSuccessful.postValue(false)
             }
         }
 

@@ -8,7 +8,7 @@ import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.repository.remote.*
 
 class NewsViewModel : ViewModel() {
-    private val repository = RemoteRepository().AllNews()
+    private val repository = RemoteRepository.AllNews()
 
     val newsListLiveData = repository.newsLiveData
     val loadSuccessfulLiveData = repository.loadSuccessfulLiveData

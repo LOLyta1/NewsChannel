@@ -5,10 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.view_model.NewsContentViewModel
@@ -21,39 +19,30 @@ class FragmentFeedDetails : Fragment() {
 
     private lateinit var viewModel: NewsContentViewModel
 
-    private val loadingHabrObserver = Observer<NewsItem> {
-        showNews(it)
-    }
-
     private val loadingStatusObserver = Observer<Boolean> { isSucess ->
-        if (isSucess) {
-           view?.news_details_scroll_view?.visibility = View.VISIBLE
-        } else {
-            Toast.makeText(context, "Произошла ошибка при загрузке данных", Toast.LENGTH_LONG).show()
+        if (!isSucess) {
+            showErrorDialog(activity, this, "dialog_details_error")
         }
         view?.news_details_swipe?.isRefreshing = false
-        //viewModel.stopLoad()
+        viewModel.stopLoad()
     }
 
-        override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         contentUrl = arguments?.getString("url")
         viewModel = getViewModel(activity)
-            Log.d(DEBUG_LOG,"instance view model == $viewModel")
-        viewModel.newContentLiveData.observe(this, loadingHabrObserver)
+        viewModel.newContentLiveData.observe(this, Observer { showNews(it) })
         viewModel.loadingNewsSuccessful.observe(this, loadingStatusObserver)
-        viewModel.cachedList.observe(this, Observer { i ->
-            printCachedMutableList("FragmentFeedDetails"," viewModel.cached.observe()",i)
-        })
     }
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.news_details_scroll_view?.visibility = View.GONE
         view.news_details_swipe?.isRefreshing = true
         loadNewsContent()
         view.news_details_swipe.setOnRefreshListener { loadNewsContent() }
@@ -63,24 +52,24 @@ class FragmentFeedDetails : Fragment() {
     private fun loadNewsContent() {
         val url = contentUrl.toNonNullString()
 
-       // Log.d("my_log", "АДРЕС КЭШa:${viewModel.cached.hashCode()}")
+        // Log.d("my_log", "АДРЕС КЭШa:${viewModel.cached.hashCode()}")
 
-      //  var newsItem = findNew(viewModel.cached, contentUrl)
+          var newsItem = findNews(viewModel.cachedList, contentUrl)
 
         Log.d("my_log", "КЭШ:")
 
 
-     //   if (newsItem == null) {
-          // Log.d("my_log", "в кэше нет элемента с ссылкой ${contentUrl}")
-            if (url.contains("habr.com")) {
-                viewModel.loadHabrContent(url)
+           if (newsItem == null) {
+         Log.d("my_log", "в кэше нет элемента с ссылкой ${contentUrl}")
+        if (url.contains("habr.com")) {
+            viewModel.loadHabrContent(url)
+        } else {
+            viewModel.loadProgerContent(url)
+        }
             } else {
-                viewModel.loadProgerContent(url)
-            }
-  //      } else {
-      //      Log.d("my_log", "в кэше есть элемент с ссылкой ${contentUrl} - ${newsItem}")
-      //      showNews(newsItem)
-     //   }
+              Log.d("my_log", "в кэше есть элемент с ссылкой ${contentUrl} - ${newsItem}")
+             showNews(newsItem)
+           }
     }
 
     fun showNews(newsItem: NewsItem?) {

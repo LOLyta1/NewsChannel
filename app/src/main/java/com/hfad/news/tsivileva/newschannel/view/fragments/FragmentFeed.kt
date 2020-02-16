@@ -23,33 +23,20 @@ class FragmentFeed() :
         Fragment(),
         DialogError.INetworkDialogListener,
         NewsListAdapter.IClickListener {
-
     private var swiper: SwipeRefreshLayout? = null
     lateinit var viewModel: NewsViewModel
 
-    val loadingNewsListObserver = Observer<MutableList<NewsItem>> {
-        getNewsRecyclerAdapter().setmList(it)
-    }
-
     val loadingStatusObserver = Observer<Boolean> { success ->
-        if (success) {
-            view?.news_resycler_view?.visibility = View.VISIBLE
-            Toast.makeText(context, resources.getText(R.string.load_is_successful_text), Toast.LENGTH_LONG).show()
-        } else {
-            val dialog = DialogError()
-            dialog.setTargetFragment(this@FragmentFeed, 10)
-            activity?.let {
-                dialog.show(it.supportFragmentManager, "dialog_error")
-            }
-        }
+        if (!success) showErrorDialog(activity, this, "dialog_feed_error")
         view?.swipe_container?.isRefreshing = false
-        viewModel.stopLoad()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = getViewModel(activity)
-        viewModel.newsListLiveData.observe(this, loadingNewsListObserver)
+        viewModel.newsListLiveData.observe(this, Observer<MutableList<NewsItem>> {
+            getNewsRecyclerAdapter().setmList(it)
+        })
         viewModel.loadSuccessfulLiveData.observe(this, loadingStatusObserver)
     }
 
@@ -59,9 +46,7 @@ class FragmentFeed() :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.news_resycler_view?.visibility = View.GONE
         view.swipe_container?.isRefreshing = true
-
         view.news_resycler_view?.apply {
             adapter = NewsListAdapter(this@FragmentFeed)
             layoutManager = LinearLayoutManager(context)
@@ -79,7 +64,6 @@ class FragmentFeed() :
 
     override fun dialogCancelClick(dialog: DialogError) {
         dialog.dismiss()
-        view?.news_resycler_view?.visibility = View.GONE
         view?.swipe_container?.isRefreshing = false
     }
 
@@ -90,6 +74,11 @@ class FragmentFeed() :
             putString("url", url)
         }
         activity?.supportFragmentManager?.beginTransaction()?.hide(this)?.add(R.id.container, fragment, "detail_fragment")?.addToBackStack("detail_fragment")?.commit()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.stopLoad()
     }
 }
 
