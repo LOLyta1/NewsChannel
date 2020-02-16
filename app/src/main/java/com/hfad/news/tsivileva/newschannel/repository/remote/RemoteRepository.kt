@@ -1,6 +1,5 @@
 package com.hfad.news.tsivileva.newschannel.repository.remote
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.Sources
@@ -8,6 +7,7 @@ import com.hfad.news.tsivileva.newschannel.model.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
 import com.hfad.news.tsivileva.newschannel.model.proger.Proger
 import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
+import com.hfad.news.tsivileva.newschannel.printCachedLiveData
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.SingleObserver
@@ -128,7 +128,8 @@ class RemoteRepository {
     }
 
     inner class NewsContent() {
-         val cachedList= mutableListOf(NewsItem())
+        private val cahedArray= mutableListOf(NewsItem())
+        val cachedList=MutableLiveData(cahedArray)
 
         val newsContentLiveData = MutableLiveData(NewsItem())
         val loadingSuccessful = MutableLiveData<Boolean>()
@@ -137,11 +138,11 @@ class RemoteRepository {
         private var subscriptionProgerLiveData = MutableLiveData<Disposable>()
 
 
-        fun loadHabr(url: String) {
+        fun loadHabr(url: String){
            createObservableHabrItem(url).subscribe(createObserverHabr())
         }
 
-        fun loadProger(url: String) {
+        fun loadProger(url: String){
             createObservableProgerItem(url).subscribe(createObserverProger())
         }
 
@@ -162,7 +163,9 @@ class RemoteRepository {
                     val newsItem=NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id=id, sourceKind = Sources.HABR)
                     loadingSuccessful.postValue(true)
                     newsContentLiveData.postValue(newsItem)
-                    cachedList.add(newsItem)
+                    cahedArray.add(newsItem)
+                    cachedList.postValue(cahedArray)
+                    printCachedLiveData("NewsContent","createObserverHabr()",cachedList)
                 }
                 override fun onSubscribe(d: Disposable) {subscriptionProgerLiveData.postValue(d)}
                 override fun onError(e: Throwable) = loadingSuccessful.postValue(false)
@@ -177,7 +180,9 @@ class RemoteRepository {
                     val newsItem=NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id=id, sourceKind = Sources.HABR)
                     loadingSuccessful.postValue(true)
                     newsContentLiveData.postValue( newsItem)
-                    cachedList.add(newsItem)
+                    cahedArray.add(newsItem)
+                    cachedList.postValue(cahedArray)
+                    printCachedLiveData("NewsContent","createObserverProger()",cachedList)
                 }
                 override fun onSubscribe(d: Disposable){ subscriptionProgerLiveData.postValue(d)}
                 override fun onError(e: Throwable)  = loadingSuccessful.postValue(false)

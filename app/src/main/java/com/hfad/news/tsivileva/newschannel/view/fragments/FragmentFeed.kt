@@ -33,23 +33,22 @@ class FragmentFeed() :
 
     val loadingStatusObserver = Observer<Boolean> { success ->
         if (success) {
-            loadingBar(hidden = true)
-            this.view?.swipe_container?.isRefreshing = false
+            view?.news_resycler_view?.visibility = View.VISIBLE
             Toast.makeText(context, resources.getText(R.string.load_is_successful_text), Toast.LENGTH_LONG).show()
         } else {
-            this.view?.swipe_container?.isRefreshing = true
             val dialog = DialogError()
             dialog.setTargetFragment(this@FragmentFeed, 10)
             activity?.let {
                 dialog.show(it.supportFragmentManager, "dialog_error")
             }
         }
+        view?.swipe_container?.isRefreshing = false
         viewModel.stopLoad()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = getNewsViewModel()
+        viewModel = getViewModel(activity)
         viewModel.newsListLiveData.observe(this, loadingNewsListObserver)
         viewModel.loadSuccessfulLiveData.observe(this, loadingStatusObserver)
     }
@@ -60,8 +59,9 @@ class FragmentFeed() :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadingBar(hidden = false)
-        view.swipe_container?.isRefreshing = false
+        view.news_resycler_view?.visibility = View.GONE
+        view.swipe_container?.isRefreshing = true
+
         view.news_resycler_view?.apply {
             adapter = NewsListAdapter(this@FragmentFeed)
             layoutManager = LinearLayoutManager(context)
@@ -79,7 +79,7 @@ class FragmentFeed() :
 
     override fun dialogCancelClick(dialog: DialogError) {
         dialog.dismiss()
-        loadingBar(hidden = true)
+        view?.news_resycler_view?.visibility = View.GONE
         view?.swipe_container?.isRefreshing = false
     }
 

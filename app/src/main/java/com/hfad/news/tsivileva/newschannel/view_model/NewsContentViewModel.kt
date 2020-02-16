@@ -10,14 +10,16 @@ import io.reactivex.disposables.Disposable
 class NewsContentViewModel : ViewModel() {
     private val repository = RemoteRepository().NewsContent()
 
-    val newContentLiveData = repository.newsContentLiveData
+    var newContentLiveData = repository.newsContentLiveData
     val loadingNewsSuccessful = repository.loadingSuccessful
-    val cached=repository.cachedList
+    val cachedList=repository.cachedList
 
 
     fun loadHabrContent(url: String) {
-        repository.loadHabr(url)
-    }
+       repository.loadHabr(url)
+        }
+
+
 
     fun loadProgerContent(url: String) {
         repository.loadProger(url)

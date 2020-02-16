@@ -22,6 +22,8 @@ import java.util.List;
  * Адаптер для RecyclerView
  */
 public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHolder> {
+    private List<NewsItem> mList;
+    private IClickListener listener;
 
     public interface IClickListener {
         void newsClick(String url, Integer position);
@@ -31,11 +33,6 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
         this.mList = mList;
         notifyDataSetChanged();
     }
-
-    /*список элементов*/
-    private List<NewsItem> mList;
-    private IClickListener listener;
-
 
     public NewsListAdapter(IClickListener listener) {
         this.mList = new ArrayList<>();
