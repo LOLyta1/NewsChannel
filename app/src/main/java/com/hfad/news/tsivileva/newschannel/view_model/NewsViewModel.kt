@@ -10,8 +10,8 @@ import com.hfad.news.tsivileva.newschannel.repository.remote.*
 class NewsViewModel : ViewModel() {
     private val repository = RemoteRepository.AllNews()
 
-    val newsListLiveData = repository.newsLiveData
-    val loadSuccessfulLiveData = repository.loadSuccessfulLiveData
+    val newsList = repository.newsLiveData
+    val loadStatus = repository.loadSuccessfulLiveData
 
 
     fun loadAllNews() {
@@ -21,7 +21,6 @@ class NewsViewModel : ViewModel() {
     fun stopLoad(){
         repository.stopLoad()
     }
-
 
 
 }

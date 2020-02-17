@@ -6,8 +6,6 @@
     <string name="dialog_network_connection_lost_text">Произошла ошибка при загрузке данных</string>
     <string name="dialog_update_button_text">Обновить</string>
     <string name="dialog_cancel_button_text">Отмена</string>
-
     <string name="activity_menu_item_update_text">Обновить</string>
-
     <string name="load_is_successful_text">загрузка завершена"</string>
 </resources>

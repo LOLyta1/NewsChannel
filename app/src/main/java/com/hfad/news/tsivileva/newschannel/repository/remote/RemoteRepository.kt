@@ -1,10 +1,13 @@
 package com.hfad.news.tsivileva.newschannel.repository.remote
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.Sources
+
 import com.hfad.news.tsivileva.newschannel.findNews
-import com.hfad.news.tsivileva.newschannel.isNewsInCache
+import com.hfad.news.tsivileva.newschannel.getIdInLink
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
 import com.hfad.news.tsivileva.newschannel.model.proger.Proger
@@ -102,10 +105,9 @@ class RemoteRepository {
                     when (it) {
                         is Habr.HabrlItems -> {
                             var newsItem = NewsItem()
-                            newsItem.sourceKind = Sources.HABR
-                            newsItem.id = index
                             newsItem.link = it.link
-                            newsItem.picture = it.habrItemsDetail?.imageSrc
+                            newsItem.picture = it.image
+                            Log.d(DEBUG_LOG,"ссылка на картинку хабра - ${newsItem.picture}")
                             newsItem.title = it.title
                             newsItem.date = it.date
                             newsArray.add(newsItem)
@@ -114,14 +116,10 @@ class RemoteRepository {
 
                         is Proger.Channel.Item -> {
                             var newsItem = NewsItem()
-                            newsItem.sourceKind = Sources.Proger
-                            newsItem.id = index
                             newsItem.link = it.link
                             newsItem.title = it.title
                             newsItem.date = it.pubDate
                             newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
-                            newsItem.sourceKind = Sources.Proger
-
                             newsArray.add(newsItem)
                             newsLiveData.postValue(newsArray)
                         }
@@ -136,8 +134,8 @@ class RemoteRepository {
         val loadingSuccessful = MutableLiveData<Boolean>()
         val cachedList = mutableListOf<NewsItem>()
 
-        private var subscriptionHabrLiveData = MutableLiveData<Disposable>()
-        private var subscriptionProgerLiveData = MutableLiveData<Disposable>()
+        private var subscriptionHabr = MutableLiveData<Disposable>()
+        private var subscriptionProger = MutableLiveData<Disposable>()
 
         fun loadHabr(url: String) {
             createObservableHabrItem(url).subscribe(createObserverHabr())
@@ -148,30 +146,39 @@ class RemoteRepository {
         }
 
         fun stopLoadHabr() {
-            subscriptionHabrLiveData.value?.dispose()
+            subscriptionHabr.value?.dispose()
         }
 
         fun stopLoadProger() {
-            subscriptionProgerLiveData.value?.dispose()
+            subscriptionProger.value?.dispose()
+        }
+
+        fun cleareContent(){
+            contentLiveData.value= NewsItem()
         }
 
         private fun createObserverHabr(): SingleObserver<HabrContent> {
-            var id = 0L
             return object : SingleObserver<HabrContent> {
                 override fun onSuccess(t: HabrContent) {
-                    id++
-                    val newsItem = NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id = id, sourceKind = Sources.HABR)
+                    val newsItem = NewsItem(
+                            title = t.title,
+                            content = t.content,
+                            date = t.date,
+                            picture = t.image,
+                            link = t.link,
+                            id = getIdInLink(t.link),
+                            sourceKind = Sources.HABR)
                     loadingSuccessful.postValue(true)
                     contentLiveData.postValue(newsItem)
-                    if(isNewsInCache(cachedList,newsItem)==newsItem){
+
+                    if (cachedList.find { it.link == newsItem.link } == null) {
                         cachedList.add(newsItem)
                     }
-                    printCachedMutableList("NewsContent", "createObserverProger()", cachedList)
-
+                    printCachedMutableList("NewsContent", "createObserverHabr()", cachedList)
                 }
 
                 override fun onSubscribe(d: Disposable) {
-                    subscriptionProgerLiveData.postValue(d)
+                    subscriptionHabr.postValue(d)
                 }
 
                 override fun onError(e: Throwable) = loadingSuccessful.postValue(false)
@@ -179,19 +186,26 @@ class RemoteRepository {
         }
 
         private fun createObserverProger(): SingleObserver<ProgerContent> {
-            var id = 0L
             return object : SingleObserver<ProgerContent> {
                 override fun onSuccess(t: ProgerContent) {
-                    id++
-                    val newsItem = NewsItem(title = t.title, content = t.content, date = t.date, picture = t.image, id = id, sourceKind = Sources.HABR)
+                    val newsItem = NewsItem(
+                            title = t.title,
+                            content = t.content,
+                            date = t.date,
+                            picture = t.image,
+                            link = t.link,
+                            id = getIdInLink(t.link),
+                            sourceKind = Sources.Proger)
                     loadingSuccessful.postValue(true)
                     contentLiveData.postValue(newsItem)
-                    cachedList.add(newsItem)
+                    if (!findNews(cachedList, newsItem)) {
+                        cachedList.add(newsItem)
+                    }
                     printCachedMutableList("NewsContent", "createObserverProger()", cachedList)
                 }
 
                 override fun onSubscribe(d: Disposable) {
-                    subscriptionProgerLiveData.postValue(d)
+                    subscriptionProger.postValue(d)
                 }
 
                 override fun onError(e: Throwable) = loadingSuccessful.postValue(false)

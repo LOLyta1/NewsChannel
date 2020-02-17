@@ -6,7 +6,7 @@ import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 class NewsContentViewModel : ViewModel() {
     private val repository = RemoteRepository.NewsContent()
 
-    var newContentLiveData = repository.contentLiveData
+    val newContentLiveData = repository.contentLiveData
     val loadingNewsSuccessful = repository.loadingSuccessful
     val cachedList = repository.cachedList
 
@@ -21,5 +21,9 @@ class NewsContentViewModel : ViewModel() {
     fun stopLoad() {
         repository.stopLoadHabr()
         repository.stopLoadProger()
+    }
+
+    fun cleareNewsContent(){
+        repository.cleareContent()
     }
 }

@@ -26,7 +26,7 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
     private IClickListener listener;
 
     public interface IClickListener {
-        void newsClick(String url, Integer position);
+        void newsClick(String url);
     }
 
     public void setmList(List<NewsItem> mList) {
@@ -89,7 +89,7 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
                         .error(R.drawable.no_photo)
                         .into(holder.imageView);
             }
-            holder.card.setOnClickListener(v -> listener.newsClick(mList.get(position).getLink(),position));
+            holder.card.setOnClickListener(v -> listener.newsClick(mList.get(position).getLink()));
         }
     }
 

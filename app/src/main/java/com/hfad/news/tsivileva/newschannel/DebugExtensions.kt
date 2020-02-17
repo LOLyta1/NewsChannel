@@ -3,6 +3,7 @@ package com.hfad.news.tsivileva.newschannel
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
 
 val DEBUG_LOG = "mylog"
 
@@ -29,3 +30,4 @@ fun printCachedMutableList(className: String,
         Log.d(DEBUG_LOG, "$className.$methodName --- $it")
     }
 }
+

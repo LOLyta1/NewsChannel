@@ -9,13 +9,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogError
 import com.hfad.news.tsivileva.newschannel.view_model.NewsContentViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
-class FragmentFeedDetails : Fragment() {
+class FragmentFeedDetails : Fragment(), DialogError.INetworkDialogListener {
     private var contentUrl: String? = null
-
 
     private lateinit var viewModel: NewsContentViewModel
 
@@ -31,7 +31,7 @@ class FragmentFeedDetails : Fragment() {
         super.onCreate(savedInstanceState)
         contentUrl = arguments?.getString("url")
         viewModel = getViewModel(activity)
-        viewModel.newContentLiveData.observe(this, Observer { showNews(it) })
+        viewModel.newContentLiveData.observe(this, Observer { showNews(it)})
         viewModel.loadingNewsSuccessful.observe(this, loadingStatusObserver)
     }
 
@@ -43,33 +43,29 @@ class FragmentFeedDetails : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.news_details_swipe?.isRefreshing = true
         loadNewsContent()
         view.news_details_swipe.setOnRefreshListener { loadNewsContent() }
     }
 
 
     private fun loadNewsContent() {
-        val url = contentUrl.toNonNullString()
+        var newsInCached = findHabrNewsInCache(viewModel.cachedList, contentUrl.toNonNullString())
 
-        // Log.d("my_log", "АДРЕС КЭШa:${viewModel.cached.hashCode()}")
-
-          var newsItem = findNews(viewModel.cachedList, contentUrl)
-
-        Log.d("my_log", "КЭШ:")
-
-
-           if (newsItem == null) {
-         Log.d("my_log", "в кэше нет элемента с ссылкой ${contentUrl}")
-        if (url.contains("habr.com")) {
-            viewModel.loadHabrContent(url)
+        if (newsInCached == null) {
+            view?.news_details_swipe?.isRefreshing = true
+            viewModel.cleareNewsContent()
+            contentUrl?.let {
+                if (it.contains("habr.com")) {
+                    viewModel.loadHabrContent(it)
+                } else {
+                    viewModel.loadProgerContent(it)
+                }
+            }
         } else {
-            viewModel.loadProgerContent(url)
+            viewModel.newContentLiveData.value=newsInCached
+            view?.news_details_swipe?.isRefreshing = false
         }
-            } else {
-              Log.d("my_log", "в кэше есть элемент с ссылкой ${contentUrl} - ${newsItem}")
-             showNews(newsItem)
-           }
+
     }
 
     fun showNews(newsItem: NewsItem?) {
@@ -86,5 +82,20 @@ class FragmentFeedDetails : Fragment() {
             }
         }
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.stopLoad()
+    }
+
+    override fun dialogUploadClick(dialog: DialogError) {
+        dialog.dismiss()
+        viewModel.loadProgerContent(contentUrl.toNonNullString())
+
+    }
+
+    override fun dialogCancelClick(dialog: DialogError) {
+dialog.dismiss()
     }
 }

@@ -1,13 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.model.habr
 
-import android.util.Log
+import com.hfad.news.tsivileva.newschannel.toNonNullString
 import org.simpleframework.xml.*
-import org.simpleframework.xml.convert.Convert
-import org.simpleframework.xml.strategy.Type
-import org.simpleframework.xml.strategy.Visitor
-import org.simpleframework.xml.stream.InputNode
-import org.simpleframework.xml.stream.NodeMap
-import org.simpleframework.xml.stream.OutputNode
 
 @Root(name = "rss", strict = false)
 class Habr {
@@ -23,27 +17,31 @@ class Habr {
         @field:Element(name = "title", required = false)
         var title: String? = null
 
-        @field:Element(name = "link", required = false)
+        @field:Element(name = "guid", required = false)
         var link: String? = null
 
         @field:Element(name = "description", required = false, data = true)
         //@Convert(HabrItemsConverter::class)
-        var habrItemsDetail: HabrItemsDetail? = null
+        var description: String? = null
 
         @field:Element(name = "pubDate", required = false)
         var date: String? = null
 
+        var image: String? = null
+            get() = findImage()
 
-        /*Описание и картинка для каждой новости*/
-        @Root(name = "description")
-        class HabrItemsDetail {
-            @field:Element(required = false)
-            var imageSrc: String? = null
 
-            @field:Element(required = false)
-            var description: String? = null
+   private fun findImage(): String? {
+            val IMG_SRC_REG_EX = "<img src=\"([^>]+)\">"
+            var imageUrl = Regex(IMG_SRC_REG_EX).find(description.toNonNullString(), 0)?.value.toString()
+           imageUrl= imageUrl.apply {
+                replace(Regex("<img src=[^>]"), " ")
+                replace(Regex("\" alt=\"[^>]"), " ")
+            }
+            return imageUrl
         }
     }
+
 
 }
 
