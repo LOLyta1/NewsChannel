@@ -23,11 +23,13 @@ class FragmentFeedDetails : Fragment(), DialogError.INetworkDialogListener {
     private val loadingStatusObserver = Observer<Boolean> { isSucess ->
         if (!isSucess) {
             showErrorDialog(activity, this, "dialog_details_error")
-        }else
+            view?.network_error_frame_layout?.visibility=View.VISIBLE
+                 }else
             if(isSucess){
+                view?.network_error_frame_layout?.visibility=View.GONE
                 viewModel.stopLoad()
-                view?.news_details_swipe?.isRefreshing=false
-                logStateSwiper(view?.news_details_swipe,"FragmentFeedDetails.loadingStatusObserver()")
+           //     view?.news_details_swipe?.isRefreshing=false
+                //logStateSwiper(view?.news_details_swipe,"FragmentFeedDetails.loadingStatusObserver()")
         }
 
     }
@@ -47,17 +49,17 @@ class FragmentFeedDetails : Fragment(), DialogError.INetworkDialogListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadCheckingCash()
-        view.news_details_swipe.setOnRefreshListener {
+      /*  view.news_details_swipe.setOnRefreshListener {
             when (getSourceKind(contentUrl)) {
                 Sources.Proger -> viewModel.loadProgerContent(contentUrl.toNonNullString())
                 Sources.HABR -> viewModel.loadHabrContent(contentUrl.toNonNullString())
             }
-        }
+        }*/
     }
 
     private fun loadCheckingCash() {
-        view?.news_details_swipe?.isRefreshing=true
-        logStateSwiper(view?.news_details_swipe,"FragmentFeedDetails.loadCheckingCash()")
+      //  view?.news_details_swipe?.isRefreshing=true
+      //  logStateSwiper(view?.news_details_swipe,"FragmentFeedDetails.loadCheckingCash()")
         val newsInCached = findNewsInCacheByLink(viewModel.getCachedList(), contentUrl.toNonNullString())
         if (newsInCached == null) {
             viewModel.cleareNewsContent()
@@ -71,7 +73,7 @@ class FragmentFeedDetails : Fragment(), DialogError.INetworkDialogListener {
     }
 
     fun showNews(newsItem: NewsItem?) {
-        view?.news_details_swipe?.isRefreshing = false
+       // view?.news_details_swipe?.isRefreshing = false
         view?.news_details_text_view?.text = newsItem?.content
         view?.news_details_date_text_view?.text = newsItem?.date
         view?.news_details_title_text_view?.text = newsItem?.title

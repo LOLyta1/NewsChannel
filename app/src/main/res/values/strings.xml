@@ -8,4 +8,5 @@
     <string name="dialog_cancel_button_text">Отмена</string>
     <string name="activity_menu_item_update_text">Обновить</string>
     <string name="load_is_successful_text">загрузка завершена"</string>
+    <string name="reload_news_content_button_text">Обновить</string>
 </resources>

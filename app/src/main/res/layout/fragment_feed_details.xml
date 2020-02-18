@@ -1,84 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-    android:id="@+id/news_details_swipe"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
 
-
-    <ScrollView
-            android:id="@+id/news_details_scroll_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
+           <LinearLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <FrameLayout
+               <LinearLayout
+                   android:id="@+id/network_error_frame_layout"
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:orientation="vertical"
+                   android:paddingTop="30dp"
+                   android:visibility="gone">
+
+                   <TextView
+                       android:id="@+id/textView"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_gravity="center_horizontal"
+                       android:text="@string/dialog_network_connection_lost_text" />
+
+                   <Button
+                       android:id="@+id/button"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_gravity="center_horizontal"
+                       android:text="@string/dialog_update_button_text" />
+               </LinearLayout>
+
+               <FrameLayout
+                    android:id="@+id/network_content_frame_layout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                </FrameLayout>
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/new_details_car_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:visibility="visible"
-                    app:cardBackgroundColor="@android:color/darker_gray"
-                    app:cardCornerRadius="40dp">
-
-                    <ImageView
-                        android:id="@+id/news_details_image_view"
+                   <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:backgroundTintMode="screen"
-                        android:scaleType="centerCrop"
-                        android:visibility="visible"
-                        tools:srcCompat="@tools:sample/avatars" />
-                </androidx.cardview.widget.CardView>
+                        android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/news_details_title_text_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:fontFamily="sans-serif-black"
-                    android:textSize="24sp"
-                    tools:text="заголовок" />
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/new_details_car_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"
+                            android:visibility="visible"
+                            app:cardBackgroundColor="@android:color/darker_gray"
+                            app:cardCornerRadius="40dp">
 
-                <TextView
-                    android:id="@+id/news_details_link_text_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-thin"
-                    android:textSize="12sp"
-                    tools:text="ссылка на источник" />
+                            <ImageView
+                                android:id="@+id/news_details_image_view"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:backgroundTintMode="screen"
+                                android:scaleType="centerCrop"
+                                android:visibility="visible"
+                                tools:srcCompat="@tools:sample/avatars" />
+                        </androidx.cardview.widget.CardView>
 
-                <TextView
-                    android:id="@+id/news_details_date_text_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:fontFamily="sans-serif-thin"
-                    android:textSize="18sp"
-                    tools:text="дата новости" />
+                        <TextView
+                            android:id="@+id/news_details_text_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:fontFamily="sans-serif-condensed-medium"
+                            android:textSize="18sp"
+                            tools:text="текст статьи" />
 
-                <TextView
-                    android:id="@+id/news_details_text_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:fontFamily="sans-serif-condensed-medium"
-                    android:textSize="18sp"
-                    tools:text="текст статьи" />
+                        <TextView
+                            android:id="@+id/news_details_link_text_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif-thin"
+                            android:textSize="12sp"
+                            tools:text="ссылка на источник" />
 
-            </LinearLayout>
-        </ScrollView>
+                        <TextView
+                            android:id="@+id/news_details_date_text_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:fontFamily="sans-serif-thin"
+                            android:textSize="18sp"
+                            tools:text="дата новости" />
 
-</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+                        <TextView
+                            android:id="@+id/news_details_title_text_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:fontFamily="sans-serif-black"
+                            android:textSize="24sp"
+                            tools:text="заголовок" />
+                    </LinearLayout>
+
+                </FrameLayout>
+
+</LinearLayout>
+
+

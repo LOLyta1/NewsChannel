@@ -73,6 +73,7 @@ dependencies {
 
     //to retrofit
     implementation 'me.linshen.retrofit2:adapter-livedata:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
 
 }
