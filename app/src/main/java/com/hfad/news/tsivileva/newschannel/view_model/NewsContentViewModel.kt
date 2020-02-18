@@ -1,14 +1,25 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 
 class NewsContentViewModel : ViewModel() {
     private val repository = RemoteRepository.NewsContent()
 
-    val newContentLiveData = repository.contentLiveData
-    val loadingNewsSuccessful = repository.loadingSuccessful
-    val cachedList = repository.cachedList
+    private val newContentLiveData = repository.contentLiveData
+    fun getNewsContentLiveData() : LiveData<NewsItem> = newContentLiveData
+
+    private val loadingNewsStatus = repository.loadingSuccessful
+    fun getLoadingNewsStatus() : LiveData<Boolean> = loadingNewsStatus
+
+    private val cachedList = repository.cachedList
+    fun getCachedList() : List<NewsItem> = cachedList
+
+    fun setNewsContent(item: NewsItem){
+        repository.contentLiveData.postValue(item)
+    }
 
     fun loadHabrContent(url: String) {
         repository.loadHabr(url)
@@ -25,5 +36,10 @@ class NewsContentViewModel : ViewModel() {
 
     fun cleareNewsContent(){
         repository.cleareContent()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopLoad()
     }
 }

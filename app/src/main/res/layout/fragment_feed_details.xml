@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    android:id="@+id/news_details_swipe"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/news_details_swipe"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
 
-
-        <ScrollView
+    <ScrollView
             android:id="@+id/news_details_scroll_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -23,10 +19,17 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                </FrameLayout>
+
                 <androidx.cardview.widget.CardView
                     android:id="@+id/new_details_car_view"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="200dp"
+                    android:visibility="visible"
                     app:cardBackgroundColor="@android:color/darker_gray"
                     app:cardCornerRadius="40dp">
 
@@ -34,6 +37,7 @@
                         android:id="@+id/news_details_image_view"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:backgroundTintMode="screen"
                         android:scaleType="centerCrop"
                         android:visibility="visible"
                         tools:srcCompat="@tools:sample/avatars" />
@@ -76,6 +80,5 @@
 
             </LinearLayout>
         </ScrollView>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-</FrameLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
+import com.hfad.news.tsivileva.newschannel.adapter.Sources
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogError
 import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentFeed
@@ -34,19 +35,16 @@ fun FragmentFeed.getViewModel(activity: FragmentActivity?): NewsViewModel {
 }
 
 fun FragmentFeed.getRecyclerAdapter(): NewsListAdapter {
-    return this.view?.news_resycler_view?.adapter as NewsListAdapter
-}
-
-
-fun FragmentFeedDetails.getViewModel(activity: FragmentActivity?): NewsContentViewModel {
-    if (activity != null) {
-        return ViewModelProviders.of(activity).get(NewsContentViewModel::class.java)
-    } else {
-        val e = Exception("FragmentFeedDetails-ошибка создания View model")
-        e.printStackTrace()
-        throw Exception(e)
+    val adapter=view?.news_resycler_view?.adapter
+    if(adapter!=null){
+        return adapter as NewsListAdapter
+    }else{
+        val ex= Exception("невозможно получить адаптер в FragmentFeed  ")
+        ex.printStackTrace()
+        throw ex
     }
 }
+
 
 fun Fragment.showErrorDialog(activity: FragmentActivity?,
                              targetFragment: Fragment,
@@ -58,17 +56,6 @@ fun Fragment.showErrorDialog(activity: FragmentActivity?,
     }
 }
 
-
-fun getManager(fragmentActivity: FragmentActivity?): FragmentManager {
-    if (fragmentActivity != null) {
-        return fragmentActivity.supportFragmentManager
-    } else {
-        val exception = NullPointerException("manager is not created! ").apply { printStackTrace() }
-        throw exception
-    }
-}
-
-
 fun String?.toNonNullString(): String {
     if (this == null) {
         val exception = NullPointerException("URL is empty!").apply { printStackTrace() }
@@ -78,25 +65,36 @@ fun String?.toNonNullString(): String {
     }
 }
 
-fun findNews(array: MutableList<NewsItem>, news:NewsItem?): Boolean {
-    val newsItem=array.find { it.equals(news) }
-    if(newsItem==null){
-        return false
-    } else
-        return true
-}
-
-
-fun getIdInLink(link:String?) : Int? {
-    link?.let{
-        return Regex("[0-9]{6,8}").find(link,0)?.value?.toInt()
+fun getSourceKind(link:String?) : Sources?{
+    link?.let {
+        if( it.contains("habr.com")) {
+            return Sources.HABR
+        }else{
+            return Sources.Proger
+        }
     }
     return null
 }
 
-fun findHabrNewsInCache(cache:MutableList<NewsItem>,link:String):NewsItem?{
-    val id= getIdInLink(link)
-    return cache.find { it.id==id }
+
+fun getIdInLink(link: String?): Int? {
+    link?.let {
+        return Regex("[0-9]{6,8}").find(link, 0)?.value?.toInt()
+    }
+    return null
+}
+
+fun findNewsInCacheByLink(cache: List<NewsItem>, link: String): NewsItem? {
+    val id = getIdInLink(link)
+    return cache.find { it.id == id }
+}
+
+fun  findHabrNewsInCache(cache: List<NewsItem>, id: Int?): NewsItem? {
+    return cache.find { it.id == id && it.sourceKind == Sources.HABR }
+}
+
+fun findProgerNewsInCache(cache: List<NewsItem>, id: Int?): NewsItem? {
+    return cache.find { it.id == id && it.sourceKind == Sources.Proger}
 }
 
 

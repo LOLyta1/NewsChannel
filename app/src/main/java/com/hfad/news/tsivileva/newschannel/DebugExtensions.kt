@@ -2,6 +2,7 @@ package com.hfad.news.tsivileva.newschannel
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
 
@@ -28,6 +29,14 @@ fun printCachedMutableList(className: String,
 
     cached.forEach {
         Log.d(DEBUG_LOG, "$className.$methodName --- $it")
+    }
+}
+
+fun logStateSwiper(swiper:SwipeRefreshLayout?,info:String){
+      Log.d(DEBUG_LOG, info)
+    when(swiper?.isRefreshing){
+        true->Log.d(DEBUG_LOG,"swiper is REFRESH")
+        false->Log.d(DEBUG_LOG,"swiper is NOT REFRESH")
     }
 }
 
