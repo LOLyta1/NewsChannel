@@ -2,6 +2,7 @@ package com.hfad.news.tsivileva.newschannel
 
 import android.util.Log
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
@@ -46,3 +47,6 @@ fun printFragmentsInManager(manager :FragmentManager){
          Log.d(DEBUG_LOG,"${it.tag}")
      }
 }
+
+fun printLiveDataObservers(liveData : LiveData<Any>){
+ }

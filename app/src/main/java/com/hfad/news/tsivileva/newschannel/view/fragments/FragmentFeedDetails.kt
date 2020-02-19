@@ -24,19 +24,18 @@ class FragmentFeedDetails :
     private lateinit var viewModel: FeedDetailsViewModel
 
     private val loadingIsSuccessfullObserver = Observer<Boolean> { isSucess ->
+
         if (!isSucess) {
             showErrorDialog(childFragmentManager, this, "dialog_details_error")
-            view?.news_content_progress_bar?.visibility=View.VISIBLE
+            view?.news_content_progress_bar?.visibility = View.VISIBLE
+
         } else
             if (isSucess) {
-                view?.news_content_progress_bar?.visibility=View.GONE
                 removeErrorFragment(childFragmentManager, ERROR_FRAGMENT_FEED_DETAILS)
                 viewModel.stopLoad()
-
                 viewModel.cachedList.forEach {
-                    Log.d("mylog"," В кэше - ${it.id}")
+                    Log.d("mylog", " В кэше - ${it.id}")
                 }
-
             }
     }
 
@@ -53,34 +52,46 @@ class FragmentFeedDetails :
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-       super.onViewCreated(view, savedInstanceState)
+        super.onViewCreated(view, savedInstanceState)
         loadContent()
     }
 
     override fun onDetach() {
         super.onDetach()
-        Log.d("mylog","onDetach()")
+        Log.d("mylog", "onDetach()")
     }
+
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("mylog","onDestroy()")
+        Log.d("mylog", "onDestroy()")
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.cachedNewsItemLiveData.postValue(NewsItem())
     }
 
     private fun showNews(newsItem: NewsItem?) {
-        view?.news_details_text_view?.text = newsItem?.content
-        view?.news_details_date_text_view?.text = newsItem?.date
-        view?.news_details_title_text_view?.text = newsItem?.title
-        view?.news_details_link_text_view?.text = newsItem?.link
+        if (newsItem?.id != null) {
+            view?.news_content_container?.visibility=View.VISIBLE
+            view?.news_content_progress_bar?.visibility = View.GONE
 
-        val path = newsItem?.picture
-        if (path != null && !path.isEmpty()) {
-            view?.new_details_car_view?.visibility = View.VISIBLE
-            Picasso.get().load(path).placeholder(R.drawable.no_photo)
-                    .error(R.drawable.no_photo)
-                    .into(view?.news_details_image_view);
-        } else {
-            view?.new_details_car_view?.visibility = View.GONE
+            view?.news_details_text_view?.text = newsItem.content
+            view?.news_details_date_text_view?.text = newsItem.date
+            view?.news_details_title_text_view?.text = newsItem.title
+            view?.news_details_link_text_view?.text = newsItem.link
+
+            val path = newsItem.picture
+            if (path != null && !path.isEmpty()) {
+                view?.new_details_car_view?.visibility = View.VISIBLE
+                Picasso.get().load(path).placeholder(R.drawable.no_photo)
+                        .error(R.drawable.no_photo)
+                        .into(view?.news_details_image_view);
+            } else {
+                view?.new_details_car_view?.visibility = View.GONE
+            }
         }
+
     }
 
 
@@ -91,7 +102,7 @@ class FragmentFeedDetails :
 
     override fun errorDialogCancelClick(dialog: DialogError) {
         dialog.dismiss()
-        addErrorFragment(childFragmentManager,R.id.news_details_error_container, ERROR_FRAGMENT_FEED_DETAILS)
+        addErrorFragment(childFragmentManager, R.id.news_details_error_container, ERROR_FRAGMENT_FEED_DETAILS)
     }
 
 
@@ -108,7 +119,6 @@ class FragmentFeedDetails :
             }
         }
     }
-
 
 
 }
