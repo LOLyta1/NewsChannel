@@ -32,6 +32,7 @@ class FragmentFeedDetails :
                 view?.news_content_progress_bar?.visibility=View.GONE
                 removeErrorFragment(childFragmentManager, ERROR_FRAGMENT_FEED_DETAILS)
                 viewModel.stopLoad()
+
                 viewModel.cachedList.forEach {
                     Log.d("mylog"," В кэше - ${it.id}")
                 }
@@ -42,8 +43,6 @@ class FragmentFeedDetails :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         contentUrl = arguments?.getString("url")
-
-
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -66,13 +65,6 @@ class FragmentFeedDetails :
     override fun onDestroy() {
         super.onDestroy()
         Log.d("mylog","onDestroy()")
-    }
-    override fun onDestroyView() {
-        super.onDestroyView()
-       Log.d("mylog","onDestroyView()")
-       /*viewModel.cachedNewsItemLiveData.removeObservers(this)
-       viewModel.loadingNewsStatus.removeObservers(this)
-      viewModel.stopLoad()*/
     }
 
     private fun showNews(newsItem: NewsItem?) {

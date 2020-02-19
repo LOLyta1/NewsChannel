@@ -34,12 +34,14 @@ class FragmentFeed() :
     val loadingStatusObserver = Observer<Boolean> { success ->
         if (!success) {
             showErrorDialog(childFragmentManager, this, "dialog_feed_error")
+            view?.swipe_container?.isRefreshing = true
         }else{
             if(success){
                 removeErrorFragment(childFragmentManager, ERROR_FRAGMENT_FEED)
+                view?.swipe_container?.isRefreshing = false
             }
         }
-        view?.swipe_container?.isRefreshing = false
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
