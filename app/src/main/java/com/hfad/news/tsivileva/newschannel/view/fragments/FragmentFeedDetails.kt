@@ -1,6 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,69 +12,70 @@ import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.Sources
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogError
-import com.hfad.news.tsivileva.newschannel.view_model.NewsContentViewModel
+import com.hfad.news.tsivileva.newschannel.view_model.FeedDetailsViewModel
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.fragment_feed.view.*
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
-class FragmentFeedDetails : Fragment(), DialogError.INetworkDialogListener {
+class FragmentFeedDetails :
+        Fragment(),
+        DialogError.INetworkDialogListener,
+        FragmentNetworkError.IErrorEventListener {
     private var contentUrl: String? = null
-    private lateinit var viewModel: NewsContentViewModel
+    private lateinit var viewModel: FeedDetailsViewModel
 
-    private val loadingStatusObserver = Observer<Boolean> { isSucess ->
+    private val loadingIsSuccessfullObserver = Observer<Boolean> { isSucess ->
         if (!isSucess) {
-            showErrorDialog(activity, this, "dialog_details_error")
-            view?.network_error_frame_layout?.visibility=View.VISIBLE
-                 }else
-            if(isSucess){
-                view?.network_error_frame_layout?.visibility=View.GONE
+            showErrorDialog(childFragmentManager, this, "dialog_details_error")
+            view?.news_content_progress_bar?.visibility=View.VISIBLE
+        } else
+            if (isSucess) {
+                view?.news_content_progress_bar?.visibility=View.GONE
+                removeErrorFragment(childFragmentManager, ERROR_FRAGMENT_FEED_DETAILS)
                 viewModel.stopLoad()
-           //     view?.news_details_swipe?.isRefreshing=false
-                //logStateSwiper(view?.news_details_swipe,"FragmentFeedDetails.loadingStatusObserver()")
-        }
+                viewModel.cachedList.forEach {
+                    Log.d("mylog"," В кэше - ${it.id}")
+                }
 
+            }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         contentUrl = arguments?.getString("url")
+
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        viewModel =ViewModelProviders.of(this).get(NewsContentViewModel::class.java)
-        viewModel.getNewsContentLiveData().observe(viewLifecycleOwner, Observer { showNews(it) })
-        viewModel.getLoadingNewsStatus().observe(viewLifecycleOwner, loadingStatusObserver)
+        viewModel = ViewModelProviders.of(activity!!).get(FeedDetailsViewModel::class.java)
+        viewModel.cachedNewsItemLiveData.observe(viewLifecycleOwner, Observer { showNews(it) })
+        viewModel.loadingNewsStatus.observe(viewLifecycleOwner, loadingIsSuccessfullObserver)
+        viewModel.loadeddNewsItemLiveData.observe(viewLifecycleOwner,Observer{showNews(it)})
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        loadCheckingCash()
-      /*  view.news_details_swipe.setOnRefreshListener {
-            when (getSourceKind(contentUrl)) {
-                Sources.Proger -> viewModel.loadProgerContent(contentUrl.toNonNullString())
-                Sources.HABR -> viewModel.loadHabrContent(contentUrl.toNonNullString())
-            }
-        }*/
+       super.onViewCreated(view, savedInstanceState)
+        loadContent()
     }
 
-    private fun loadCheckingCash() {
-      //  view?.news_details_swipe?.isRefreshing=true
-      //  logStateSwiper(view?.news_details_swipe,"FragmentFeedDetails.loadCheckingCash()")
-        val newsInCached = findNewsInCacheByLink(viewModel.getCachedList(), contentUrl.toNonNullString())
-        if (newsInCached == null) {
-            viewModel.cleareNewsContent()
-            when (getSourceKind(contentUrl)) {
-                Sources.Proger -> viewModel.loadProgerContent(contentUrl.toNonNullString())
-                Sources.HABR -> viewModel.loadHabrContent(contentUrl.toNonNullString())
-            }
-        } else {
-            viewModel.setNewsContent(newsInCached)
-        }
+    override fun onDetach() {
+        super.onDetach()
+        Log.d("mylog","onDetach()")
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("mylog","onDestroy()")
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+       Log.d("mylog","onDestroyView()")
+       /*viewModel.cachedNewsItemLiveData.removeObservers(this)
+       viewModel.loadingNewsStatus.removeObservers(this)
+      viewModel.stopLoad()*/
     }
 
-    fun showNews(newsItem: NewsItem?) {
-       // view?.news_details_swipe?.isRefreshing = false
+    private fun showNews(newsItem: NewsItem?) {
         view?.news_details_text_view?.text = newsItem?.content
         view?.news_details_date_text_view?.text = newsItem?.date
         view?.news_details_title_text_view?.text = newsItem?.title
@@ -91,21 +93,31 @@ class FragmentFeedDetails : Fragment(), DialogError.INetworkDialogListener {
     }
 
 
-    override fun dialogUploadClick(dialog: DialogError) {
+    override fun errorDialogUploadClick(dialog: DialogError) {
         dialog.dismiss()
-        when (getSourceKind(contentUrl)) {
-            Sources.Proger -> viewModel.loadProgerContent(contentUrl.toNonNullString())
-            Sources.HABR -> viewModel.loadHabrContent(contentUrl.toNonNullString())
+        loadContent()
+    }
+
+    override fun errorDialogCancelClick(dialog: DialogError) {
+        dialog.dismiss()
+        addErrorFragment(childFragmentManager,R.id.news_details_error_container, ERROR_FRAGMENT_FEED_DETAILS)
+    }
+
+
+    override fun onReloadButtonClick() {
+        loadContent()
+    }
+
+
+    private fun loadContent() {
+        contentUrl?.let {
+            when (getSourceKind(it)) {
+                Sources.PROGER -> viewModel.loadProgerContent(it)
+                Sources.HABR -> viewModel.loadHabrContent(it)
+            }
         }
     }
 
-    override fun dialogCancelClick(dialog: DialogError) {
-        dialog.dismiss()
-    }
 
-    override fun onDetach() {
-        super.onDetach()
-        viewModel.getNewsContentLiveData().removeObservers(this)
-        viewModel.getLoadingNewsStatus().removeObservers(this)
-    }
+
 }

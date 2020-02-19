@@ -5,7 +5,7 @@ import kotlinx.android.parcel.Parcelize
 
 enum class Sources {
     HABR,
-    Proger
+    PROGER
 }
 
 data class NewsItem(

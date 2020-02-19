@@ -1,38 +1,17 @@
 package com.hfad.news.tsivileva.newschannel
 
-import android.util.Log
-import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
 import com.hfad.news.tsivileva.newschannel.adapter.Sources
-import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogError
 import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentFeed
-import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentFeedDetails
-import com.hfad.news.tsivileva.newschannel.view_model.NewsContentViewModel
-import com.hfad.news.tsivileva.newschannel.view_model.NewsViewModel
+import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentNetworkError
 import kotlinx.android.synthetic.main.fragment_feed.view.*
-import kotlinx.android.synthetic.main.fragment_feed_details.view.*
-import org.jsoup.nodes.Element
 import java.lang.Exception
 import java.lang.NullPointerException
 
 
-fun FragmentFeed.getViewModel(activity: FragmentActivity?): NewsViewModel {
-    if (activity != null) {
-        return ViewModelProviders.of(activity).get(NewsViewModel::class.java)
-    } else {
-        val e = Exception("FragmentFeed-ошибка создания View model")
-        e.printStackTrace()
-        throw Exception(e)
-    }
-}
 
 fun FragmentFeed.getRecyclerAdapter(): NewsListAdapter {
     val adapter=view?.news_resycler_view?.adapter
@@ -46,14 +25,11 @@ fun FragmentFeed.getRecyclerAdapter(): NewsListAdapter {
 }
 
 
-fun Fragment.showErrorDialog(activity: FragmentActivity?,
+fun Fragment.showErrorDialog(manager: FragmentManager,
                              targetFragment: Fragment,
                              dialogTag: String) {
     val dialog = DialogError()
-    dialog.setTargetFragment(targetFragment, 0)
-    activity?.let {
-        dialog.show(it.supportFragmentManager, dialogTag)
-    }
+    dialog.show(manager, dialogTag)
 }
 
 fun String?.toNonNullString(): String {
@@ -69,8 +45,9 @@ fun getSourceKind(link:String?) : Sources?{
     link?.let {
         if( it.contains("habr.com")) {
             return Sources.HABR
-        }else{
-            return Sources.Proger
+        }else
+            if( it.contains("tproger.ru")) {
+            return Sources.PROGER
         }
     }
     return null
@@ -84,18 +61,28 @@ fun getIdInLink(link: String?): Int? {
     return null
 }
 
-fun findNewsInCacheByLink(cache: List<NewsItem>, link: String): NewsItem? {
-    val id = getIdInLink(link)
-    return cache.find { it.id == id }
+val ERROR_FRAGMENT_FEED = "feed"
+val ERROR_FRAGMENT_FEED_DETAILS ="feed_details"
+
+ fun addErrorFragment(fragmentManager:FragmentManager, containerId: Int, tag:String) {
+        val fragment = FragmentNetworkError()
+     if(fragmentManager.findFragmentByTag(tag)==null){
+         fragmentManager.beginTransaction().
+                 add(containerId, fragment, tag).
+                 addToBackStack(tag).
+                 commit()
+     }
 }
 
-fun  findHabrNewsInCache(cache: List<NewsItem>, id: Int?): NewsItem? {
-    return cache.find { it.id == id && it.sourceKind == Sources.HABR }
+fun removeErrorFragment(fragmentManager:FragmentManager, tag:String){
+    val fragment = fragmentManager.findFragmentByTag(tag)
+    fragment?.let {
+        fragmentManager.beginTransaction().remove(fragment).commit()
+    }
+    printFragmentsInManager(fragmentManager)
 }
 
-fun findProgerNewsInCache(cache: List<NewsItem>, id: Int?): NewsItem? {
-    return cache.find { it.id == id && it.sourceKind == Sources.Proger}
-}
+
 
 
 

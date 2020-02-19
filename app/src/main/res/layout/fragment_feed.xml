@@ -2,10 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/news_linear_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".activity.MainActivity">
+
+    <FrameLayout
+        android:id="@+id/news_error_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </FrameLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_container"
@@ -13,9 +21,11 @@
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/news_resycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+            android:id="@+id/news_resycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:itemCount="5"
+            tools:listitem="@android:layout/activity_list_item" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

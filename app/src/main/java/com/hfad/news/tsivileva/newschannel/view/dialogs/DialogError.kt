@@ -1,6 +1,5 @@
 package com.hfad.news.tsivileva.newschannel.view.dialogs
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +13,8 @@ import kotlinx.android.synthetic.main.dialog_network.view.*
 class DialogError() : DialogFragment() {
 
     interface INetworkDialogListener {
-        fun dialogUploadClick(dialog: DialogError)
-        fun dialogCancelClick(dialog: DialogError)
+        fun errorDialogUploadClick(dialog: DialogError)
+        fun errorDialogCancelClick(dialog: DialogError)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -24,9 +23,9 @@ class DialogError() : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val target = this.targetFragment as? INetworkDialogListener
-        view.update_button.setOnClickListener { target?.dialogUploadClick(this) }
-        view.cancel_button.setOnClickListener { target?.dialogCancelClick(this) }
+        val parent = parentFragment as INetworkDialogListener
+        view.update_button.setOnClickListener { parent.errorDialogUploadClick(this) }
+        view.cancel_button.setOnClickListener {parent.errorDialogCancelClick(this) }
     }
 
     override fun show(manager: FragmentManager, tag: String?) {

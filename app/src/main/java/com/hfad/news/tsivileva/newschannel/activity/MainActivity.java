@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity //implements IView {
 
         fragmentFeed=new FragmentFeed();
         mFragmentTransaction= getSupportFragmentManager().beginTransaction();
-        mFragmentTransaction.add(R.id.container, fragmentFeed);
+        mFragmentTransaction.add(R.id.container, fragmentFeed,"feed_fragment");
         mFragmentTransaction.commit();
   }
 

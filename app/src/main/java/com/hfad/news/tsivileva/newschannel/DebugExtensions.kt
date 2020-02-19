@@ -1,6 +1,7 @@
 package com.hfad.news.tsivileva.newschannel
 
 import android.util.Log
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
@@ -40,3 +41,8 @@ fun logStateSwiper(swiper:SwipeRefreshLayout?,info:String){
     }
 }
 
+fun printFragmentsInManager(manager :FragmentManager){
+     manager.fragments.forEach {
+         Log.d(DEBUG_LOG,"${it.tag}")
+     }
+}
