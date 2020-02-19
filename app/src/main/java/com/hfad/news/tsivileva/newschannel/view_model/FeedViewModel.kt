@@ -7,13 +7,12 @@ import com.hfad.news.tsivileva.newschannel.repository.remote.*
 
 class FeedViewModel : ViewModel() {
     private val repository = RemoteRepository.AllNews()
-    val cachedList = repository.newsLiveData
-    val loadStatusLiveData = repository.loadSuccessfulLiveData
+    val cachedList = repository.news
+    val loadStatusLiveData = repository.isDownloadSuccessful
 
     fun loadAllNews() {
        repository.load()
         Log.d("mylog","NewsViewModel. loadAllNews()")
-
     }
 
     fun stopLoad(){

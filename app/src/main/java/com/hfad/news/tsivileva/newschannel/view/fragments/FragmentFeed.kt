@@ -37,17 +37,21 @@ class FragmentFeed() :
             view?.swipe_container?.isRefreshing = true
         }else{
             if(success){
-                removeErrorFragment(childFragmentManager, ERROR_FRAGMENT_FEED)
+                hideErrorFragment(childFragmentManager, ERROR_FRAGMENT_FEED)
                 view?.swipe_container?.isRefreshing = false
             }
         }
+        viewModel.stopLoad()
 
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(activity!!).get(FeedViewModel::class.java)
-        viewModel.cachedList.observe(this, Observer { getRecyclerAdapter().setmList(it) })
+        viewModel.cachedList.observe(this, Observer {
+            val adapter=(view?.news_resycler_view?.adapter as NewsListAdapter)
+            adapter.setmList(it)
+        })
         viewModel.loadStatusLiveData.observe(this, loadingStatusObserver)
     }
 
@@ -65,7 +69,9 @@ class FragmentFeed() :
         }
 
         view.swipe_container?.setOnRefreshListener {
-            viewModel.cachedList.value?.clear()
+            val news=viewModel.cachedList.value
+            news?.clear()
+            viewModel.cachedList.value=news
             viewModel.loadAllNews()
         }
 
@@ -80,7 +86,7 @@ class FragmentFeed() :
 
     override fun errorDialogCancelClick(dialog: DialogError) {
         dialog.dismiss()
-        addErrorFragment(childFragmentManager,R.id.news_error_container, ERROR_FRAGMENT_FEED)
+        showErrorFragment(childFragmentManager,R.id.news_error_container, ERROR_FRAGMENT_FEED)
         view?.swipe_container?.isRefreshing = false
     }
 

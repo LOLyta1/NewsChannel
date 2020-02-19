@@ -20,6 +20,7 @@ class FragmentFeedDetails :
         Fragment(),
         DialogError.INetworkDialogListener,
         FragmentNetworkError.IErrorEventListener {
+
     private var contentUrl: String? = null
     private lateinit var viewModel: FeedDetailsViewModel
 
@@ -31,11 +32,8 @@ class FragmentFeedDetails :
 
         } else
             if (isSucess) {
-                removeErrorFragment(childFragmentManager, ERROR_FRAGMENT_FEED_DETAILS)
+                hideErrorFragment(childFragmentManager, ERROR_FRAGMENT_FEED_DETAILS)
                 viewModel.stopLoad()
-                viewModel.cachedList.forEach {
-                    Log.d("mylog", " В кэше - ${it.id}")
-                }
             }
     }
 
@@ -46,8 +44,8 @@ class FragmentFeedDetails :
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModel = ViewModelProviders.of(activity!!).get(FeedDetailsViewModel::class.java)
-        viewModel.cachedNewsItemLiveData.observe(viewLifecycleOwner, Observer { showNews(it) })
-        viewModel.loadingNewsStatus.observe(viewLifecycleOwner, loadingIsSuccessfullObserver)
+        viewModel.cachedNews.observe(viewLifecycleOwner, Observer { showNews(it) })
+        viewModel.loadingStatus.observe(viewLifecycleOwner, loadingIsSuccessfullObserver)
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
 
@@ -68,12 +66,12 @@ class FragmentFeedDetails :
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.cachedNewsItemLiveData.postValue(NewsItem())
+        viewModel.cachedNews.postValue(NewsItem())
     }
 
     private fun showNews(newsItem: NewsItem?) {
         if (newsItem?.id != null) {
-            view?.news_content_container?.visibility=View.VISIBLE
+            view?.news_content_container?.visibility = View.VISIBLE
             view?.news_content_progress_bar?.visibility = View.GONE
 
             view?.news_details_text_view?.text = newsItem.content
@@ -102,7 +100,11 @@ class FragmentFeedDetails :
 
     override fun errorDialogCancelClick(dialog: DialogError) {
         dialog.dismiss()
-        addErrorFragment(childFragmentManager, R.id.news_details_error_container, ERROR_FRAGMENT_FEED_DETAILS)
+        showErrorFragment(
+                fragmentManager = childFragmentManager,
+                containerId = R.id.news_details_error_container,
+                tag = ERROR_FRAGMENT_FEED_DETAILS
+        )
     }
 
 

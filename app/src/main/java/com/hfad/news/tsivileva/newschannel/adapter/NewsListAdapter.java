@@ -99,16 +99,6 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
         return mList.size();
     }
 
-    public void add(NewsItem newsItem) {
-        this.mList.add(newsItem);
-        notifyDataSetChanged();
-
-    }
-    public void cleare(){
-        this.mList.clear();
-        notifyDataSetChanged();
-    }
-
     private void setValidText(View v, String text, String substitutionText) {
         if (text != null) {
             ((TextView) v).setText(text);

@@ -48,24 +48,23 @@ class RemoteRepository {
     class AllNews() {
         private val HABR_URL = "https://habr.com/ru/rss/all/"
         private val PROGER_URL = "https://tproger.ru/feed/"
-        private var subscriptionLiveData = MutableLiveData<DisposableObserver<MutableList<List<Any>?>>>()
+        private var subscription = MutableLiveData<DisposableObserver<MutableList<List<Any>?>>>()
         private val cacheList = mutableListOf<NewsItem>()
 
-        val newsLiveData = MutableLiveData(cacheList)
-        val loadSuccessfulLiveData = MutableLiveData<Boolean>()
+        val news = MutableLiveData(cacheList)
+        val isDownloadSuccessful = MutableLiveData<Boolean>()
 
         fun load() {
             if (cacheList.isEmpty()) {
-                val subscription = createObservable().subscribeWith(createObserver())
-                subscriptionLiveData.postValue(subscription)
+                subscription.postValue( createObservable().subscribeWith(createObserver()) )
             } else {
-                newsLiveData.postValue(cacheList)
-                loadSuccessfulLiveData.postValue(true)
+                news.postValue(cacheList)
+                isDownloadSuccessful.postValue(true)
             }
         }
 
         fun stopLoad() {
-            subscriptionLiveData.value?.dispose()
+            subscription.value?.dispose()
         }
 
         private fun createObservable(): Observable<MutableList<List<Any>?>> {
@@ -88,17 +87,15 @@ class RemoteRepository {
 
         private fun createObserver(): DisposableObserver<MutableList<List<Any>?>> {
             return object : DisposableObserver<MutableList<List<Any>?>>() {
-                override fun onComplete() = loadSuccessfulLiveData.postValue(true)
+                override fun onComplete() = isDownloadSuccessful.postValue(true)
                 override fun onNext(t: MutableList<List<Any>?>) = parseNews(t)
-                override fun onError(e: Throwable) = loadSuccessfulLiveData.postValue(false)
+                override fun onError(e: Throwable) = isDownloadSuccessful.postValue(false)
             }
         }
 
-        private fun parseNews(list: MutableList<List<Any>?>) {
-            var index = 0L
-            list.forEach { list1 ->
-                list1?.forEach {
-                    index++
+        private fun parseNews(rssNews: MutableList<List<Any>?>) {
+            rssNews.forEach { items ->
+                items?.forEach {
                     when (it) {
                         is Habr.HabrlItems -> {
                             var newsItem = NewsItem()
@@ -109,7 +106,7 @@ class RemoteRepository {
                             newsItem.title = it.title
                             newsItem.date = it.date
                             cacheList.add(newsItem)
-                            newsLiveData.postValue(cacheList)
+                            news.postValue(cacheList)
                         }
 
                         is Proger.Channel.Item -> {
@@ -121,7 +118,7 @@ class RemoteRepository {
                             newsItem.date = it.pubDate
                             newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
                             cacheList.add(newsItem)
-                            newsLiveData.postValue(cacheList)
+                            news.postValue(cacheList)
                         }
                     }
                 }
@@ -131,36 +128,32 @@ class RemoteRepository {
 
 
     class NewsContent() {
-
-        val loadingSuccessful = MutableLiveData<Boolean>()
-        val cachedList = mutableListOf<NewsItem>()
-        val cachedNewsItem = MutableLiveData<NewsItem>()
-
-
         private var subscriptionHabr = MutableLiveData<Disposable>()
         private var subscriptionProger = MutableLiveData<Disposable>()
 
-        fun loadHabr(url: String) {
+        val isDownloadSuccessful = MutableLiveData<Boolean>()
+        val cachedList = mutableListOf<NewsItem>()
+        val content = MutableLiveData<NewsItem>()
+
+        fun downloadHabr(url: String) {
             val id = getIdInLink(url)
             val newsItem = cachedList.find { it.id == id && it.sourceKind == Sources.HABR }
             if (newsItem == null) {
                 createObservableHabrItem(url).subscribe(createObserverHabr())
             } else {
-                cachedNewsItem.postValue(newsItem)
+                content.postValue(newsItem)
             }
         }
 
-        fun loadProger(url: String) {
+        fun downloadProger(url: String) {
             val id = getIdInLink(url)
             val newsItem = cachedList.find { it.id == id && it.sourceKind == Sources.PROGER }
             if (newsItem == null) {
                 createObservableProgerItem(url).subscribe(createObserverProger())
             } else {
-                cachedNewsItem.postValue(newsItem)
+                content.postValue(newsItem)
             }
-
         }
-
         fun stopLoadHabr() {
             subscriptionHabr.value?.dispose()
         }
@@ -168,11 +161,6 @@ class RemoteRepository {
         fun stopLoadProger() {
             subscriptionProger.value?.dispose()
         }
-
-        fun cleareContent() {
-            cachedNewsItem.value = NewsItem()
-        }
-
 
         private fun createObserverHabr(): SingleObserver<HabrContent> {
             return object : SingleObserver<HabrContent> {
@@ -185,13 +173,12 @@ class RemoteRepository {
                             link = t.link,
                             id = getIdInLink(t.link),
                             sourceKind = Sources.HABR)
-                    loadingSuccessful.postValue(true)
-                    cachedNewsItem.postValue(newsItem)
+                    isDownloadSuccessful.postValue(true)
+                    content.postValue(newsItem)
                     cachedList.add(newsItem)
                 }
-
                 override fun onSubscribe(d: Disposable) = subscriptionHabr.postValue(d)
-                override fun onError(e: Throwable) = loadingSuccessful.postValue(false)
+                override fun onError(e: Throwable) = isDownloadSuccessful.postValue(false)
             }
         }
 
@@ -206,12 +193,12 @@ class RemoteRepository {
                             link = t.link,
                             id = getIdInLink(t.link),
                             sourceKind = Sources.PROGER)
-                    loadingSuccessful.postValue(true)
-                    cachedNewsItem.postValue(newsItem)
+                    isDownloadSuccessful.postValue(true)
+                    content.postValue(newsItem)
                     cachedList.add(newsItem)
                 }
                 override fun onSubscribe(d: Disposable) = subscriptionProger.postValue(d)
-                override fun onError(e: Throwable) = loadingSuccessful.postValue(false)
+                override fun onError(e: Throwable) = isDownloadSuccessful.postValue(false)
             }
         }
 

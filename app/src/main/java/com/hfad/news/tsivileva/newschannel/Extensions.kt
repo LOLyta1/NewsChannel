@@ -11,20 +11,6 @@ import kotlinx.android.synthetic.main.fragment_feed.view.*
 import java.lang.Exception
 import java.lang.NullPointerException
 
-
-
-fun FragmentFeed.getRecyclerAdapter(): NewsListAdapter {
-    val adapter=view?.news_resycler_view?.adapter
-    if(adapter!=null){
-        return adapter as NewsListAdapter
-    }else{
-        val ex= Exception("невозможно получить адаптер в FragmentFeed  ")
-        ex.printStackTrace()
-        throw ex
-    }
-}
-
-
 fun Fragment.showErrorDialog(manager: FragmentManager,
                              targetFragment: Fragment,
                              dialogTag: String) {
@@ -64,7 +50,7 @@ fun getIdInLink(link: String?): Int? {
 val ERROR_FRAGMENT_FEED = "feed"
 val ERROR_FRAGMENT_FEED_DETAILS ="feed_details"
 
- fun addErrorFragment(fragmentManager:FragmentManager, containerId: Int, tag:String) {
+ fun showErrorFragment(fragmentManager:FragmentManager, containerId: Int, tag:String) {
         val fragment = FragmentNetworkError()
      if(fragmentManager.findFragmentByTag(tag)==null){
          fragmentManager.beginTransaction().
@@ -74,7 +60,7 @@ val ERROR_FRAGMENT_FEED_DETAILS ="feed_details"
      }
 }
 
-fun removeErrorFragment(fragmentManager:FragmentManager, tag:String){
+fun hideErrorFragment(fragmentManager:FragmentManager, tag:String){
     val fragment = fragmentManager.findFragmentByTag(tag)
     fragment?.let {
         fragmentManager.beginTransaction().remove(fragment).commit()
