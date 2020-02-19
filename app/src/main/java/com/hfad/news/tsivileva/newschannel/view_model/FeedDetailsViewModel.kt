@@ -8,7 +8,6 @@ import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 class FeedDetailsViewModel : ViewModel() {
     val repository = RemoteRepository.NewsContent()
     val cachedNewsItemLiveData = repository.cachedNewsItem
-    val loadeddNewsItemLiveData = repository.loadedNewsItem
 
     val loadingNewsStatus = repository.loadingSuccessful
     val cachedList = repository.cachedList

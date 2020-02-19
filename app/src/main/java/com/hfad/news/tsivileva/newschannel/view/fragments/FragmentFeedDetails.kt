@@ -49,7 +49,6 @@ class FragmentFeedDetails :
         viewModel = ViewModelProviders.of(activity!!).get(FeedDetailsViewModel::class.java)
         viewModel.cachedNewsItemLiveData.observe(viewLifecycleOwner, Observer { showNews(it) })
         viewModel.loadingNewsStatus.observe(viewLifecycleOwner, loadingIsSuccessfullObserver)
-        viewModel.loadeddNewsItemLiveData.observe(viewLifecycleOwner,Observer{showNews(it)})
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
 

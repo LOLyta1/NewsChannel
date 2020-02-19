@@ -135,7 +135,7 @@ class RemoteRepository {
         val loadingSuccessful = MutableLiveData<Boolean>()
         val cachedList = mutableListOf<NewsItem>()
         val cachedNewsItem = MutableLiveData<NewsItem>()
-        val loadedNewsItem = MutableLiveData<NewsItem>()
+
 
         private var subscriptionHabr = MutableLiveData<Disposable>()
         private var subscriptionProger = MutableLiveData<Disposable>()
@@ -186,7 +186,7 @@ class RemoteRepository {
                             id = getIdInLink(t.link),
                             sourceKind = Sources.HABR)
                     loadingSuccessful.postValue(true)
-                    loadedNewsItem.postValue(newsItem)
+                    cachedNewsItem.postValue(newsItem)
                     cachedList.add(newsItem)
                 }
 
@@ -207,7 +207,7 @@ class RemoteRepository {
                             id = getIdInLink(t.link),
                             sourceKind = Sources.PROGER)
                     loadingSuccessful.postValue(true)
-                    loadedNewsItem.postValue(newsItem)
+                    cachedNewsItem.postValue(newsItem)
                     cachedList.add(newsItem)
                 }
                 override fun onSubscribe(d: Disposable) = subscriptionProger.postValue(d)
