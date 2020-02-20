@@ -10,7 +10,7 @@ enum class Sources {
 
 data class NewsItem(
         var picture: String? = null,
-        var id: Int? = null,
+        var id: Long? = null,
         var sourceKind: Sources? = null,
         var link: String? = null,
         var date: String? = null,

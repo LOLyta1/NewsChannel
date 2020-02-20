@@ -2,6 +2,7 @@ package com.hfad.news.tsivileva.newschannel.model.proger;
 
 
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import com.hfad.news.tsivileva.newschannel.getIdInLink
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.annotation.Selector
 
@@ -25,6 +26,9 @@ class ProgerContent {
     var link:String ?=null
     get()=findLink(element)
 
+    var id:Long?=null
+    get()=findId(element)
+
     private fun findLink(el: Element?): String {
         var link=""
         el?.getElementsByTag("link")?.forEach {
@@ -33,5 +37,13 @@ class ProgerContent {
             }
         }
         return link
+    }
+
+    private fun findId(el: Element?):Long?{
+        var id:Long?=0L
+        el?.getElementsByTag("link")?.forEach {
+         id= getIdInLink(it.attr("id").toString())
+        }
+        return id
     }
 }

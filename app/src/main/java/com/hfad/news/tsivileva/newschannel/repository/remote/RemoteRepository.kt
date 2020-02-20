@@ -108,8 +108,8 @@ class RemoteRepository {
                         is Proger.Channel.Item -> {
                             var newsItem = NewsItem()
                             newsItem.sourceKind = Sources.PROGER
-                            newsItem.id = getIdInLink(it.link)
-                            newsItem.link = it.link
+                            newsItem.id = getIdInLink(it.guid)
+                            newsItem.link = it.guid
                             newsItem.title = it.title
                             newsItem.date = it.pubDate
                             newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
@@ -117,6 +117,7 @@ class RemoteRepository {
                             addToCache(newsItem)
                         }
                     }
+                    printCachedMutableList("","",cacheList)
                 }
             }
         }
@@ -146,8 +147,7 @@ class RemoteRepository {
         }
 
         fun downloadProger(url: String) {
-            val id = getIdInLink(url)
-            val newsItem = cachedList.find { it.id == id && it.sourceKind == Sources.PROGER }
+            val newsItem = cachedList.find { it.link == url && it.sourceKind == Sources.PROGER }
             if (newsItem == null) {
                 createObservableProgerItem(url).subscribe(createObserverProger())
             } else {
@@ -172,7 +172,7 @@ class RemoteRepository {
                             date = t.date,
                             picture = t.image,
                             link = t.link,
-                            id = getIdInLink(t.link),
+                            id = t.id,
                             sourceKind = Sources.HABR)
                     isDownloadSuccessful.postValue(true)
                     content.postValue(newsItem)
@@ -185,7 +185,7 @@ class RemoteRepository {
         }
 
         private fun createObserverProger(): SingleObserver<ProgerContent> {
-            return object : SingleObserver<ProgerContent> {
+             return object : SingleObserver<ProgerContent> {
                 override fun onSuccess(t: ProgerContent) {
                     val newsItem = NewsItem(
                             title = t.title,
@@ -193,12 +193,12 @@ class RemoteRepository {
                             date = t.date,
                             picture = t.image,
                             link = t.link,
-                            id = getIdInLink(t.link),
+                            id = t.id,
                             sourceKind = Sources.PROGER)
                     isDownloadSuccessful.postValue(true)
                     content.postValue(newsItem)
                     addToCache(newsItem)
-
+                    printCachedMutableList("","",cachedList)
                 }
 
                 override fun onSubscribe(d: Disposable) = subscriptionProger.postValue(d)
