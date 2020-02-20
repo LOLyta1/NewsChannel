@@ -34,12 +34,12 @@ class FragmentFeed() :
                 adapter.setmList(it)
         })
         viewModel.isDownloadSuccessful.observe(this, Observer<Boolean> { isDownloadingSuccessful ->
-            viewModel.stopLoad()
+            viewModel.stopDownload()
             if (isDownloadingSuccessful) {
-                removeFragmentError(childFragmentManager, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED)
+                removeFragmentError(childFragmentManager, FEED_ERROR_DOWNLOADING)
                 view?.swipe_container?.isRefreshing = false
             } else {
-                DialogError().apply { isCancelable = false }.show(childFragmentManager, DIALOG_FRAGMENT_WITH_ERROR)
+                DialogError().apply { isCancelable = false }.show(childFragmentManager, DIALOG_WITH_ERROR)
                 view?.swipe_container?.isRefreshing = true
             }
         })
@@ -72,7 +72,7 @@ class FragmentFeed() :
         detailsFragment.arguments = Bundle().apply {
             putString("url", url)
         }
-        parentFragmentManager.beginTransaction().replace(R.id.container, detailsFragment, FRAGMENT_WITH_FEED_CONTENT).addToBackStack(FRAGMENT_WITH_FEED_CONTENT).commit()
+        parentFragmentManager.beginTransaction().replace(R.id.container, detailsFragment, FEED_CONTENT).addToBackStack(FEED_CONTENT).commit()
     }
 
     override fun onDialogReloadClick(dialog: DialogError) {
@@ -82,7 +82,7 @@ class FragmentFeed() :
 
     override fun onDialogCancelClick(dialog: DialogError) {
         dialog.dismiss()
-        showErrorFragment(childFragmentManager, R.id.news_error_container, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED)
+        showErrorFragment(childFragmentManager, R.id.news_error_container, FEED_ERROR_DOWNLOADING)
         view?.swipe_container?.isRefreshing = false
     }
 

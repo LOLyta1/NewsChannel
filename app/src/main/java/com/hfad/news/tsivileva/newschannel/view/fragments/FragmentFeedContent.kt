@@ -3,7 +3,6 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,10 +38,10 @@ class FragmentFeedContent :
 
         viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer{ isSuccessful ->
             if (isSuccessful) {
-                removeFragmentError(childFragmentManager, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED_CONTENT)
+                removeFragmentError(childFragmentManager, FEED_CONTENT_ERROR_DOWNLOADING)
             } else {
                 view?.news_content_progress_bar?.visibility = View.VISIBLE
-                DialogError().apply{isCancelable=false}. show(childFragmentManager, DIALOG_FRAGMENT_WITH_ERROR)
+                DialogError().apply{isCancelable=false}.show(childFragmentManager, DIALOG_WITH_ERROR)
             }
             viewModel.stopLoad()
         })
@@ -64,13 +63,14 @@ class FragmentFeedContent :
         super.onDestroyView()
         //искуственно обнуляем новость, для того, чтобы после нажатия "back" и открытия другой новости обновить UI
         viewModel.news.postValue(NewsItem())
+        viewModel.isDownloadSuccessful.postValue(true)
     }
 
     private fun showNews(newsItem: NewsItem?) {
         if (newsItem?.id!= null) {
             view?.news_content_container?.visibility = View.VISIBLE
             view?.news_content_progress_bar?.visibility = View.GONE
-
+            view?.new_details_car_view?.visibility = View.VISIBLE
             view?.news_details_text_view?.text = newsItem.content
             view?.news_details_date_text_view?.text = newsItem.date
             view?.news_details_title_text_view?.text = newsItem.title
@@ -82,13 +82,12 @@ class FragmentFeedContent :
                 Picasso.get().load(path).placeholder(R.drawable.no_photo)
                         .error(R.drawable.no_photo)
                         .into(view?.news_details_image_view);
-            }else{
-                view?.new_details_car_view?.visibility = View.GONE
             }
+            view?.new_details_car_view?.visibility = View.GONE
         }
     }
-
     override fun onDialogReloadClick(dialog: DialogError) {
+        view?.news_content_progress_bar?.visibility = View.VISIBLE
         dialog.dismiss()
         loadContent()
     }
@@ -99,7 +98,7 @@ class FragmentFeedContent :
         showErrorFragment(
                 fragmentManager = childFragmentManager,
                 containerId = R.id.news_details_error_container,
-                tag = FRAGMENT_WITH_ERROR_DOWNLOADING_FEED_CONTENT
+                tag = FEED_CONTENT_ERROR_DOWNLOADING
         )
     }
 

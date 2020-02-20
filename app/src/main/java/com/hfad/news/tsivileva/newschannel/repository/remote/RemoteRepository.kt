@@ -48,24 +48,19 @@ class RemoteRepository {
     class AllNews() {
         private val HABR_URL = "https://habr.com/ru/rss/all/"
         private val PROGER_URL = "https://tproger.ru/feed/"
-        private var subscription = MutableLiveData<DisposableObserver<MutableList<List<Any>?>>>()
         private val cacheList = mutableListOf<NewsItem>()
 
         val news = MutableLiveData(cacheList)
         val isDownloadSuccessful = MutableLiveData<Boolean>()
+        var subscription = MutableLiveData<DisposableObserver<MutableList<List<Any>?>>>()
 
         fun load() {
             if (cacheList.isEmpty()) {
-                printCachedMutableList("AllNews","load",cacheList)
-                subscription.postValue(createObservable().subscribeWith(createObserver()))
+                subscription.value=createObservable().subscribeWith(createObserver())
             } else {
                 news.postValue(cacheList)
                 isDownloadSuccessful.postValue(true)
             }
-        }
-
-        fun stopLoad() {
-            subscription.value?.dispose()
         }
 
         private fun createObservable(): Observable<MutableList<List<Any>?>> {
@@ -230,7 +225,7 @@ class RemoteRepository {
             if (cachedList.find { item.id == it.id && item.sourceKind == it.sourceKind} == null)
                 cachedList.add(item)
         }
-
     }
+
 }
 
