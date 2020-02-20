@@ -34,7 +34,9 @@ class FragmentFeedContent :
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModel = ViewModelProviders.of(activity!!).get(FeedDetailsViewModel::class.java)
+
         viewModel.news.observe(viewLifecycleOwner, Observer { showNews(it) })
+
         viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer{ isSuccessful ->
             if (isSuccessful) {
                 removeFragmentError(childFragmentManager, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED_CONTENT)
@@ -50,13 +52,11 @@ class FragmentFeedContent :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         view.news_details_link_text_view.setOnClickListener {
                 val intent= Intent(Intent.ACTION_VIEW, Uri.parse(contentUrl))
                 val choosenIntent=Intent.createChooser(intent,"Choose application")
                 startActivity(choosenIntent)
         }
-
         loadContent()
     }
 
