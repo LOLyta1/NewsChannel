@@ -8,23 +8,22 @@ import com.hfad.news.tsivileva.newschannel.repository.remote.*
 class FeedViewModel : ViewModel() {
     private val repository = RemoteRepository.AllNews()
     val news = repository.news
+    val subscription = repository.subscription
     val isDownloadSuccessful = repository.isDownloadSuccessful
 
     fun loadAllNews() {
-       repository.load()
-        Log.d("mylog","NewsViewModel. loadAllNews()")
+        repository.load()
+        Log.d("mylog", "NewsViewModel. loadAllNews()")
     }
 
-    fun stopLoad(){
-        repository.stopLoad()
-        Log.d("mylog","NewsViewModel. stopLoad()()")
 
+    fun stopDownload() {
+        subscription.value?.dispose()
     }
 
     override fun onCleared() {
-       super.onCleared()
-       stopLoad()
+        super.onCleared()
+        stopDownload()
         news.value?.clear()
-        Log.d("mylog","NewsViewModel. onCleared()")
     }
 }

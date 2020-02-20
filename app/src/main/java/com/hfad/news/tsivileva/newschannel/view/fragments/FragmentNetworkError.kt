@@ -10,7 +10,6 @@ import kotlinx.android.synthetic.main.fragment_network_error.view.*
 
 class FragmentNetworkError : Fragment() {
 
-
     interface IErrorFragmentListener {
         fun onFragmentErrorReloadButtonClick()
     }
@@ -24,14 +23,12 @@ class FragmentNetworkError : Fragment() {
         val calledFragmentTag = parentFragmentManager.fragments.last().tag
         var listener: IErrorFragmentListener?=null
         when (calledFragmentTag) {
-            FRAGMENT_WITH_ERROR_DOWNLOADING_FEED->listener= parentFragment as FragmentFeed
-            FRAGMENT_WITH_ERROR_DOWNLOADING_FEED_CONTENT -> listener = parentFragment as FragmentFeedContent
+            FEED_ERROR_DOWNLOADING->listener= parentFragment as FragmentFeed
+            FEED_CONTENT_ERROR_DOWNLOADING -> listener = parentFragment as FragmentFeedContent
         }
 
         view.network_reload_image_view.setOnClickListener {
             listener?.onFragmentErrorReloadButtonClick()
         }
     }
-
-
 }

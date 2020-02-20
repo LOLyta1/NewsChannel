@@ -11,11 +11,11 @@ import kotlinx.android.synthetic.main.fragment_feed.view.*
 import java.lang.Exception
 import java.lang.NullPointerException
 
-val FRAGMENT_WITH_FEED = "fragment_with_feed"
-val FRAGMENT_WITH_FEED_CONTENT = "fragment_with_feed_content"
-val FRAGMENT_WITH_ERROR_DOWNLOADING_FEED = "fragment_with_error_downloading_feed"
-val FRAGMENT_WITH_ERROR_DOWNLOADING_FEED_CONTENT = "fragment_with_error_downloading_feed_content"
-val DIALOG_FRAGMENT_WITH_ERROR = "dialog_with_error"
+val FEED = "fragment_with_feed"
+val FEED_CONTENT = "fragment_with_feed_content"
+val FEED_ERROR_DOWNLOADING = "fragment_with_error_downloading_feed"
+val FEED_CONTENT_ERROR_DOWNLOADING = "fragment_with_error_downloading_feed_content"
+val DIALOG_WITH_ERROR = "dialog_with_error"
 
 
 fun Fragment.showDialogError(manager: FragmentManager,
