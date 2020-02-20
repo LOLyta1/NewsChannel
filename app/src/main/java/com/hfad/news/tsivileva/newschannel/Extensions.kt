@@ -19,7 +19,6 @@ val DIALOG_FRAGMENT_WITH_ERROR = "dialog_with_error"
 
 
 fun Fragment.showDialogError(manager: FragmentManager,
-                             targetFragment: Fragment,
                              dialogTag: String) {
     val dialog = DialogError()
     dialog.show(manager, dialogTag)
