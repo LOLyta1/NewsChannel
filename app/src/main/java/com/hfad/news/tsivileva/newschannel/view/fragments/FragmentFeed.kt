@@ -31,7 +31,7 @@ class FragmentFeed() :
             removeFragmentError(childFragmentManager, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED)
             view?.swipe_container?.isRefreshing = false
         } else {
-            showDialogError(childFragmentManager, this, "dialog_feed_error")
+            DialogError().apply{ isCancelable=false}.show(childFragmentManager, DIALOG_FRAGMENT_WITH_ERROR)
             view?.swipe_container?.isRefreshing = true
         }
     }

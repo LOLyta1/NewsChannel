@@ -39,7 +39,7 @@ class FragmentFeedContent :
                 removeFragmentError(childFragmentManager, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED_CONTENT)
             } else {
                 view?.news_content_progress_bar?.visibility = View.VISIBLE
-                showDialogError(childFragmentManager, this, DIALOG_FRAGMENT_WITH_ERROR)
+                DialogError().apply{isCancelable=false}. show(childFragmentManager, DIALOG_FRAGMENT_WITH_ERROR)
             }
             viewModel.stopLoad()
         })
@@ -59,7 +59,7 @@ class FragmentFeedContent :
     }
 
     private fun showNews(newsItem: NewsItem?) {
-        if (newsItem?.id != null) {
+        if (newsItem?.id!= null) {
             view?.news_content_container?.visibility = View.VISIBLE
             view?.news_content_progress_bar?.visibility = View.GONE
 
@@ -70,9 +70,12 @@ class FragmentFeedContent :
 
             val path = newsItem.picture
             if (path != null && !path.isEmpty()) {
+                view?.new_details_car_view?.visibility=View.VISIBLE
                 Picasso.get().load(path).placeholder(R.drawable.no_photo)
                         .error(R.drawable.no_photo)
                         .into(view?.news_details_image_view);
+            }else{
+                view?.new_details_car_view?.visibility = View.GONE
             }
         }
     }
