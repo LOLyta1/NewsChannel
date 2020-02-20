@@ -16,6 +16,4 @@ data class NewsItem(
         var date: String? = null,
         var title: String? = null,
         var content: String? = null
-
-) {
-}
+)

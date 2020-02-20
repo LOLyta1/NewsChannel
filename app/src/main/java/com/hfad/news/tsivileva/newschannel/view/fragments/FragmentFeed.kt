@@ -19,37 +19,29 @@ import kotlinx.android.synthetic.main.fragment_feed.view.*
 
 class FragmentFeed() :
         Fragment(),
-        DialogError.INetworkDialogListener,
         NewsListAdapter.IClickListener,
-        FragmentNetworkError.IErrorEventListener{
+        DialogError.IDialogListener,
+        FragmentNetworkError.IErrorFragmentListener {
 
-    lateinit var viewModel: FeedViewModel
+    private lateinit var viewModel: FeedViewModel
 
-    override fun onReloadButtonClick() {
-        viewModel.loadAllNews()
-        view?.swipe_container?.isRefreshing=true
-    }
-
-
-    val loadingStatusObserver = Observer<Boolean> { success ->
-        if (!success) {
-            showErrorDialog(childFragmentManager, this, "dialog_feed_error")
-            view?.swipe_container?.isRefreshing = true
-        }else{
-            if(success){
-                hideErrorFragment(childFragmentManager, ERROR_FRAGMENT_FEED)
-                view?.swipe_container?.isRefreshing = false
-            }
-        }
+    val loadingStatusObserver = Observer<Boolean> { isDownloadingSuccessful ->
         viewModel.stopLoad()
-
+        if (isDownloadingSuccessful) {
+            removeFragmentError(childFragmentManager, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED)
+            view?.swipe_container?.isRefreshing = false
+        } else {
+            showDialogError(childFragmentManager, this, "dialog_feed_error")
+            view?.swipe_container?.isRefreshing = true
+        }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(activity!!).get(FeedViewModel::class.java)
         viewModel.cachedList.observe(this, Observer {
-            val adapter=(view?.news_resycler_view?.adapter as NewsListAdapter)
+            val adapter = (view?.news_resycler_view?.adapter as NewsListAdapter)
             adapter.setmList(it)
         })
         viewModel.loadStatusLiveData.observe(this, loadingStatusObserver)
@@ -59,46 +51,55 @@ class FragmentFeed() :
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.news_resycler_view?.apply {
             adapter = NewsListAdapter(this@FragmentFeed)
             layoutManager = LinearLayoutManager(context)
-            addItemDecoration(NewsListDecorator(left = 10, top = 10, right = 10, bottom = 10))
+            addItemDecoration(NewsListDecorator())
         }
 
+        //TODO: поправить refresh
         view.swipe_container?.setOnRefreshListener {
-            val news=viewModel.cachedList.value
+            val news = viewModel.cachedList.value
             news?.clear()
-            viewModel.cachedList.value=news
+            viewModel.cachedList.value = news
             viewModel.loadAllNews()
         }
-
         viewModel.loadAllNews()
     }
 
+    override fun onNewsClick(url: String) {
 
-    override fun errorDialogUploadClick(dialog: DialogError) {
-        dialog.dismiss()
-        viewModel.loadAllNews()
-    }
-
-    override fun errorDialogCancelClick(dialog: DialogError) {
-        dialog.dismiss()
-        showErrorFragment(childFragmentManager,R.id.news_error_container, ERROR_FRAGMENT_FEED)
-        view?.swipe_container?.isRefreshing = false
-    }
-
-    override fun newsClick(url: String) {
-        val detailsFragment = FragmentFeedDetails()
+        val detailsFragment = FragmentFeedContent()
         detailsFragment.arguments = Bundle().apply {
             putString("url", url)
         }
-        val allNewsFragment = parentFragmentManager.findFragmentByTag("feed_fragment")
-        parentFragmentManager.beginTransaction().remove(allNewsFragment!!).add(R.id.container, detailsFragment, "detail_fragment").addToBackStack("detail_fragment").commit()
+        val newsFragment = parentFragmentManager.findFragmentByTag(FRAGMENT_WITH_FEED)
+
+
+        parentFragmentManager.
+                beginTransaction().
+                replace(R.id.container, detailsFragment, FRAGMENT_WITH_FEED_CONTENT).
+                addToBackStack(FRAGMENT_WITH_FEED_CONTENT).
+                commit()
     }
 
+    override fun onDialogReloadClick(dialog: DialogError) {
+        dialog.dismiss()
+        viewModel.loadAllNews()
+    }
+
+    override fun onDialogCancelClick(dialog: DialogError) {
+        dialog.dismiss()
+        showErrorFragment(childFragmentManager, R.id.news_error_container, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED)
+        view?.swipe_container?.isRefreshing = false
+    }
+
+    override fun onFragmentErrorReloadButtonClick() {
+        viewModel.loadAllNews()
+        view?.swipe_container?.isRefreshing = true
+    }
 
 }
 

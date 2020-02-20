@@ -16,26 +16,14 @@ import com.hfad.news.tsivileva.newschannel.view_model.FeedDetailsViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
-class FragmentFeedDetails :
+class FragmentFeedContent :
         Fragment(),
-        DialogError.INetworkDialogListener,
-        FragmentNetworkError.IErrorEventListener {
+        DialogError.IDialogListener,
+        FragmentNetworkError.IErrorFragmentListener {
 
     private var contentUrl: String? = null
     private lateinit var viewModel: FeedDetailsViewModel
 
-    private val loadingIsSuccessfullObserver = Observer<Boolean> { isSucess ->
-
-        if (!isSucess) {
-            showErrorDialog(childFragmentManager, this, "dialog_details_error")
-            view?.news_content_progress_bar?.visibility = View.VISIBLE
-
-        } else
-            if (isSucess) {
-                hideErrorFragment(childFragmentManager, ERROR_FRAGMENT_FEED_DETAILS)
-                viewModel.stopLoad()
-            }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,8 +32,18 @@ class FragmentFeedDetails :
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModel = ViewModelProviders.of(activity!!).get(FeedDetailsViewModel::class.java)
-        viewModel.cachedNews.observe(viewLifecycleOwner, Observer { showNews(it) })
-        viewModel.loadingStatus.observe(viewLifecycleOwner, loadingIsSuccessfullObserver)
+        viewModel.news.observe(viewLifecycleOwner, Observer { showNews(it) })
+
+        viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer{ isSuccessful ->
+            if (isSuccessful) {
+                removeFragmentError(childFragmentManager, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED_CONTENT)
+            } else {
+                view?.news_content_progress_bar?.visibility = View.VISIBLE
+                showDialogError(childFragmentManager, this, DIALOG_FRAGMENT_WITH_ERROR)
+            }
+            viewModel.stopLoad()
+        })
+
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
 
@@ -54,19 +52,10 @@ class FragmentFeedDetails :
         loadContent()
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        Log.d("mylog", "onDetach()")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d("mylog", "onDestroy()")
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.cachedNews.postValue(NewsItem())
+        //искуственно обнуляем новость, для того, чтобы после нажатия "back" и открытия другой новости обновить UI
+        viewModel.news.postValue(NewsItem())
     }
 
     private fun showNews(newsItem: NewsItem?) {
@@ -81,37 +70,31 @@ class FragmentFeedDetails :
 
             val path = newsItem.picture
             if (path != null && !path.isEmpty()) {
-                view?.new_details_car_view?.visibility = View.VISIBLE
                 Picasso.get().load(path).placeholder(R.drawable.no_photo)
                         .error(R.drawable.no_photo)
                         .into(view?.news_details_image_view);
-            } else {
-                view?.new_details_car_view?.visibility = View.GONE
             }
         }
-
     }
 
-
-    override fun errorDialogUploadClick(dialog: DialogError) {
+    override fun onDialogReloadClick(dialog: DialogError) {
         dialog.dismiss()
         loadContent()
     }
 
-    override fun errorDialogCancelClick(dialog: DialogError) {
+    override fun onDialogCancelClick(dialog: DialogError) {
         dialog.dismiss()
+        view?.news_content_progress_bar?.visibility=View.GONE
         showErrorFragment(
                 fragmentManager = childFragmentManager,
                 containerId = R.id.news_details_error_container,
-                tag = ERROR_FRAGMENT_FEED_DETAILS
+                tag = FRAGMENT_WITH_ERROR_DOWNLOADING_FEED_CONTENT
         )
     }
 
-
-    override fun onReloadButtonClick() {
+    override fun onFragmentErrorReloadButtonClick() {
         loadContent()
     }
-
 
     private fun loadContent() {
         contentUrl?.let {
@@ -122,5 +105,15 @@ class FragmentFeedDetails :
         }
     }
 
-
+    private fun getSourceKind(link:String?) : Sources?{
+        link?.let {
+            if( it.contains("habr.com")) {
+                return Sources.HABR
+            }else
+                if( it.contains("tproger.ru")) {
+                    return Sources.PROGER
+                }
+        }
+        return null
+    }
 }

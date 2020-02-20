@@ -12,9 +12,9 @@ import kotlinx.android.synthetic.main.dialog_network.view.*
 
 class DialogError() : DialogFragment() {
 
-    interface INetworkDialogListener {
-        fun errorDialogUploadClick(dialog: DialogError)
-        fun errorDialogCancelClick(dialog: DialogError)
+    interface IDialogListener {
+        fun onDialogReloadClick(dialog: DialogError)
+        fun onDialogCancelClick(dialog: DialogError)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -23,9 +23,9 @@ class DialogError() : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val parent = parentFragment as INetworkDialogListener
-        view.update_button.setOnClickListener { parent.errorDialogUploadClick(this) }
-        view.cancel_button.setOnClickListener {parent.errorDialogCancelClick(this) }
+        val parent = parentFragment as IDialogListener
+        view.update_button.setOnClickListener { parent.onDialogReloadClick(this) }
+        view.cancel_button.setOnClickListener {parent.onDialogCancelClick(this) }
     }
 
     override fun show(manager: FragmentManager, tag: String?) {

@@ -11,7 +11,14 @@ import kotlinx.android.synthetic.main.fragment_feed.view.*
 import java.lang.Exception
 import java.lang.NullPointerException
 
-fun Fragment.showErrorDialog(manager: FragmentManager,
+val FRAGMENT_WITH_FEED = "fragment_with_feed"
+val FRAGMENT_WITH_FEED_CONTENT = "fragment_with_feed_content"
+val FRAGMENT_WITH_ERROR_DOWNLOADING_FEED = "fragment_with_error_downloading_feed"
+val FRAGMENT_WITH_ERROR_DOWNLOADING_FEED_CONTENT = "fragment_with_error_downloading_feed_content"
+val DIALOG_FRAGMENT_WITH_ERROR = "dialog_with_error"
+
+
+fun Fragment.showDialogError(manager: FragmentManager,
                              targetFragment: Fragment,
                              dialogTag: String) {
     val dialog = DialogError()
@@ -27,19 +34,6 @@ fun String?.toNonNullString(): String {
     }
 }
 
-fun getSourceKind(link:String?) : Sources?{
-    link?.let {
-        if( it.contains("habr.com")) {
-            return Sources.HABR
-        }else
-            if( it.contains("tproger.ru")) {
-            return Sources.PROGER
-        }
-    }
-    return null
-}
-
-
 fun getIdInLink(link: String?): Int? {
     link?.let {
         return Regex("[0-9]{6,8}").find(link, 0)?.value?.toInt()
@@ -47,20 +41,14 @@ fun getIdInLink(link: String?): Int? {
     return null
 }
 
-val ERROR_FRAGMENT_FEED = "feed"
-val ERROR_FRAGMENT_FEED_DETAILS ="feed_details"
-
- fun showErrorFragment(fragmentManager:FragmentManager, containerId: Int, tag:String) {
-        val fragment = FragmentNetworkError()
-     if(fragmentManager.findFragmentByTag(tag)==null){
-         fragmentManager.beginTransaction().
-                 add(containerId, fragment, tag).
-                 addToBackStack(tag).
-                 commit()
-     }
+fun showErrorFragment(fragmentManager: FragmentManager, containerId: Int, tag: String) {
+    val fragment = FragmentNetworkError()
+    if (fragmentManager.findFragmentByTag(tag) == null) {
+        fragmentManager.beginTransaction().add(containerId, fragment, tag).addToBackStack(tag).commit()
+    }
 }
 
-fun hideErrorFragment(fragmentManager:FragmentManager, tag:String){
+fun removeFragmentError(fragmentManager: FragmentManager, tag: String) {
     val fragment = fragmentManager.findFragmentByTag(tag)
     fragment?.let {
         fragmentManager.beginTransaction().remove(fragment).commit()

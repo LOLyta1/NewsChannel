@@ -154,11 +154,11 @@ class RemoteRepository {
                 content.postValue(newsItem)
             }
         }
-        fun stopLoadHabr() {
+        fun unsubscribeHabr() {
             subscriptionHabr.value?.dispose()
         }
 
-        fun stopLoadProger() {
+        fun unsubscribeProger() {
             subscriptionProger.value?.dispose()
         }
 
