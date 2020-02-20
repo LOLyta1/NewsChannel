@@ -1,9 +1,13 @@
-package com.hfad.news.tsivileva.newschannel.view;
+package com.hfad.news.tsivileva.newschannel.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStore;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Bundle;
@@ -26,8 +30,9 @@ public class MainActivity extends AppCompatActivity //implements IView {
 
         fragmentFeed=new FragmentFeed();
         mFragmentTransaction= getSupportFragmentManager().beginTransaction();
-        mFragmentTransaction.add(R.id.container, fragmentFeed);
+        mFragmentTransaction.add(R.id.container, fragmentFeed,"feed_fragment");
         mFragmentTransaction.commit();
-        }
+  }
+
 
 }

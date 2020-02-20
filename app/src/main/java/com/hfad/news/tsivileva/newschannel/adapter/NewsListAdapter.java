@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hfad.news.tsivileva.newschannel.R;
-import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -22,17 +21,20 @@ import java.util.List;
 /*
  * Адаптер для RecyclerView
  */
-public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
-
-    public interface IClickListener {
-        void newsClick(NewsItem newsItem);
-    }
-
-    /*список элементов*/
+public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHolder> {
     private List<NewsItem> mList;
     private IClickListener listener;
 
-    public AdapterNews(IClickListener listener) {
+    public interface IClickListener {
+        void onNewsClick(String url);
+    }
+
+    public void setmList(List<NewsItem> mList) {
+        this.mList = mList;
+        notifyDataSetChanged();
+    }
+
+    public NewsListAdapter(IClickListener listener) {
         this.mList = new ArrayList<>();
         this.listener=listener;
     }
@@ -87,7 +89,7 @@ public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
                         .error(R.drawable.no_photo)
                         .into(holder.imageView);
             }
-            holder.card.setOnClickListener(v -> listener.newsClick(mList.get(position)));
+            holder.card.setOnClickListener(v -> listener.onNewsClick(mList.get(position).getLink()));
         }
     }
 
@@ -95,16 +97,6 @@ public class AdapterNews extends RecyclerView.Adapter<AdapterNews.ViewHolder> {
     @Override
     public int getItemCount() {
         return mList.size();
-    }
-
-    public void add(NewsItem newsItem) {
-        this.mList.add(newsItem);
-        notifyDataSetChanged();
-
-    }
-    public void cleare(){
-        this.mList.clear();
-        notifyDataSetChanged();
     }
 
     private void setValidText(View v, String text, String substitutionText) {

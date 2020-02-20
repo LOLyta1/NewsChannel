@@ -1,31 +1,51 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.hfad.news.tsivileva.newschannel.adapter.AdapterNews
-import com.hfad.news.tsivileva.newschannel.adapter.items.NewsDecorator
-import com.hfad.news.tsivileva.newschannel.presenter.HabrPresenter
-import com.hfad.news.tsivileva.newschannel.presenter.ProgerPresenter
-import com.hfad.news.tsivileva.newschannel.R
-import com.hfad.news.tsivileva.newschannel.adapter.items.NewsItem
-import com.hfad.news.tsivileva.newschannel.view.IView
-import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNet
+import com.hfad.news.tsivileva.newschannel.*
+import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
+import com.hfad.news.tsivileva.newschannel.adapter.NewsListDecorator
+import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogError
+
+import com.hfad.news.tsivileva.newschannel.view_model.FeedViewModel
 import kotlinx.android.synthetic.main.fragment_feed.view.*
 
 class FragmentFeed() :
         Fragment(),
-        IView,
-        DialogNet.INetworkDialogListener,
-        AdapterNews.IClickListener {
+        NewsListAdapter.IClickListener,
+        DialogError.IDialogListener,
+        FragmentNetworkError.IErrorFragmentListener {
 
-    private var swiper: SwipeRefreshLayout? = null
-    private val dialogTag = "disconnectes_dialog"
+    private lateinit var viewModel: FeedViewModel
+
+    val loadingStatusObserver = Observer<Boolean> { isDownloadingSuccessful ->
+        viewModel.stopLoad()
+        if (isDownloadingSuccessful) {
+            removeFragmentError(childFragmentManager, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED)
+            view?.swipe_container?.isRefreshing = false
+        } else {
+            showDialogError(childFragmentManager, this, "dialog_feed_error")
+            view?.swipe_container?.isRefreshing = true
+        }
+    }
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel = ViewModelProviders.of(activity!!).get(FeedViewModel::class.java)
+        viewModel.cachedList.observe(this, Observer {
+            val adapter = (view?.news_resycler_view?.adapter as NewsListAdapter)
+            adapter.setmList(it)
+        })
+        viewModel.loadStatusLiveData.observe(this, loadingStatusObserver)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_feed, container, false)
@@ -33,64 +53,53 @@ class FragmentFeed() :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.news_progress_bar.visibility = View.VISIBLE
-
-        view.new_list_resycler_view?.apply {
-            adapter = AdapterNews(this@FragmentFeed)
+        view.news_resycler_view?.apply {
+            adapter = NewsListAdapter(this@FragmentFeed)
             layoutManager = LinearLayoutManager(context)
-            addItemDecoration(NewsDecorator(left = 10, top = 10, right = 10, bottom = 10))
+            addItemDecoration(NewsListDecorator())
         }
-        swiper = view.swipe_container
-        swiper?.setOnRefreshListener { loadAllNews() }
-        loadAllNews()
-    }
 
-
-    override fun showNews(i: NewsItem?) {
-        (view?.new_list_resycler_view?.adapter as AdapterNews).add(i)
-    }
-
-    override fun showError(er: Throwable) {
-        er.printStackTrace()
-        val fragmentManager = activity?.supportFragmentManager
-        if (fragmentManager != null) {
-            val dialog = DialogNet()
-            dialog.setTargetFragment(this, 10)
-            if (fragmentManager.findFragmentByTag(dialogTag) == null) {
-                dialog.show(fragmentManager, dialogTag)
-            }
+        //TODO: поправить refresh
+        view.swipe_container?.setOnRefreshListener {
+            val news = viewModel.cachedList.value
+            news?.clear()
+            viewModel.cachedList.value = news
+            viewModel.loadAllNews()
         }
+        viewModel.loadAllNews()
     }
 
-    override fun showComplete() {
+    override fun onNewsClick(url: String) {
+
+        val detailsFragment = FragmentFeedContent()
+        detailsFragment.arguments = Bundle().apply {
+            putString("url", url)
+        }
+        val newsFragment = parentFragmentManager.findFragmentByTag(FRAGMENT_WITH_FEED)
+
+
+        parentFragmentManager.
+                beginTransaction().
+                replace(R.id.container, detailsFragment, FRAGMENT_WITH_FEED_CONTENT).
+                addToBackStack(FRAGMENT_WITH_FEED_CONTENT).
+                commit()
+    }
+
+    override fun onDialogReloadClick(dialog: DialogError) {
+        dialog.dismiss()
+        viewModel.loadAllNews()
+    }
+
+    override fun onDialogCancelClick(dialog: DialogError) {
+        dialog.dismiss()
+        showErrorFragment(childFragmentManager, R.id.news_error_container, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED)
         view?.swipe_container?.isRefreshing = false
-        view?.news_progress_bar?.visibility = View.GONE
     }
 
-    override fun uploadClick(dialog: DialogNet) {
-        dialog.dismiss()
-        loadAllNews()
+    override fun onFragmentErrorReloadButtonClick() {
+        viewModel.loadAllNews()
+        view?.swipe_container?.isRefreshing = true
     }
 
-    override fun cancelClick(dialog: DialogNet) {
-        dialog.dismiss()
-        showComplete()
-    }
-
-    private fun loadAllNews() {
-        HabrPresenter(this@FragmentFeed).getNews(true)
-        ProgerPresenter(this@FragmentFeed).getNews(true)
-    }
-
-    override fun newsClick(newsItem: NewsItem?) {
-        val fragment = FragmentFeedDetails()
-        fragment.arguments= Bundle().apply {
-            putString("http", newsItem?.link)
-            putString("img",newsItem?.picture)
-            Log.d("mylog","FragmentFeed - передать ссылку ${newsItem?.link}")
-        }
-        activity?.supportFragmentManager?.beginTransaction()?.replace(R.id.container, fragment, "detail_fragment")?.addToBackStack("detail_fragment")?.commit()
-
-
-    }
 }
+
