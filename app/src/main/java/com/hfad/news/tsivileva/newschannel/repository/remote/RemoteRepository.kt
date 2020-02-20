@@ -56,7 +56,8 @@ class RemoteRepository {
 
         fun load() {
             if (cacheList.isEmpty()) {
-                subscription.postValue( createObservable().subscribeWith(createObserver()) )
+                printCachedMutableList("AllNews","load",cacheList)
+                subscription.postValue(createObservable().subscribeWith(createObserver()))
             } else {
                 news.postValue(cacheList)
                 isDownloadSuccessful.postValue(true)
@@ -105,8 +106,8 @@ class RemoteRepository {
                             newsItem.picture = it.image
                             newsItem.title = it.title
                             newsItem.date = it.date
-                            cacheList.add(newsItem)
                             news.postValue(cacheList)
+                            addToCache(newsItem)
                         }
 
                         is Proger.Channel.Item -> {
@@ -117,12 +118,16 @@ class RemoteRepository {
                             newsItem.title = it.title
                             newsItem.date = it.pubDate
                             newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
-                            cacheList.add(newsItem)
                             news.postValue(cacheList)
+                            addToCache(newsItem)
                         }
                     }
                 }
             }
+        }
+        fun addToCache(item: NewsItem){
+            if (cacheList.find { item.id == it.id && item.sourceKind == it.sourceKind} == null)
+                cacheList.add(item)
         }
     }
 
@@ -154,6 +159,7 @@ class RemoteRepository {
                 content.postValue(newsItem)
             }
         }
+
         fun unsubscribeHabr() {
             subscriptionHabr.value?.dispose()
         }
@@ -175,8 +181,9 @@ class RemoteRepository {
                             sourceKind = Sources.HABR)
                     isDownloadSuccessful.postValue(true)
                     content.postValue(newsItem)
-                    cachedList.add(newsItem)
+                    addToCache(newsItem)
                 }
+
                 override fun onSubscribe(d: Disposable) = subscriptionHabr.postValue(d)
                 override fun onError(e: Throwable) = isDownloadSuccessful.postValue(false)
             }
@@ -195,8 +202,10 @@ class RemoteRepository {
                             sourceKind = Sources.PROGER)
                     isDownloadSuccessful.postValue(true)
                     content.postValue(newsItem)
-                    cachedList.add(newsItem)
+                    addToCache(newsItem)
+
                 }
+
                 override fun onSubscribe(d: Disposable) = subscriptionProger.postValue(d)
                 override fun onError(e: Throwable) = isDownloadSuccessful.postValue(false)
             }
@@ -217,6 +226,11 @@ class RemoteRepository {
                     .observeOn(Schedulers.io())
                     .subscribeOn(AndroidSchedulers.mainThread())
         }
+        private fun addToCache(item:NewsItem){
+            if (cachedList.find { item.id == it.id && item.sourceKind == it.sourceKind} == null)
+                cachedList.add(item)
+        }
+
     }
 }
 

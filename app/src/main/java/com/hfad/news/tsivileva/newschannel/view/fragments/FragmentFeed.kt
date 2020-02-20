@@ -25,26 +25,24 @@ class FragmentFeed() :
 
     private lateinit var viewModel: FeedViewModel
 
-    val loadingStatusObserver = Observer<Boolean> { isDownloadingSuccessful ->
-        viewModel.stopLoad()
-        if (isDownloadingSuccessful) {
-            removeFragmentError(childFragmentManager, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED)
-            view?.swipe_container?.isRefreshing = false
-        } else {
-            DialogError().apply{ isCancelable=false}.show(childFragmentManager, DIALOG_FRAGMENT_WITH_ERROR)
-            view?.swipe_container?.isRefreshing = true
-        }
-    }
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(activity!!).get(FeedViewModel::class.java)
-        viewModel.cachedList.observe(this, Observer {
+        viewModel.news.observe(this, Observer {
             val adapter = (view?.news_resycler_view?.adapter as NewsListAdapter)
-            adapter.setmList(it)
+            if ( !it.isEmpty() )
+                adapter.setmList(it)
         })
-        viewModel.loadStatusLiveData.observe(this, loadingStatusObserver)
+        viewModel.isDownloadSuccessful.observe(this, Observer<Boolean> { isDownloadingSuccessful ->
+            viewModel.stopLoad()
+            if (isDownloadingSuccessful) {
+                removeFragmentError(childFragmentManager, FRAGMENT_WITH_ERROR_DOWNLOADING_FEED)
+                view?.swipe_container?.isRefreshing = false
+            } else {
+                DialogError().apply { isCancelable = false }.show(childFragmentManager, DIALOG_FRAGMENT_WITH_ERROR)
+                view?.swipe_container?.isRefreshing = true
+            }
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -58,31 +56,23 @@ class FragmentFeed() :
             layoutManager = LinearLayoutManager(context)
             addItemDecoration(NewsListDecorator())
         }
+        viewModel.loadAllNews()
 
-        //TODO: поправить refresh
         view.swipe_container?.setOnRefreshListener {
-            val news = viewModel.cachedList.value
+            val news = viewModel.news.value
             news?.clear()
-            viewModel.cachedList.value = news
+            viewModel.news.value = news
             viewModel.loadAllNews()
         }
-        viewModel.loadAllNews()
+
     }
 
     override fun onNewsClick(url: String) {
-
         val detailsFragment = FragmentFeedContent()
         detailsFragment.arguments = Bundle().apply {
             putString("url", url)
         }
-        val newsFragment = parentFragmentManager.findFragmentByTag(FRAGMENT_WITH_FEED)
-
-
-        parentFragmentManager.
-                beginTransaction().
-                replace(R.id.container, detailsFragment, FRAGMENT_WITH_FEED_CONTENT).
-                addToBackStack(FRAGMENT_WITH_FEED_CONTENT).
-                commit()
+        parentFragmentManager.beginTransaction().replace(R.id.container, detailsFragment, FRAGMENT_WITH_FEED_CONTENT).addToBackStack(FRAGMENT_WITH_FEED_CONTENT).commit()
     }
 
     override fun onDialogReloadClick(dialog: DialogError) {
