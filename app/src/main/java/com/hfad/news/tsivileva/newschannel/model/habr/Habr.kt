@@ -18,7 +18,7 @@ class Habr {
         var title: String? = null
 
         @field:Element(name = "guid", required = false)
-        var link: String? = null
+        var link: String = ""
 
         @field:Element(name = "description", required = false, data = true)
         //@Convert(HabrItemsConverter::class)

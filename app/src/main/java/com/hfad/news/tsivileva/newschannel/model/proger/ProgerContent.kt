@@ -1,49 +1,42 @@
 package com.hfad.news.tsivileva.newschannel.model.proger;
-
-
-import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import android.util.Log
+import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import com.hfad.news.tsivileva.newschannel.getIdInLink
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.annotation.Selector
 
 class ProgerContent {
-    @Selector(value="html")
-    val element: org.jsoup.nodes.Element?=null
 
+    @Selector(value = ".entry-content")
+    var content: String? = null
 
-    @Selector(".entry-content")
-    var content:String?=null
+    @Selector(value = "head")
+    var dateElements:Element?=null
 
-    @Selector(".entry-date")
-    var date:String?=null
+    var date: String? = null
+    get() =findDate()
 
-    @Selector(".entry-title")
-    var title:String?=null
+    @Selector(value =".entry-title")
+    var title: String? = null
 
-    var image= "https://tproger.ru/apple-touch-icon.png"
+    var image ="https://tproger.ru/apple-touch-icon.png"
 
+    @Selector(value = "article", attr = "id")
+    var idElement: Element? = null
 
-    var link:String ?=null
-    get()=findLink(element)
+    var id: Long? = 0L
+        get() = findID(idElement)
 
-    var id:Long?=null
-    get()=findId(element)
-
-    private fun findLink(el: Element?): String {
-        var link=""
-        el?.getElementsByTag("link")?.forEach {
-            it.getElementsByAttributeValueStarting("rel","canonical").forEach {
-                link=it.attr("href").toString()
-            }
-        }
-        return link
+    fun findID(element: Element?): Long? {
+        return getIdInLink(element?.attr("id"))
     }
 
-    private fun findId(el: Element?):Long?{
-        var id:Long?=0L
-        el?.getElementsByTag("link")?.forEach {
-         id= getIdInLink(it.attr("id").toString())
+    fun findDate():String{
+        Log.d(DEBUG_LOG,"атрибут - ${dateElements.toString()}")
+        dateElements?.getElementsByAttributeValue("property","og:updated_time")?.forEach {
+            Log.d(DEBUG_LOG,"атрибут - ${it.attr("content")}")
+            return it.attr("content")
         }
-        return id
+        return ""
     }
 }

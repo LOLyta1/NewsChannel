@@ -54,7 +54,7 @@ class Proger {
             @field:Text(required = false)
             var comments: String? = null
             @field:Element(required = false)
-            var link: String? = null
+            var link: String =""
             @field:Element(required = false)
             var guid: String? = null
             @field:Element(required = false)

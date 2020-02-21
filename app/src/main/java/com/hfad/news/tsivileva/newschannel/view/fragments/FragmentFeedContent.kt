@@ -3,6 +3,7 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -82,8 +83,9 @@ class FragmentFeedContent :
                 Picasso.get().load(path).placeholder(R.drawable.no_photo)
                         .error(R.drawable.no_photo)
                         .into(view?.news_details_image_view);
+            }else{
+               view?.new_details_car_view?.visibility = View.GONE
             }
-            view?.new_details_car_view?.visibility = View.GONE
         }
     }
     override fun onDialogReloadClick(dialog: DialogError) {
