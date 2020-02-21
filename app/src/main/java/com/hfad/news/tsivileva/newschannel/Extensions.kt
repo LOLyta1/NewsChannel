@@ -33,9 +33,9 @@ fun String?.toNonNullString(): String {
     }
 }
 
-fun getIdInLink(link: String?): Int? {
+fun getIdInLink(link: String?): Long? {
     link?.let {
-        return Regex("[0-9]{6,8}").find(link, 0)?.value?.toInt()
+        return Regex("[0-9]{6,8}").find(link, 0)?.value?.toLong()
     }
     return null
 }

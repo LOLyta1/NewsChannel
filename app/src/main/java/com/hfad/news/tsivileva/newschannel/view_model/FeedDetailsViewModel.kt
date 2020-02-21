@@ -19,6 +19,7 @@ class FeedDetailsViewModel : ViewModel() {
     fun stopLoad() {
         repository.unsubscribeHabr()
         repository.unsubscribeProger()
+
     }
 
     override fun onCleared() {

@@ -108,8 +108,9 @@ class RemoteRepository {
                         is Proger.Channel.Item -> {
                             var newsItem = NewsItem()
                             newsItem.sourceKind = Sources.PROGER
-                            newsItem.id = getIdInLink(it.link)
+                            newsItem.id = getIdInLink(it.guid)
                             newsItem.link = it.link
+                            //newsItem.reserveLink=it.link
                             newsItem.title = it.title
                             newsItem.date = it.pubDate
                             newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
@@ -117,6 +118,7 @@ class RemoteRepository {
                             addToCache(newsItem)
                         }
                     }
+                    printCachedMutableList("","",cacheList)
                 }
             }
         }
@@ -135,21 +137,23 @@ class RemoteRepository {
         val cachedList = mutableListOf<NewsItem>()
         val content = MutableLiveData<NewsItem>()
 
+        private var URL:String=""
+
         fun downloadHabr(url: String) {
-            val id = getIdInLink(url)
-            val newsItem = cachedList.find { it.id == id && it.sourceKind == Sources.HABR }
+            URL=url
+            val newsItem = cachedList.find { it.id == getIdInLink(URL) && it.sourceKind == Sources.HABR }
             if (newsItem == null) {
-                createObservableHabrItem(url).subscribe(createObserverHabr())
+                createObservableHabrItem().subscribe(createObserverHabr())
             } else {
                 content.postValue(newsItem)
             }
         }
 
         fun downloadProger(url: String) {
-            val id = getIdInLink(url)
-            val newsItem = cachedList.find { it.id == id && it.sourceKind == Sources.PROGER }
+            URL=url
+            val newsItem = cachedList.find { it.link.matches(Regex(url)) && it.sourceKind == Sources.PROGER }
             if (newsItem == null) {
-                createObservableProgerItem(url).subscribe(createObserverProger())
+                createObservableProgerItem().subscribe(createObserverProger())
             } else {
                 content.postValue(newsItem)
             }
@@ -157,10 +161,13 @@ class RemoteRepository {
 
         fun unsubscribeHabr() {
             subscriptionHabr.value?.dispose()
+            content.value= NewsItem()
+
         }
 
         fun unsubscribeProger() {
             subscriptionProger.value?.dispose()
+            content.value=NewsItem()
         }
 
         private fun createObserverHabr(): SingleObserver<HabrContent> {
@@ -171,8 +178,8 @@ class RemoteRepository {
                             content = t.content,
                             date = t.date,
                             picture = t.image,
-                            link = t.link,
-                            id = getIdInLink(t.link),
+                            link = URL,
+                            id = t.id,
                             sourceKind = Sources.HABR)
                     isDownloadSuccessful.postValue(true)
                     content.postValue(newsItem)
@@ -185,20 +192,21 @@ class RemoteRepository {
         }
 
         private fun createObserverProger(): SingleObserver<ProgerContent> {
-            return object : SingleObserver<ProgerContent> {
+             return object : SingleObserver<ProgerContent> {
                 override fun onSuccess(t: ProgerContent) {
                     val newsItem = NewsItem(
                             title = t.title,
                             content = t.content,
                             date = t.date,
                             picture = t.image,
-                            link = t.link,
-                            id = getIdInLink(t.link),
+                            link=URL,
+                            id=t.id,
                             sourceKind = Sources.PROGER)
                     isDownloadSuccessful.postValue(true)
                     content.postValue(newsItem)
+                   // cachedList.add(newsItem)
                     addToCache(newsItem)
-
+                    printCachedMutableList("","",cachedList)
                 }
 
                 override fun onSubscribe(d: Disposable) = subscriptionProger.postValue(d)
@@ -206,16 +214,16 @@ class RemoteRepository {
             }
         }
 
-        private fun createObservableHabrItem(url: String): Single<HabrContent> {
-            return createRetrofit(url, RemoteRepositoryTypes.JSPOON)
+        private fun createObservableHabrItem(): Single<HabrContent> {
+            return createRetrofit(URL, RemoteRepositoryTypes.JSPOON)
                     .create(IRemoteApi::class.java)
                     .loadHabrDetails()
                     .observeOn(Schedulers.io())
                     .subscribeOn(AndroidSchedulers.mainThread())
         }
 
-        private fun createObservableProgerItem(url: String): Single<ProgerContent> {
-            return createRetrofit(url, RemoteRepositoryTypes.JSPOON)
+        private fun createObservableProgerItem(): Single<ProgerContent> {
+            return createRetrofit(URL, RemoteRepositoryTypes.JSPOON)
                     .create(IRemoteApi::class.java)
                     .loadProgDetails()
                     .observeOn(Schedulers.io())

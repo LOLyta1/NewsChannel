@@ -54,9 +54,9 @@ class Proger {
             @field:Text(required = false)
             var comments: String? = null
             @field:Element(required = false)
-            var link: String? = null
+            var link: String =""
             @field:Element(required = false)
-            var guid: Guid? = null
+            var guid: String? = null
             @field:Element(required = false)
             var description: String? = null
             @field:Element(required = false)
@@ -69,17 +69,6 @@ class Proger {
 
             override fun toString(): String {
                 return "ClassPojo [comments = $comments, link = $link, guid = $guid, description = $description, title = $title, category = $category, pubDate = $pubDate]"
-            }
-            @Root(name = "image", strict = false)
-            class Guid {
-                @field:Element(required = false)
-                var isPermaLink: String? = null
-                @field:Element(required = false)
-                var content: String? = null
-
-                override fun toString(): String {
-                    return "ClassPojo [isPermaLink = $isPermaLink, content = $content]"
-                }
             }
         }
     }

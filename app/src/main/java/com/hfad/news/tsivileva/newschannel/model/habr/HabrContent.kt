@@ -1,5 +1,6 @@
 package com.hfad.news.tsivileva.newschannel.model.habr;
 
+import com.hfad.news.tsivileva.newschannel.getIdInLink
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.annotation.Selector
 
@@ -19,17 +20,19 @@ class HabrContent {
 
 
     var image: String? = null
-    get()=findImage(htmlElement)
+        get() = findImage(htmlElement)
 
+    var id: Long? = null
+        get() = getIdInLink(link)
 
-private fun findImage(el: Element?) :String?{
-    el?.getElementsByTag("div")?.forEach {
-        it.getElementsByClass("post__text post__text-html").forEach {
-           return it.getElementsByTag("img").attr("src")
+    private fun findImage(el: Element?): String? {
+        el?.getElementsByTag("div")?.forEach {
+            it.getElementsByClass("post__text post__text-html").forEach {
+                return it.getElementsByTag("img").attr("src")
+            }
         }
+        return null
     }
-    return null
-}
 
 
     var link: String? = null
