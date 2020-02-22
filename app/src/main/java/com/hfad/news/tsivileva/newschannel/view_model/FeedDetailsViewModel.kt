@@ -1,6 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
 import androidx.lifecycle.ViewModel
+import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 
 class FeedDetailsViewModel : ViewModel() {
@@ -25,5 +26,10 @@ class FeedDetailsViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         stopLoad()
+    }
+
+    fun refreshData(){
+      news.postValue(NewsItem())
+      isDownloadSuccessful.postValue(true)
     }
 }

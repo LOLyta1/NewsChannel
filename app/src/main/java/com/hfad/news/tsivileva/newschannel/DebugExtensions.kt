@@ -7,8 +7,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
+import java.time.Instant
+import java.util.*
 
 val DEBUG_LOG = "mylog"
+val CACHE_LOG = "cache_log"
+val FEED_VIEW_MODEL_LOG = "feed_view_model_log"
+val REMOTE_LOG = "remote_log"
+
 
 fun printCachedLiveData(className: String,
                         methodName: String,
@@ -26,12 +32,12 @@ fun printCachedMutableList(className: String,
                         methodName: String,
                         cached:MutableList<NewsItem>
 ) {
-    Log.d(DEBUG_LOG, "$className.$methodName Данные по списку кэшу ")
-    Log.d(DEBUG_LOG, "$className.$methodName Содержимое списка кэша: ")
-
+    Log.d(DEBUG_LOG, "$className.$methodName Содержимое списка  ")
     cached.forEach {
-        Log.d(DEBUG_LOG, "$className.$methodName --- $it")
+        Log.d(CACHE_LOG, "$className.$methodName --- $it")
     }
+    Log.d(CACHE_LOG, "_________________________________________________________________________________")
+
 }
 
 fun logStateSwiper(swiper:SwipeRefreshLayout?,info:String){
@@ -48,5 +54,7 @@ fun printFragmentsInManager(manager :FragmentManager){
      }
 }
 
-fun printLiveDataObservers(liveData : LiveData<Any>){
- }
+fun logIt(className:String?, methodName:String?, info: String, tag: String?= DEBUG_LOG){
+  //  val date=Date(GregorianCalendar().gregorianChange.time)
+    Log.d(tag,"$className.$methodName(): $info")
+}

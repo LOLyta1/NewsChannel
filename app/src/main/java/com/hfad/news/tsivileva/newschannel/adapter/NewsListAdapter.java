@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.hfad.news.tsivileva.newschannel.R;
+import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -23,48 +24,52 @@ import java.util.List;
  */
 public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHolder> {
     private List<NewsItem> mList;
-    private IClickListener listener;
+    private INewsItemClickListener listener;
 
-    public interface IClickListener {
-        void onNewsClick(String url);
+    public interface INewsItemClickListener {
+        void onNewsClick(Integer position);
     }
 
     public void setmList(List<NewsItem> mList) {
         this.mList = mList;
         notifyDataSetChanged();
     }
-
-    public NewsListAdapter(IClickListener listener) {
+    public NewsListAdapter(INewsItemClickListener listener) {
         this.mList = new ArrayList<>();
         this.listener=listener;
     }
+
 
     @NonNull
     @Override
     /*для каждого элемента списка "раздувает" представление при помощи разметки*/
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View cv = LayoutInflater. from(parent.getContext()). inflate(R.layout.item_list, parent, false);
-        return new ViewHolder(cv);
+        return new ViewHolder(cv,listener);
     }
 
     /*вложенный класс-указывает, что за элемент будет использоваться в качестве предсталения, хранит сылку
      * на этот элемент*/
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private View card;
         private TextView titleTextView;
         private ImageView imageView;
         private TextView linkView;
+        private INewsItemClickListener clickListener;
 
-        public ViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView, INewsItemClickListener clickListener) {
             super(itemView);
             this.card = itemView;
             this.titleTextView = card.findViewById(R.id.news_title_text_view);
             this.imageView = card.findViewById(R.id.news_image_view);
             this.linkView = card.findViewById(R.id.news_link_text_view);
+            this.clickListener=clickListener;
+            itemView.setOnClickListener(this);
         }
-
-
+        @Override
+        public void onClick(View view) {
+            clickListener.onNewsClick(getAdapterPosition());//getAdapterPosition());
+        }
     }
 
     @Override
@@ -81,15 +86,16 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
             if (picture != null) {
                 Picasso.get().load(picture)
                         .placeholder(R.drawable.no_photo)
+                        .memoryPolicy(MemoryPolicy.NO_STORE)
                         .error(R.drawable.no_photo)
                         .into(holder.imageView);
             } else {
                 Picasso.get().load("https://images.app.goo.gl/njSMVbDb6qBv71rD6")
                         .placeholder(R.drawable.no_photo)
+                        .memoryPolicy(MemoryPolicy.NO_STORE)
                         .error(R.drawable.no_photo)
                         .into(holder.imageView);
             }
-            holder.card.setOnClickListener(v -> listener.onNewsClick(mList.get(position).getLink()));
         }
     }
 
