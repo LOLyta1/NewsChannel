@@ -2,6 +2,7 @@ package com.hfad.news.tsivileva.newschannel
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
 import com.hfad.news.tsivileva.newschannel.adapter.Sources
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogError
@@ -35,9 +36,16 @@ fun String?.toNonNullString(): String {
 
 fun getIdInLink(link: String?): Long? {
     link?.let {
-        return Regex("[0-9]{6,8}").find(link, 0)?.value?.toLong()
+        return Regex("[0-9]{5,8}").find(link, 0)?.value?.toLong()
     }
     return null
+}
+
+fun isNotEmptyNewsList(news:MutableList<NewsItem>):Boolean{
+    news.forEach {
+        if (it.id==null) return false
+    }
+    return true
 }
 
 fun showErrorFragment(fragmentManager: FragmentManager, containerId: Int, tag: String) {
@@ -54,6 +62,7 @@ fun removeFragmentError(fragmentManager: FragmentManager, tag: String) {
     }
     printFragmentsInManager(fragmentManager)
 }
+
 
 
 

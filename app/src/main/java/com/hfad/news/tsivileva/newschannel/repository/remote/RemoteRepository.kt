@@ -1,5 +1,6 @@
 package com.hfad.news.tsivileva.newschannel.repository.remote
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
@@ -48,16 +49,21 @@ class RemoteRepository {
     class AllNews() {
         private val HABR_URL = "https://habr.com/ru/rss/all/"
         private val PROGER_URL = "https://tproger.ru/feed/"
-        private val cacheList = mutableListOf<NewsItem>()
+         var cacheList = mutableListOf<NewsItem>()
 
-        val news = MutableLiveData(cacheList)
+        val news = MutableLiveData(mutableListOf<NewsItem>())
         val isDownloadSuccessful = MutableLiveData<Boolean>()
         var subscription = MutableLiveData<DisposableObserver<MutableList<List<Any>?>>>()
 
+        fun cleareCache(){
+            cacheList= mutableListOf()
+        }
         fun load() {
             if (cacheList.isEmpty()) {
+                logIt("RemoteRepository","load","Загрузка из сети ", REMOTE_LOG)
                 subscription.value=createObservable().subscribeWith(createObserver())
             } else {
+                logIt("RemoteRepository","load","Загрузка из кеша  ", REMOTE_LOG)
                 news.postValue(cacheList)
                 isDownloadSuccessful.postValue(true)
             }
@@ -75,7 +81,6 @@ class RemoteRepository {
                     .loadProger()
                     .observeOn(Schedulers.io())
                     .subscribeOn(AndroidSchedulers.mainThread())
-
             return Observable.zip(habrObservable, progerObservable, BiFunction<Habr, Proger, MutableList<List<Any>?>> { h, p ->
                 mutableListOf(h.items, p.channel?.items)
             })
@@ -83,7 +88,11 @@ class RemoteRepository {
 
         private fun createObserver(): DisposableObserver<MutableList<List<Any>?>> {
             return object : DisposableObserver<MutableList<List<Any>?>>() {
-                override fun onComplete() = isDownloadSuccessful.postValue(true)
+                override fun onComplete() {
+                    logIt("RemoteRepository","createObserver.onComplete","Загрузка завршена  ", REMOTE_LOG)
+                    news.postValue(cacheList)
+                    isDownloadSuccessful.postValue(true)
+                }
                 override fun onNext(t: MutableList<List<Any>?>) = parseNews(t)
                 override fun onError(e: Throwable) = isDownloadSuccessful.postValue(false)
             }
@@ -101,24 +110,19 @@ class RemoteRepository {
                             newsItem.picture = it.image
                             newsItem.title = it.title
                             newsItem.date = it.date
-                            news.postValue(cacheList)
                             addToCache(newsItem)
                         }
-
                         is Proger.Channel.Item -> {
                             var newsItem = NewsItem()
                             newsItem.sourceKind = Sources.PROGER
                             newsItem.id = getIdInLink(it.guid)
                             newsItem.link = it.link
-                            //newsItem.reserveLink=it.link
                             newsItem.title = it.title
                             newsItem.date = it.pubDate
                             newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
-                            news.postValue(cacheList)
                             addToCache(newsItem)
                         }
                     }
-                    printCachedMutableList("","",cacheList)
                 }
             }
         }
@@ -127,7 +131,6 @@ class RemoteRepository {
                 cacheList.add(item)
         }
     }
-
 
     class NewsContent() {
         private var subscriptionHabr = MutableLiveData<Disposable>()
@@ -185,7 +188,6 @@ class RemoteRepository {
                     content.postValue(newsItem)
                     addToCache(newsItem)
                 }
-
                 override fun onSubscribe(d: Disposable) = subscriptionHabr.postValue(d)
                 override fun onError(e: Throwable) = isDownloadSuccessful.postValue(false)
             }
@@ -206,7 +208,7 @@ class RemoteRepository {
                     content.postValue(newsItem)
                    // cachedList.add(newsItem)
                     addToCache(newsItem)
-                    printCachedMutableList("","",cachedList)
+                   printCachedMutableList("","",cachedList)
                 }
 
                 override fun onSubscribe(d: Disposable) = subscriptionProger.postValue(d)

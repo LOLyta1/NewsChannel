@@ -62,9 +62,7 @@ class FragmentFeedContent :
 
     override fun onDestroyView() {
         super.onDestroyView()
-        //искуственно обнуляем новость, для того, чтобы после нажатия "back" и открытия другой новости обновить UI
-        viewModel.news.postValue(NewsItem())
-        viewModel.isDownloadSuccessful.postValue(true)
+        viewModel.refreshData()
     }
 
     private fun showNews(newsItem: NewsItem?) {
@@ -88,6 +86,7 @@ class FragmentFeedContent :
             }
         }
     }
+
     override fun onDialogReloadClick(dialog: DialogError) {
         view?.news_content_progress_bar?.visibility = View.VISIBLE
         dialog.dismiss()

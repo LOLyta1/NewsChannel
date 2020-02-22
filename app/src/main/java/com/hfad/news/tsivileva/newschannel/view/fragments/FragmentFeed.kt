@@ -1,6 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,7 @@ import androidx.lifecycle.ViewModelProviders
 
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hfad.news.tsivileva.newschannel.*
+import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListDecorator
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogError
@@ -19,23 +21,28 @@ import kotlinx.android.synthetic.main.fragment_feed.view.*
 
 class FragmentFeed() :
         Fragment(),
-        NewsListAdapter.IClickListener,
+        NewsListAdapter.INewsItemClickListener,
         DialogError.IDialogListener,
         FragmentNetworkError.IErrorFragmentListener {
 
     private lateinit var viewModel: FeedViewModel
+    private var newsItems = mutableListOf<NewsItem>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModel = ViewModelProviders.of(activity!!).get(FeedViewModel::class.java)
-        viewModel.news.observe(this, Observer {
-            val adapter = (view?.news_resycler_view?.adapter as NewsListAdapter)
-            if ( !it.isEmpty() )
-                adapter.setmList(it)
+        viewModel.news.observe(viewLifecycleOwner, Observer {
+            printCachedMutableList("FragmentFeed", " viewModel.news.observer()", it)
+            newsItems = it
         })
-        viewModel.isDownloadSuccessful.observe(this, Observer<Boolean> { isDownloadingSuccessful ->
+
+        viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer<Boolean> { isDownloadingSuccessful ->
             viewModel.stopDownload()
             if (isDownloadingSuccessful) {
+                logIt("FragmentFeed"," viewModel.news.observe","загрузка прошла успешно, пришло ${newsItems.count()} элементов", DEBUG_LOG)
+                if(newsItems.isNotEmpty()){
+                    val adapter = (view?.news_resycler_view?.adapter as NewsListAdapter)
+                    adapter.setmList(newsItems)
+                }
                 removeFragmentError(childFragmentManager, FEED_ERROR_DOWNLOADING)
                 view?.swipe_container?.isRefreshing = false
             } else {
@@ -43,9 +50,6 @@ class FragmentFeed() :
                 view?.swipe_container?.isRefreshing = true
             }
         })
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
@@ -59,20 +63,20 @@ class FragmentFeed() :
         viewModel.loadAllNews()
 
         view.swipe_container?.setOnRefreshListener {
-            val news = viewModel.news.value
-            news?.clear()
-            viewModel.news.value = news
+            viewModel.cleareCache()
             viewModel.loadAllNews()
         }
-
     }
 
-    override fun onNewsClick(url: String) {
-        val detailsFragment = FragmentFeedContent()
-        detailsFragment.arguments = Bundle().apply {
-            putString("url", url)
+    override fun onNewsClick(position: Int?) {
+        Log.d(DEBUG_LOG, "onNewsClick[$position]")
+        position?.let {
+            val url = viewModel.news.value?.get(position)?.link
+            val detailsFragment = FragmentFeedContent().apply {
+                arguments = Bundle().apply { putString("url", url) }
+            }
+            parentFragmentManager.beginTransaction().replace(R.id.container, detailsFragment, FEED_CONTENT).addToBackStack(FEED_CONTENT).commit()
         }
-        parentFragmentManager.beginTransaction().replace(R.id.container, detailsFragment, FEED_CONTENT).addToBackStack(FEED_CONTENT).commit()
     }
 
     override fun onDialogReloadClick(dialog: DialogError) {
@@ -87,9 +91,12 @@ class FragmentFeed() :
     }
 
     override fun onFragmentErrorReloadButtonClick() {
+        viewModel.cleareCache()
         viewModel.loadAllNews()
         view?.swipe_container?.isRefreshing = true
     }
+
+
 
 }
 
