@@ -1,7 +1,10 @@
 package com.hfad.news.tsivileva.newschannel.model.habr
 
+
 import com.hfad.news.tsivileva.newschannel.toNonNullString
 import org.simpleframework.xml.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Root(name = "rss", strict = false)
 class Habr {
@@ -25,7 +28,17 @@ class Habr {
         var description: String? = null
 
         @field:Element(name = "pubDate", required = false)
-        var date: String? = null
+        var dateString: String? = null
+
+        var  date: Date?=null
+        get() {
+            dateString?.let {
+                val from = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US)
+                return from.parse(it)
+            }
+            return null
+        }
+
 
         var image: String? = null
             get() = findImage()

@@ -1,6 +1,10 @@
 package com.hfad.news.tsivileva.newschannel.model.proger
 
+import android.util.Log
+import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import org.simpleframework.xml.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Root(name = "rss", strict = false)
 class Proger {
@@ -66,6 +70,16 @@ class Proger {
             var category: String? = null
             @field:Element(required = false)
             var pubDate: String? = null
+
+            var date: Date?=null
+            get(){
+                pubDate?.let{
+                    Log.d(DEBUG_LOG,"Proger() сериализация , dateString=$pubDate")
+                    val from = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z",Locale.US)
+                    return from.parse(pubDate!!)
+                }
+                return null
+            }
 
             override fun toString(): String {
                 return "ClassPojo [comments = $comments, link = $link, guid = $guid, description = $description, title = $title, category = $category, pubDate = $pubDate]"

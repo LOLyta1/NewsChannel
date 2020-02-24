@@ -55,6 +55,7 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
         private TextView titleTextView;
         private ImageView imageView;
         private TextView linkView;
+        private TextView dateView;
         private INewsItemClickListener clickListener;
 
         public ViewHolder(@NonNull View itemView, INewsItemClickListener clickListener) {
@@ -63,6 +64,7 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
             this.titleTextView = card.findViewById(R.id.news_title_text_view);
             this.imageView = card.findViewById(R.id.news_image_view);
             this.linkView = card.findViewById(R.id.news_link_text_view);
+            this.dateView=card.findViewById(R.id.news_pub_date_text_view);
             this.clickListener=clickListener;
             itemView.setOnClickListener(this);
         }
@@ -79,9 +81,11 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
             String title = mList.get(position).getTitle();
             String link = mList.get(position).getLink();
             String picture = mList.get(position).getPicture();
+            String date= mList.get(position).getStringDate();
 
-            setValidText(holder.titleTextView, title, "Нет текста:");
-            setValidText(holder.linkView, link, "Нет ссылки");
+            holder.titleTextView.setText(title);
+            holder.linkView.setText(link);
+            holder.dateView.setText(date);
 
             if (picture != null) {
                 Picasso.get().load(picture)

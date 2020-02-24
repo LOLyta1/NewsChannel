@@ -28,9 +28,15 @@ class FeedViewModel : ViewModel() {
         subscription.value?.dispose()
     }
 
+    fun sort(sortKind: Sort){
+     repository.sortNews(sortKind)
+    }
+
     override fun onCleared() {
         logIt("FeedViewModel","onCleared","", FEED_VIEW_MODEL_LOG)
         super.onCleared()
         stopDownload()
     }
+
+
 }

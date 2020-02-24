@@ -11,6 +11,8 @@ import com.hfad.news.tsivileva.newschannel.view_model.FeedViewModel
 
 class MainActivity : AppCompatActivity()
 {
+    private var viewModel:FeedViewModel?=null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)

@@ -40,13 +40,21 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/news_pub_date_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:fontFamily="@font/elisabethische"
+            android:textColor="@color/colorAccent"
+            android:textSize="14sp" />
+
+        <TextView
             android:id="@+id/news_title_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:fontFamily="@font/elisabethische"
             android:gravity="bottom"
-            android:textColor="@android:color/background_light"
+            android:textColor="@color/colorAccent"
             android:textSize="18sp"
             tools:text="Заголовок" />
 
@@ -57,7 +65,7 @@
             android:layout_marginTop="10dp"
             android:fontFamily="@font/matador"
             android:gravity="end"
-            android:textColor="@android:color/background_light"
+            android:textColor="@color/colorAccent"
             android:textSize="14sp"
             tools:text="Источник"
             tools:visibility="visible" />

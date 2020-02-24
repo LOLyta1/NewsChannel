@@ -4,6 +4,8 @@ import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import com.hfad.news.tsivileva.newschannel.getIdInLink
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.annotation.Selector
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ProgerContent {
 
@@ -13,7 +15,7 @@ class ProgerContent {
     @Selector(value = "head")
     var dateElements:Element?=null
 
-    var date: String? = null
+    var date: Date? = null
     get() =findDate()
 
     @Selector(value =".entry-title")
@@ -31,12 +33,14 @@ class ProgerContent {
         return getIdInLink(element?.attr("id"))
     }
 
-    fun findDate():String{
+    fun findDate():Date?{
+        var dateString=""
         Log.d(DEBUG_LOG,"атрибут - ${dateElements.toString()}")
         dateElements?.getElementsByAttributeValue("property","og:updated_time")?.forEach {
             Log.d(DEBUG_LOG,"атрибут - ${it.attr("content")}")
-            return it.attr("content")
+           dateString= it.attr("content")
         }
-        return ""
+       val from= SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX",Locale.US)
+       return from.parse(dateString)
     }
 }

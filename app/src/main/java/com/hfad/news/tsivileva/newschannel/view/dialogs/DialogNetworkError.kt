@@ -10,15 +10,16 @@ import com.hfad.news.tsivileva.newschannel.R
 import kotlinx.android.synthetic.main.dialog_network.view.*
 
 
-class DialogError() : DialogFragment() {
+class DialogNetworkError() : DialogFragment() {
 
     interface IDialogListener {
-        fun onDialogReloadClick(dialog: DialogError)
-        fun onDialogCancelClick(dialog: DialogError)
+        fun onDialogReloadClick(dialogNetwork: DialogNetworkError)
+        fun onDialogCancelClick(dialogNetwork: DialogNetworkError)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        isCancelable=false
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
