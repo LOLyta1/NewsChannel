@@ -3,13 +3,8 @@ package com.hfad.news.tsivileva.newschannel
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
-import com.hfad.news.tsivileva.newschannel.adapter.Sources
-import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogError
-import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentFeed
+import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentNetworkError
-import kotlinx.android.synthetic.main.fragment_feed.view.*
-import java.lang.Exception
 import java.lang.NullPointerException
 
 val FEED = "fragment_with_feed"
@@ -17,11 +12,13 @@ val FEED_CONTENT = "fragment_with_feed_content"
 val FEED_ERROR_DOWNLOADING = "fragment_with_error_downloading_feed"
 val FEED_CONTENT_ERROR_DOWNLOADING = "fragment_with_error_downloading_feed_content"
 val DIALOG_WITH_ERROR = "dialog_with_error"
+val DIALOG_WITH_FILTER="dialog_with_filter"
+val DIALOG_WITH_SORT="dialog_with_sort"
 
 
 fun Fragment.showDialogError(manager: FragmentManager,
                              dialogTag: String) {
-    val dialog = DialogError()
+    val dialog = DialogNetworkError()
     dialog.show(manager, dialogTag)
 }
 

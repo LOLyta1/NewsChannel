@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <CheckBox
+        android:id="@+id/dialog_proger_check_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_filter_proger_text" />
+
+    <CheckBox
+        android:id="@+id/dialog_habr_check_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_filter_hbr_text" />
+
+    <Button
+        android:id="@+id/dialog_filter_button"
+        style='style="@style/Widget.AppCompat.Button.Borderless'
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@android:string/ok" />
+
+</LinearLayout>

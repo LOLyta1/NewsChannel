@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <RadioGroup
+        android:id="@+id/sort_feeds_radio_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <RadioButton
+            android:id="@+id/sort_feeds_by_date_asc_radio_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/sort_date_asc_text" />
+
+        <RadioButton
+            android:id="@+id/sort_feeds_by_date_desc_radio_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_date_desc_text" />
+
+
+        <RadioButton
+            android:id="@+id/sort_feeds_by_abc_asc_radio_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_abs_asc_text" />
+
+        <RadioButton
+            android:id="@+id/sort_feeds_by_abs_desc_radio_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_abs_desc_text" />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/dialog_sort_feed_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@android:string/ok" />
+</LinearLayout>

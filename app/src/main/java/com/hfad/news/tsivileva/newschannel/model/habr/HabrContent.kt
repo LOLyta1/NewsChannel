@@ -3,17 +3,32 @@ package com.hfad.news.tsivileva.newschannel.model.habr;
 import com.hfad.news.tsivileva.newschannel.getIdInLink
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.annotation.Selector
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 class HabrContent {
+    val id: Long?
+        get() = getIdInLink(link)
+
     @Selector(value = "html")
     val htmlElement: Element? = null
-
 
     @Selector(value = ".post__title-text")
     var title: String? = null
 
-    @Selector(value = ".post__time")
-    var date: String? = null
+    @Selector(value = ".post__time", attr = "data-time_published")
+    var dateString: String? = null
+
+    var date: Date? = null
+        get() {
+            dateString?.let{
+                val from=SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'",Locale.US)
+                return from.parse(it)
+            }
+            return null
+        }
 
     @Selector(value = "#post-content-body")
     var content: String? = null
@@ -21,9 +36,6 @@ class HabrContent {
 
     var image: String? = null
         get() = findImage(htmlElement)
-
-    var id: Long? = null
-        get() = getIdInLink(link)
 
     private fun findImage(el: Element?): String? {
         el?.getElementsByTag("div")?.forEach {

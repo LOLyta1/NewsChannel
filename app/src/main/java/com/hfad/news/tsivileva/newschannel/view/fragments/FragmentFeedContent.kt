@@ -3,24 +3,24 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.adapter.Sources
-import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogError
+import com.hfad.news.tsivileva.newschannel.adapter.Source
+import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view_model.FeedDetailsViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
 class FragmentFeedContent :
         Fragment(),
-        DialogError.IDialogListener,
+        DialogNetworkError.IDialogListener,
         FragmentNetworkError.IErrorFragmentListener {
 
     private var contentUrl: String? = null
@@ -29,11 +29,12 @@ class FragmentFeedContent :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (activity as AppCompatActivity).supportActionBar?.hide()
         contentUrl = arguments?.getString("url")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        viewModel = ViewModelProviders.of(activity!!).get(FeedDetailsViewModel::class.java)
+       viewModel = ViewModelProviders.of(activity!!).get(FeedDetailsViewModel::class.java)
 
         viewModel.news.observe(viewLifecycleOwner, Observer { showNews(it) })
 
@@ -42,11 +43,10 @@ class FragmentFeedContent :
                 removeFragmentError(childFragmentManager, FEED_CONTENT_ERROR_DOWNLOADING)
             } else {
                 view?.news_content_progress_bar?.visibility = View.VISIBLE
-                DialogError().apply{isCancelable=false}.show(childFragmentManager, DIALOG_WITH_ERROR)
+                DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
             }
             viewModel.stopLoad()
         })
-
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
 
@@ -71,7 +71,7 @@ class FragmentFeedContent :
             view?.news_content_progress_bar?.visibility = View.GONE
             view?.new_details_car_view?.visibility = View.VISIBLE
             view?.news_details_text_view?.text = newsItem.content
-            view?.news_details_date_text_view?.text = newsItem.date
+            view?.news_details_date_text_view?.text = newsItem.getStringDate()
             view?.news_details_title_text_view?.text = newsItem.title
             view?.news_details_link_text_view?.text = newsItem.link
 
@@ -87,14 +87,14 @@ class FragmentFeedContent :
         }
     }
 
-    override fun onDialogReloadClick(dialog: DialogError) {
+    override fun onDialogReloadClick(dialogNetwork: DialogNetworkError) {
         view?.news_content_progress_bar?.visibility = View.VISIBLE
-        dialog.dismiss()
+        dialogNetwork.dismiss()
         loadContent()
     }
 
-    override fun onDialogCancelClick(dialog: DialogError) {
-        dialog.dismiss()
+    override fun onDialogCancelClick(dialogNetwork: DialogNetworkError) {
+        dialogNetwork.dismiss()
         view?.news_content_progress_bar?.visibility=View.GONE
         showErrorFragment(
                 fragmentManager = childFragmentManager,
@@ -110,19 +110,19 @@ class FragmentFeedContent :
     private fun loadContent() {
         contentUrl?.let {
             when (getSourceKind(it)) {
-                Sources.PROGER -> viewModel.loadProgerContent(it)
-                Sources.HABR -> viewModel.loadHabrContent(it)
+                Source.PROGER -> viewModel.loadProgerContent(it)
+                Source.HABR -> viewModel.loadHabrContent(it)
             }
         }
     }
 
-    private fun getSourceKind(link:String?) : Sources?{
+    private fun getSourceKind(link:String?) : Source?{
         link?.let {
             if( it.contains("habr.com")) {
-                return Sources.HABR
+                return Source.HABR
             }else
                 if( it.contains("tproger.ru")) {
-                    return Sources.PROGER
+                    return Source.PROGER
                 }
         }
         return null
