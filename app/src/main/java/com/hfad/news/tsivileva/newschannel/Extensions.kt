@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentManager
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentNetworkError
+import com.hfad.news.tsivileva.newschannel.view_model.Sort
 import java.lang.NullPointerException
 
 val FEED = "fragment_with_feed"
@@ -21,6 +22,7 @@ fun Fragment.showDialogError(manager: FragmentManager,
     val dialog = DialogNetworkError()
     dialog.show(manager, dialogTag)
 }
+
 
 fun String?.toNonNullString(): String {
     if (this == null) {
@@ -47,7 +49,7 @@ fun isNotEmptyNewsList(news:MutableList<NewsItem>):Boolean{
 
 fun showErrorFragment(fragmentManager: FragmentManager, containerId: Int, tag: String) {
     val fragment = FragmentNetworkError()
-    if (fragmentManager.findFragmentByTag(tag) == null) {
+     if (fragmentManager.findFragmentByTag(tag) == null) {
         fragmentManager.beginTransaction().add(containerId, fragment, tag).addToBackStack(tag).commit()
     }
 }
@@ -60,6 +62,14 @@ fun removeFragmentError(fragmentManager: FragmentManager, tag: String) {
     printFragmentsInManager(fragmentManager)
 }
 
+fun sortNewsList(list:MutableList<NewsItem>,sortKind: Sort){
+    when(sortKind){
+        Sort.BY_ABC_ASC->{list.sortBy { it.title }}
+        Sort.BY_ABC_DESC->{list.sortByDescending { it.title }}
+        Sort.BY_DATE_ASC->{list.sortBy { it.date }}
+        Sort.BY_DATE_DESC->{list.sortByDescending { it.date }}
+    }
+}
 
 
 
