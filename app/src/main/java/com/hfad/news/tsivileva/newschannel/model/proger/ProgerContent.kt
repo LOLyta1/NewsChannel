@@ -35,12 +35,20 @@ class ProgerContent {
 
     fun findDate():Date?{
         var dateString=""
-        Log.d(DEBUG_LOG,"атрибут - ${dateElements.toString()}")
+              //Log.d(DEBUG_LOG,"атрибут - ${dateElements.toString()}")
         dateElements?.getElementsByAttributeValue("property","og:updated_time")?.forEach {
             Log.d(DEBUG_LOG,"атрибут - ${it.attr("content")}")
            dateString= it.attr("content")
         }
-       val from= SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX",Locale.US)
+        Log.d(DEBUG_LOG,"Дата для парсинга:- $dateString")
+
+        val startGmtIndex=dateString.indexOf("+")
+        var gmt=dateString.substring(startGmtIndex,dateString.length)
+        gmt=gmt.replace(":","")
+
+        dateString=dateString.substring(0, startGmtIndex)+gmt
+        Log.d(DEBUG_LOG,"Обрезанная дата для парсинга:- $dateString")
+        val from=SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ",Locale.US)
        return from.parse(dateString)
     }
 }

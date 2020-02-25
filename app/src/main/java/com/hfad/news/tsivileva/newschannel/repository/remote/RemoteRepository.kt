@@ -71,15 +71,11 @@ class RemoteRepository {
         }
 
         fun sortNews(sortKind : Sort){
-            when(sortKind){
-                Sort.BY_ABC_ASC->{cacheList.sortBy { it.title }}
-                Sort.BY_ABC_DESC->{cacheList.sortByDescending { it.title }}
-                Sort.BY_DATE_ASC->{cacheList.sortBy { it.date }}
-                Sort.BY_DATE_DESC->{cacheList.sortByDescending { it.date }}
-            }
-            news.postValue(cacheList)
-            isDownloadSuccessful.postValue(true)
+                sortNewsList(cacheList,sortKind)
+                news.postValue(cacheList)
+                isDownloadSuccessful.postValue(true)
         }
+
 
         private fun createObservable(): Observable<MutableList<List<Any>?>> {
             val habrObservable = createRetrofit(HABR_URL, RemoteRepositoryTypes.SIMPLE_XML)
@@ -224,7 +220,6 @@ class RemoteRepository {
                             sourceKind = Source.PROGER)
                     isDownloadSuccessful.postValue(true)
                     content.postValue(newsItem)
-                    // cachedList.add(newsItem)
                     addToCache(newsItem)
                     printCachedMutableList("", "", cachedList)
                 }

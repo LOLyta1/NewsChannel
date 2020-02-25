@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
@@ -20,6 +21,7 @@ import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSortFeeds
 
 import com.hfad.news.tsivileva.newschannel.view_model.FeedViewModel
 import com.hfad.news.tsivileva.newschannel.view_model.Sort
+import kotlinx.android.synthetic.main.fragment_feed.*
 import kotlinx.android.synthetic.main.fragment_feed.view.*
 
 class FragmentFeed() :
@@ -45,7 +47,9 @@ class FragmentFeed() :
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         (activity as AppCompatActivity).supportActionBar?.show()
         viewModel.news.observe(viewLifecycleOwner, Observer {
-            newsItems = it
+            if (it.isNotEmpty()) {
+                newsItems = it
+            }
         })
 
         viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer<Boolean> { isDownloadingSuccessful ->
@@ -55,15 +59,26 @@ class FragmentFeed() :
                 if (newsItems.isNotEmpty() && isNotEmptyNewsList(newsItems)) {
                     val adapter = (view?.news_resycler_view?.adapter as NewsListAdapter)
                     adapter.setmList(newsItems)
-                    view?.swipe_container?.isRefreshing = false
+                    removeFragmentError(childFragmentManager, FEED_ERROR_DOWNLOADING)
                 }
-                removeFragmentError(childFragmentManager, FEED_ERROR_DOWNLOADING)
+                view?.swipe_container?.isRefreshing = false
             } else {
+                showErrorFragment(childFragmentManager, R.id.news_error_container, FEED_ERROR_DOWNLOADING)
                 DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
                 view?.swipe_container?.isRefreshing = true
             }
         })
         return inflater.inflate(R.layout.fragment_feed, container, false)
+    }
+
+    fun showErrorFragmentInLayout(){
+        viewModel.news.value?.let {
+            if (it.isEmpty()) {
+                showErrorFragment(childFragmentManager, R.id.news_error_container, FEED_ERROR_DOWNLOADING)
+            } else {
+                removeFragmentError(childFragmentManager, FEED_ERROR_DOWNLOADING)
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -122,20 +137,29 @@ class FragmentFeed() :
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.news.removeObservers(viewLifecycleOwner)
-        viewModel.isDownloadSuccessful.removeObservers(viewLifecycleOwner)
+//        viewModel.news.removeObservers(viewLifecycleOwner)
+  //      viewModel.isDownloadSuccessful.removeObservers(viewLifecycleOwner)
         val text = "Есть ли у news подписчики? -  ${viewModel.news.hasActiveObservers()}"
         logIt("FragmentFeed", "onDestroy", text, DEBUG_LOG)
     }
 
     override fun onNewsClick(position: Int?) {
         Log.d(DEBUG_LOG, "onNewsClick[$position]")
-        position?.let {
-            val url = viewModel.news.value?.get(position)?.link
-            val detailsFragment = FragmentFeedContent().apply {
-                arguments = Bundle().apply { putString("url", url) }
+        val detailsFragment = FragmentFeedContent()
+        val bundle = Bundle()
+
+        if (position != null) {
+            viewModel.news.value?.let {
+                if (it.isNotEmpty()) {
+                    bundle.putString("url", it.get(position).link)
+                } else {
+                    if (!newsItems.isNullOrEmpty()) {
+                        bundle.putString("url", newsItems.get(position).link)
+                    }
+                }
+                detailsFragment.arguments = bundle
+                parentFragmentManager.beginTransaction().replace(R.id.container, detailsFragment, FEED_CONTENT).addToBackStack(FEED_CONTENT).commit()
             }
-            parentFragmentManager.beginTransaction().replace(R.id.container, detailsFragment, FEED_CONTENT).addToBackStack(FEED_CONTENT).commit()
         }
     }
 
@@ -156,9 +180,17 @@ class FragmentFeed() :
         view?.swipe_container?.isRefreshing = true
     }
 
-    override fun onSortClick(sortKind: Sort) {
+    override fun onDialogSortClick(sortKind: Sort) {
         view?.swipe_container?.isRefreshing = true
-        viewModel.sort(sortKind)
+        if (viewModel.news.value.isNullOrEmpty()) {
+            sortNewsList(newsItems, sortKind)
+            //  newsAdapter?.setmList(newsItems)
+            viewModel.isDownloadSuccessful.postValue(true)
+        } else {
+            viewModel.sort(sortKind)
+        }
+        val manager = view?.news_resycler_view?.layoutManager
+        manager?.scrollToPosition(0)
     }
 
     override fun onFilterButtonClick(sourceKind: Source) {

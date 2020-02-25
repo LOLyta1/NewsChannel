@@ -2,9 +2,7 @@ package com.hfad.news.tsivileva.newschannel
 
 import org.junit.Test
 import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 
-import java.time.temporal.TemporalAccessor
 import java.util.*
 
 /**
@@ -49,8 +47,19 @@ class DataUnitTest {
 
     @Test
     fun test_simple_proger_item(){
-        val dateString="2020-02-24T14:38:10+00:00"
-        val from=SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX",Locale.US)
+        var dateString="2020-01-28T11:13:25+00:00"
+        val startGmtIndex=dateString.indexOf("+")
+
+        var gmt=dateString.substring(startGmtIndex,dateString.length)
+        //gmt=gmt.replace("+"," ")
+        gmt=gmt.replace(":","")
+
+
+        dateString=dateString.substring(0, startGmtIndex)+gmt
+
+
+        val from=SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ",Locale.US)
+
         val to=SimpleDateFormat(TO_DATE_PATTERN)
         val date:Date?=from.parse(dateString)
         print(to.format(date?.time))

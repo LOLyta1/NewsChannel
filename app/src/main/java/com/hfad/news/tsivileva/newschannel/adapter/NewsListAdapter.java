@@ -109,6 +109,7 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
         return mList.size();
     }
 
+
     private void setValidText(View v, String text, String substitutionText) {
         if (text != null) {
             ((TextView) v).setText(text);
