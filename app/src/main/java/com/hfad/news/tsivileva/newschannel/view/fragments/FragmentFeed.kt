@@ -35,7 +35,6 @@ class FragmentFeed() :
     private lateinit var viewModel: FeedViewModel
     private var newsItems = mutableListOf<NewsItem>()
 
-    private var newsAdapter: NewsListAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,33 +44,11 @@ class FragmentFeed() :
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        (activity as AppCompatActivity).supportActionBar?.show()
-        viewModel.news.observe(viewLifecycleOwner, Observer {
-            if (it.isNotEmpty()) {
-                newsItems = it
-            }
-        })
 
-        viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer<Boolean> { isDownloadingSuccessful ->
-            viewModel.stopDownload()
-            if (isDownloadingSuccessful) {
-                logIt("FragmentFeed", " viewModel.news.observe", "загрузка прошла успешно, пришло ${newsItems.count()} элементов", DEBUG_LOG)
-                if (newsItems.isNotEmpty() && isNotEmptyNewsList(newsItems)) {
-                    val adapter = (view?.news_resycler_view?.adapter as NewsListAdapter)
-                    adapter.setmList(newsItems)
-                    removeFragmentError(childFragmentManager, FEED_ERROR_DOWNLOADING)
-                }
-                view?.swipe_container?.isRefreshing = false
-            } else {
-                showErrorFragment(childFragmentManager, R.id.news_error_container, FEED_ERROR_DOWNLOADING)
-                DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
-                view?.swipe_container?.isRefreshing = true
-            }
-        })
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
-    fun showErrorFragmentInLayout(){
+    fun showErrorFragmentInLayout() {
         viewModel.news.value?.let {
             if (it.isEmpty()) {
                 showErrorFragment(childFragmentManager, R.id.news_error_container, FEED_ERROR_DOWNLOADING)
@@ -84,8 +61,29 @@ class FragmentFeed() :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.swipe_container?.isRefreshing = true
-        newsAdapter = NewsListAdapter(this)
+        val newsAdapter = NewsListAdapter(this)
+        (activity as AppCompatActivity).supportActionBar?.show()
 
+        viewModel.news.observe(viewLifecycleOwner, Observer {
+            if (it.isNotEmpty()) {
+                newsItems = it
+            }
+        })
+        viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer<Boolean> { isDownloadingSuccessful ->
+            viewModel.stopDownload()
+            if (isDownloadingSuccessful) {
+                logIt("FragmentFeed", " viewModel.news.observe", "загрузка прошла успешно, пришло ${newsItems.count()} элементов", DEBUG_LOG)
+                if (newsItems.isNotEmpty() && isNotEmptyNewsList(newsItems)) {
+                    newsAdapter.setmList(newsItems)
+                    removeFragmentError(childFragmentManager, FEED_ERROR_DOWNLOADING)
+                }
+                view.swipe_container?.isRefreshing = false
+            } else {
+                showErrorFragment(childFragmentManager, R.id.news_error_container, FEED_ERROR_DOWNLOADING)
+                DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
+                view.swipe_container?.isRefreshing = true
+            }
+        })
         view.news_resycler_view?.apply {
             adapter = newsAdapter
             layoutManager = LinearLayoutManager(context)
@@ -129,16 +127,17 @@ class FragmentFeed() :
     }
 
     override fun onDestroyView() {
+        //viewModel.news.removeObservers(viewLifecycleOwner)
+        //viewModel.isDownloadSuccessful.removeObservers(viewLifecycleOwner)
         super.onDestroyView()
-
         logIt("FragmentFeed", "onDestroyView", "вызван onDestroyView", DEBUG_LOG)
 
     }
 
     override fun onDestroy() {
+
+
         super.onDestroy()
-//        viewModel.news.removeObservers(viewLifecycleOwner)
-  //      viewModel.isDownloadSuccessful.removeObservers(viewLifecycleOwner)
         val text = "Есть ли у news подписчики? -  ${viewModel.news.hasActiveObservers()}"
         logIt("FragmentFeed", "onDestroy", text, DEBUG_LOG)
     }

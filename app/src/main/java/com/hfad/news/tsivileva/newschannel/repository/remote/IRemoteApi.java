@@ -14,7 +14,6 @@ import retrofit2.http.GET;
  * Интерфейс для получения данных о Model Presenter-ом по сети
  * */
 public interface IRemoteApi {
-
     @GET(".")
     Observable<Habr> loadHabr();
 

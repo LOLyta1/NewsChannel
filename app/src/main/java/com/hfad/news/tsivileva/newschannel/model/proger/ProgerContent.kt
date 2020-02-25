@@ -2,12 +2,14 @@ package com.hfad.news.tsivileva.newschannel.model.proger;
 import android.util.Log
 import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import com.hfad.news.tsivileva.newschannel.getIdInLink
+import com.hfad.news.tsivileva.newschannel.model.IModel
+import com.hfad.news.tsivileva.newschannel.model.IObserverNews
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.annotation.Selector
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ProgerContent {
+class ProgerContent:IModel,IObserverNews{
 
     @Selector(value = ".entry-content")
     var content: String? = null

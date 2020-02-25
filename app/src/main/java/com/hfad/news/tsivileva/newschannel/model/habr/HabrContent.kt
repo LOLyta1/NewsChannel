@@ -1,6 +1,8 @@
 package com.hfad.news.tsivileva.newschannel.model.habr;
 
 import com.hfad.news.tsivileva.newschannel.getIdInLink
+import com.hfad.news.tsivileva.newschannel.model.IModel
+import com.hfad.news.tsivileva.newschannel.model.IObserverNews
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.annotation.Selector
 import java.text.SimpleDateFormat
@@ -8,7 +10,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class HabrContent {
+class HabrContent:IModel,IObserverNews {
     val id: Long?
         get() = getIdInLink(link)
 
