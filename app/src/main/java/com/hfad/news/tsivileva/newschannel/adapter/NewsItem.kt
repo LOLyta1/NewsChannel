@@ -5,16 +5,16 @@ import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import java.text.SimpleDateFormat
 import java.util.*
 
-enum class Source {
-    HABR,
-    PROGER
+enum class Source(val link:String) {
+    HABR("https://habr.com/ru/rss/all/"),
+    PROGER("https://tproger.ru/feed/")
 }
 
 data class NewsItem(
         var picture: String? = null,
         var id: Long? = null,
         var sourceKind: Source? = null,
-        var link: String = "",
+        var link: String ?= "",
         var reserveLink:String?=null,
         var date: Date? = null,
         var title: String? = null,

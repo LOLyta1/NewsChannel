@@ -2,25 +2,22 @@ package com.hfad.news.tsivileva.newschannel.view_model
 
 import androidx.lifecycle.ViewModel
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
+import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteFeedsDetails
+import io.reactivex.disposables.Disposable
 
 class FeedDetailsViewModel : ViewModel() {
-    private val repository = RemoteRepository.NewsContent()
-    val news = repository.content
+  private val repository = RemoteFeedsDetails()
+
+    val newsStore = repository.newsStore
     val isDownloadSuccessful = repository.isDownloadSuccessful
+    var subscription:Disposable?=null
 
-    fun loadHabrContent(url: String) {
-        repository.downloadHabr(url)
-    }
-
-    fun loadProgerContent(url: String) {
-        repository.downloadProger(url)
+    fun loadContent(url: String) {
+        subscription=repository.downloadFeedsDetails(url)
     }
 
     fun stopLoad() {
-        repository.unsubscribeHabr()
-        repository.unsubscribeProger()
-
+       subscription?.dispose()
     }
 
     override fun onCleared() {
@@ -29,7 +26,7 @@ class FeedDetailsViewModel : ViewModel() {
     }
 
     fun refreshData(){
-      news.postValue(NewsItem())
+      newsStore.postValue(NewsItem())
       isDownloadSuccessful.postValue(true)
     }
 }

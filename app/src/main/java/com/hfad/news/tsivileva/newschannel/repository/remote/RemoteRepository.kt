@@ -31,7 +31,7 @@ enum class RemoteRepositoryTypes {
 
 
 class RemoteRepository {
-    companion object {
+/*    companion object {
         fun createRetrofit(baseUrl: String, type: RemoteRepositoryTypes): Retrofit {
             val factory: Converter.Factory = when (type) {
                 RemoteRepositoryTypes.SIMPLE_XML -> SimpleXmlConverterFactory.create()
@@ -69,6 +69,8 @@ class RemoteRepository {
         fun cleareCache() {
             cacheList = mutableListOf()
         }
+
+
 
         fun sortNews(sortKind : Sort){
                 sortNewsList(cacheList,sortKind)
@@ -166,12 +168,12 @@ class RemoteRepository {
 
         fun downloadProger(url: String) {
             URL = url
-            val newsItem = cachedList.find { it.link.matches(Regex(url)) && it.sourceKind == Source.PROGER }
-            if (newsItem == null) {
+           // val newsItem = cachedList.find { it.link.matches(Regex(url)) && it.sourceKind == Source.PROGER }
+         *//*   if (newsItem == null) {
                 createObservableProgerItem().subscribe(createObserverProger())
             } else {
                 content.postValue(newsItem)
-            }
+            }*//*
         }
 
         fun unsubscribeHabr() {
@@ -248,7 +250,7 @@ class RemoteRepository {
             if (cachedList.find { item.id == it.id && item.sourceKind == it.sourceKind } == null)
                 cachedList.add(item)
         }
-    }
+    }*/
 
 }
 

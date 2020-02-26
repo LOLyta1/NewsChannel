@@ -3,6 +3,9 @@ package com.hfad.news.tsivileva.newschannel
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import com.hfad.news.tsivileva.newschannel.adapter.Source
+import com.hfad.news.tsivileva.newschannel.model.habr.Habr
+import com.hfad.news.tsivileva.newschannel.model.proger.Proger
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentNetworkError
 import com.hfad.news.tsivileva.newschannel.view_model.Sort
@@ -70,6 +73,50 @@ fun sortNewsList(list:MutableList<NewsItem>,sortKind: Sort){
         Sort.BY_DATE_DESC->{list.sortByDescending { it.date }}
     }
 }
+
+fun getSourceKind(link:String?) : Source?{
+    link?.let {
+        if( it.contains("habr.com")) {
+            return Source.HABR
+        }else
+            if( it.contains("tproger.ru")) {
+                return Source.PROGER
+            }
+    }
+    return null
+}
+
+
+ fun parseFeed(feed: Any): List<NewsItem> {
+    val list= mutableListOf<NewsItem>()
+    when (feed) {
+        is Habr -> {
+            feed.items?.forEach {
+                var newsItem = NewsItem()
+                newsItem.sourceKind = Source.HABR
+                newsItem.id = getIdInLink(it.link)
+                newsItem.link = it.link
+                newsItem.picture = it.image
+                newsItem.title = it.title
+                newsItem.date = it.date
+                list.add(newsItem)
+            }
+        }
+        is Proger -> {
+            feed.channel?.items?.forEach {
+                var newsItem = NewsItem()
+                newsItem.sourceKind = Source.PROGER
+                newsItem.id = getIdInLink(it.guid)
+                newsItem.link = it.link
+                newsItem.title = it.title
+                newsItem.date = it.date
+                newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
+                list.add(newsItem)
+            }
+        }
+    }
+     return list
+ }
 
 
 

@@ -9,7 +9,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
@@ -21,7 +20,6 @@ import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSortFeeds
 
 import com.hfad.news.tsivileva.newschannel.view_model.FeedViewModel
 import com.hfad.news.tsivileva.newschannel.view_model.Sort
-import kotlinx.android.synthetic.main.fragment_feed.*
 import kotlinx.android.synthetic.main.fragment_feed.view.*
 
 class FragmentFeed() :
@@ -48,15 +46,7 @@ class FragmentFeed() :
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
-    fun showErrorFragmentInLayout() {
-        viewModel.news.value?.let {
-            if (it.isEmpty()) {
-                showErrorFragment(childFragmentManager, R.id.news_error_container, FEED_ERROR_DOWNLOADING)
-            } else {
-                removeFragmentError(childFragmentManager, FEED_ERROR_DOWNLOADING)
-            }
-        }
-    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -64,11 +54,12 @@ class FragmentFeed() :
         val newsAdapter = NewsListAdapter(this)
         (activity as AppCompatActivity).supportActionBar?.show()
 
-        viewModel.news.observe(viewLifecycleOwner, Observer {
+        viewModel.newsStore.observe(viewLifecycleOwner, Observer {
             if (it.isNotEmpty()) {
                 newsItems = it
             }
         })
+
         viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer<Boolean> { isDownloadingSuccessful ->
             viewModel.stopDownload()
             if (isDownloadingSuccessful) {
@@ -90,11 +81,16 @@ class FragmentFeed() :
             addItemDecoration(NewsListDecorator())
         }
 
-        viewModel.loadAllNews()
         view.swipe_container?.setOnRefreshListener {
             viewModel.cleareCache()
-            viewModel.loadAllNews()
+            viewModel.loadFeeds(Source.PROGER.link)
+            viewModel.loadFeeds(Source.HABR.link)
         }
+
+        viewModel.loadFeeds(Source.PROGER.link)
+        viewModel.loadFeeds(Source.HABR.link)
+
+
 
     }
 
@@ -108,7 +104,9 @@ class FragmentFeed() :
             R.id.reload_feeds_item_menu -> {
                 view?.swipe_container?.isRefreshing = true
                 viewModel.cleareCache()
-                viewModel.loadAllNews()
+                viewModel.loadFeeds(Source.PROGER.link)
+                viewModel.loadFeeds(Source.HABR.link)
+
             }
             R.id.filter_feeds_item_menu -> {
                 DialogFilterFeeds().show(childFragmentManager, DIALOG_WITH_FILTER)
@@ -122,7 +120,7 @@ class FragmentFeed() :
 
     override fun onResume() {
         super.onResume()
-        val text = "Есть ли у news подписчики? -  ${viewModel.news.hasActiveObservers()}"
+        val text = "Есть ли у news подписчики? -  ${viewModel.newsStore.hasActiveObservers()}"
         logIt("FragmentFeed", "onResume", text, DEBUG_LOG)
     }
 
@@ -138,7 +136,7 @@ class FragmentFeed() :
 
 
         super.onDestroy()
-        val text = "Есть ли у news подписчики? -  ${viewModel.news.hasActiveObservers()}"
+        val text = "Есть ли у news подписчики? -  ${viewModel.newsStore.hasActiveObservers()}"
         logIt("FragmentFeed", "onDestroy", text, DEBUG_LOG)
     }
 
@@ -148,7 +146,7 @@ class FragmentFeed() :
         val bundle = Bundle()
 
         if (position != null) {
-            viewModel.news.value?.let {
+            viewModel.newsStore.value?.let {
                 if (it.isNotEmpty()) {
                     bundle.putString("url", it.get(position).link)
                 } else {
@@ -164,7 +162,7 @@ class FragmentFeed() :
 
     override fun onDialogReloadClick(dialogNetwork: DialogNetworkError) {
         dialogNetwork.dismiss()
-        viewModel.loadAllNews()
+        viewModel.loadFeeds(Source.PROGER.link)
     }
 
     override fun onDialogCancelClick(dialogNetwork: DialogNetworkError) {
@@ -175,15 +173,17 @@ class FragmentFeed() :
 
     override fun onFragmentErrorReloadButtonClick() {
         viewModel.cleareCache()
-        viewModel.loadAllNews()
+        viewModel.loadFeeds(Source.PROGER.link)
+        viewModel.loadFeeds(Source.HABR.link)
+
         view?.swipe_container?.isRefreshing = true
     }
 
     override fun onDialogSortClick(sortKind: Sort) {
         view?.swipe_container?.isRefreshing = true
-        if (viewModel.news.value.isNullOrEmpty()) {
+        if (viewModel.newsStore.value.isNullOrEmpty()) {
             sortNewsList(newsItems, sortKind)
-            //  newsAdapter?.setmList(newsItems)
+            // newsAdapter?.setmList(newsItems)
             viewModel.isDownloadSuccessful.postValue(true)
         } else {
             viewModel.sort(sortKind)

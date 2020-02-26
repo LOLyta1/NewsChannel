@@ -29,6 +29,7 @@ class HabrContent:IModel {
             return null
         }
 
+
     @Selector(value = "#post-content-body")
     var content: String? = null
 

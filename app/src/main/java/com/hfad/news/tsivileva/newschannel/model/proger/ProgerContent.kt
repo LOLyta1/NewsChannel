@@ -10,6 +10,18 @@ import java.util.*
 
 class ProgerContent :IModel{
 
+    @Selector(value = "head")
+    var linkElement:Element?=null
+
+    var link:String?=null
+    get(){
+      linkElement?.getElementsByAttributeValue("rel","canonical")?.forEach {
+          return it.attr("href")
+      }
+        return null
+    }
+
+
     @Selector(value = ".entry-content")
     var content: String? = null
 
