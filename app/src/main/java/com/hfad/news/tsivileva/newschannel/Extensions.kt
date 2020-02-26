@@ -87,34 +87,68 @@ fun getSourceKind(link:String?) : Source?{
 }
 
 
- fun parseFeed(feed: Any): List<NewsItem> {
+fun parsHabrFeed(habr:Habr) : List<NewsItem> {
     val list= mutableListOf<NewsItem>()
-    when (feed) {
-        is Habr -> {
-            feed.items?.forEach {
-                var newsItem = NewsItem()
-                newsItem.sourceKind = Source.HABR
-                newsItem.id = getIdInLink(it.link)
-                newsItem.link = it.link
-                newsItem.picture = it.image
-                newsItem.title = it.title
-                newsItem.date = it.date
-                list.add(newsItem)
-            }
-        }
-        is Proger -> {
-            feed.channel?.items?.forEach {
-                var newsItem = NewsItem()
-                newsItem.sourceKind = Source.PROGER
-                newsItem.id = getIdInLink(it.guid)
-                newsItem.link = it.link
-                newsItem.title = it.title
-                newsItem.date = it.date
-                newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
-                list.add(newsItem)
-            }
-        }
+    habr.items?.forEach {
+        var newsItem = NewsItem()
+        newsItem.sourceKind = Source.HABR
+        newsItem.id = getIdInLink(it.link)
+        newsItem.link = it.link
+        newsItem.picture = it.image
+        newsItem.title = it.title
+        newsItem.date = it.date
+        list.add(newsItem)
     }
+    return list
+}
+
+
+fun parsProgerFeed(proger:Proger) : List<NewsItem> {
+    val list= mutableListOf<NewsItem>()
+    proger.channel?.items?.forEach {
+        var newsItem = NewsItem()
+        newsItem.sourceKind = Source.PROGER
+        newsItem.id = getIdInLink(it.guid)
+        newsItem.link = it.link
+        newsItem.title = it.title
+        newsItem.date = it.date
+        newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
+        list.add(newsItem)
+    }
+    return list
+}
+
+
+ fun parseFeed(feed: MutableList<Any?>): List<NewsItem> {
+    val list= mutableListOf<NewsItem>()
+     feed.forEach {
+         when (it) {
+             is Habr -> {
+                 it.items?.forEach {
+                     var newsItem = NewsItem()
+                     newsItem.sourceKind = Source.HABR
+                     newsItem.id = getIdInLink(it.link)
+                     newsItem.link = it.link
+                     newsItem.picture = it.image
+                     newsItem.title = it.title
+                     newsItem.date = it.date
+                     list.add(newsItem)
+                 }
+             }
+             is Proger -> {
+                 it.channel?.items?.forEach {
+                     var newsItem = NewsItem()
+                     newsItem.sourceKind = Source.PROGER
+                     newsItem.id = getIdInLink(it.guid)
+                     newsItem.link = it.link
+                     newsItem.title = it.title
+                     newsItem.date = it.date
+                     newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
+                     list.add(newsItem)
+                 }
+             }
+         }
+     }
      return list
  }
 

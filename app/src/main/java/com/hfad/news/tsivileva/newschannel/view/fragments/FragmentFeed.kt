@@ -83,12 +83,10 @@ class FragmentFeed() :
 
         view.swipe_container?.setOnRefreshListener {
             viewModel.cleareCache()
-            viewModel.loadFeeds(Source.PROGER.link)
-            viewModel.loadFeeds(Source.HABR.link)
+            viewModel.loadFeeds("")
         }
 
-        viewModel.loadFeeds(Source.PROGER.link)
-        viewModel.loadFeeds(Source.HABR.link)
+        viewModel.loadFeeds("")
 
 
 
@@ -104,8 +102,7 @@ class FragmentFeed() :
             R.id.reload_feeds_item_menu -> {
                 view?.swipe_container?.isRefreshing = true
                 viewModel.cleareCache()
-                viewModel.loadFeeds(Source.PROGER.link)
-                viewModel.loadFeeds(Source.HABR.link)
+                viewModel.loadFeeds("")
 
             }
             R.id.filter_feeds_item_menu -> {
@@ -162,7 +159,7 @@ class FragmentFeed() :
 
     override fun onDialogReloadClick(dialogNetwork: DialogNetworkError) {
         dialogNetwork.dismiss()
-        viewModel.loadFeeds(Source.PROGER.link)
+        viewModel.loadFeeds("")
     }
 
     override fun onDialogCancelClick(dialogNetwork: DialogNetworkError) {
@@ -173,8 +170,7 @@ class FragmentFeed() :
 
     override fun onFragmentErrorReloadButtonClick() {
         viewModel.cleareCache()
-        viewModel.loadFeeds(Source.PROGER.link)
-        viewModel.loadFeeds(Source.HABR.link)
+        viewModel.loadFeeds("")
 
         view?.swipe_container?.isRefreshing = true
     }
