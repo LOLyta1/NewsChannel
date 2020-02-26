@@ -109,7 +109,6 @@ class RemoteRepository {
         }
 
         private fun parseNews(rssNews: MutableList<List<Any>?>) {
-            val format=""
 
             rssNews.forEach { items ->
                 items?.forEach {
@@ -232,7 +231,7 @@ class RemoteRepository {
         private fun createObservableHabrItem(): Single<HabrContent> {
             return createRetrofit(URL, RemoteRepositoryTypes.JSPOON)
                     .create(IRemoteApi::class.java)
-                    .loadHabrDetails()
+                    .loadHabrContent()
                     .observeOn(Schedulers.io())
                     .subscribeOn(AndroidSchedulers.mainThread())
         }

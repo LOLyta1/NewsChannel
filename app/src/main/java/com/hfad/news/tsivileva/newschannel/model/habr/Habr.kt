@@ -2,15 +2,13 @@ package com.hfad.news.tsivileva.newschannel.model.habr
 
 
 import com.hfad.news.tsivileva.newschannel.model.IModel
-import com.hfad.news.tsivileva.newschannel.model.IObserverNews
 import com.hfad.news.tsivileva.newschannel.toNonNullString
 import org.simpleframework.xml.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Root(name = "rss", strict = false)
-class Habr:IModel,
-        IObserverNews{
+class Habr: IModel{
 
 
     @field:ElementList(name = "item", inline = true)

@@ -21,8 +21,9 @@ public interface IRemoteApi {
     Observable<Proger> loadProger();
 
     @GET(".")
-    Single<HabrContent> loadHabrDetails();
+    Single<HabrContent> loadHabrContent();
 
     @GET(".")
     Single<ProgerContent> loadProgDetails();
+
 }
