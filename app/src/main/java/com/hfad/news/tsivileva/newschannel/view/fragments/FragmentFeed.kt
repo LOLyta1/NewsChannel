@@ -13,7 +13,6 @@ import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListDecorator
-import com.hfad.news.tsivileva.newschannel.adapter.Source
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogFilterFeeds
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSortFeeds
@@ -53,7 +52,6 @@ class FragmentFeed() :
         view.swipe_container?.isRefreshing = true
         val newsAdapter = NewsListAdapter(this)
         (activity as AppCompatActivity).supportActionBar?.show()
-
         viewModel.newsStore.observe(viewLifecycleOwner, Observer {
             if (it.isNotEmpty()) {
                 newsItems = it
@@ -83,13 +81,9 @@ class FragmentFeed() :
 
         view.swipe_container?.setOnRefreshListener {
             viewModel.cleareCache()
-            viewModel.loadFeeds("")
+            viewModel.downloadFeeds(FeedsSource.BOTH)
         }
-
-        viewModel.loadFeeds("")
-
-
-
+        viewModel.downloadFeeds(FeedsSource.BOTH)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -102,7 +96,7 @@ class FragmentFeed() :
             R.id.reload_feeds_item_menu -> {
                 view?.swipe_container?.isRefreshing = true
                 viewModel.cleareCache()
-                viewModel.loadFeeds("")
+                viewModel.downloadFeeds(FeedsSource.BOTH)
 
             }
             R.id.filter_feeds_item_menu -> {
@@ -159,7 +153,7 @@ class FragmentFeed() :
 
     override fun onDialogReloadClick(dialogNetwork: DialogNetworkError) {
         dialogNetwork.dismiss()
-        viewModel.loadFeeds("")
+        viewModel.downloadFeeds(FeedsSource.BOTH)
     }
 
     override fun onDialogCancelClick(dialogNetwork: DialogNetworkError) {
@@ -170,7 +164,7 @@ class FragmentFeed() :
 
     override fun onFragmentErrorReloadButtonClick() {
         viewModel.cleareCache()
-        viewModel.loadFeeds("")
+        viewModel.downloadFeeds(FeedsSource.BOTH)
 
         view?.swipe_container?.isRefreshing = true
     }
@@ -188,7 +182,9 @@ class FragmentFeed() :
         manager?.scrollToPosition(0)
     }
 
-    override fun onFilterButtonClick(sourceKind: Source) {
+    override fun onFilterButtonClick(sourceKind: FeedsSource) {
+        logIt("FragmentFeed","onFilterButtonClick", sourceKind.link,DEBUG_LOG)
+        viewModel.downloadFeeds(sourceKind)
     }
 }
 

@@ -24,6 +24,7 @@ class FragmentFeedContent :
 
     private var contentUrl: String? = null
     private lateinit var viewModel: FeedDetailsViewModel
+    private var news=NewsItem()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,10 +36,17 @@ class FragmentFeedContent :
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModel = ViewModelProviders.of(activity!!).get(FeedDetailsViewModel::class.java)
 
-        viewModel.newsStore.observe(viewLifecycleOwner, Observer { showNews(it) })
+        viewModel.newsStore.observe(viewLifecycleOwner, Observer {
+            logIt("FragmentFeedContent"," viewModel.newsStore.observe","был загружен элемент $it ")
+
+            if(!news.isEmpty()) news=it })
 
         viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer { isSuccessful ->
             if (isSuccessful) {
+                logIt("FragmentFeedContent"," viewModel.isDownloadSuccessful.observe","загрузка прошла успешно")
+
+                showNews(news)
+                view?.news_content_progress_bar?.visibility = View.GONE
                 removeFragmentError(childFragmentManager, FEED_CONTENT_ERROR_DOWNLOADING)
             } else {
                 view?.news_content_progress_bar?.visibility = View.VISIBLE
@@ -65,6 +73,8 @@ class FragmentFeedContent :
     }
 
     private fun showNews(newsItem: NewsItem?) {
+        logIt("FragmentFeedContent"," showNews","показать элемент : $newsItem")
+
         if (newsItem?.id != null) {
             view?.news_content_container?.visibility = View.VISIBLE
             view?.news_content_progress_bar?.visibility = View.GONE
