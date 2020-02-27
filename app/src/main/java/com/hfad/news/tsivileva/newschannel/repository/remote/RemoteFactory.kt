@@ -28,11 +28,11 @@ class RemoteFactory private constructor() {
         fun getHabrObservable():Observable<Habr>{
             return createService(FeedsSource.HABR.link, SimpleXmlConverterFactory.create(), IRemoteApi::class.java).loadHabr()
         }
-        fun getProgerContentObservable(url:String): Single<ProgerContent> {
+        fun getProgerContentObservable(url:String): Observable<ProgerContent> {
             return createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java).loadProgDetails()
         }
 
-        fun getHabrContentObservable(url:String):Single<HabrContent>{
+        fun getHabrContentObservable(url:String):Observable<HabrContent>{
             return createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java).loadHabrContent()
         }
 

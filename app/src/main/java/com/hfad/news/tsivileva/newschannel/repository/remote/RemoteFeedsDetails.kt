@@ -4,7 +4,6 @@ import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.FeedsContentSource
 import com.hfad.news.tsivileva.newschannel.FeedsSource
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.getFeedsSource
 import com.hfad.news.tsivileva.newschannel.logIt
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
 import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
@@ -16,27 +15,25 @@ class RemoteFeedsDetails {
 
     val isDownloadSuccessful = MutableLiveData<Boolean>()
     var contentItem=MutableLiveData<NewsItem>()
-   val disposable:Disposable?=null
+    var disposable:Disposable?=null
     //ниже - дзагрузка из 1 источника
-    fun downloadFeedsDetails(url:String, source: FeedsContentSource): Disposable{
+    fun downloadFeedsDetails(url:String, source: FeedsContentSource){
         logIt("RemoteFeedsDetails","downloadFeedsDetails"," ссылка - $url")
-         return when (source) {
+           when (source) {
              FeedsContentSource.HABR -> {
                  logIt("RemoteFeedsDetails","downloadFeedsDetails"," HABR")
-               RemoteFactory.getHabrContentObservable(url).map(::parseHabrFeedsDetails).subscribe(::_onSuccess,::_onError)
+              disposable=RemoteFactory.getHabrContentObservable(url).map(::parseHabrFeedsDetails).subscribe(::_onNext,::_onError, ::_onComplete)
             }
              FeedsContentSource.PROGER ->{
                  logIt("RemoteFeedsDetails","downloadFeedsDetails"," PROGER")
-
-                 RemoteFactory.getProgerContentObservable(url).map(::parseProgerFeedsDetails).subscribe(::_onSuccess,::_onError)
+                disposable=RemoteFactory.getProgerContentObservable(url).map(::parseProgerFeedsDetails).subscribe(::_onNext,::_onError, ::_onComplete)
             }
         }
     }
 
-    fun _onSuccess(t:NewsItem) {
-        logIt("RemoteFeedsDetails","_onSuccess"," -  загружено - ${t}")
+    fun _onNext(t:NewsItem) {
+        logIt("RemoteFeedsDetails","_OnNext"," -  загружено - ${t}")
         contentItem.postValue(t)
-        isDownloadSuccessful.postValue(true)
     }
 
     fun _onError(e: Throwable) {
@@ -44,6 +41,17 @@ class RemoteFeedsDetails {
         logIt("RemoteFeedsDetails","_onError"," -   ${e.message}")
         e.printStackTrace()
     }
+
+    fun _onComplete(){
+        isDownloadSuccessful.postValue(true)
+        logIt("RemoteFeedsDetails","_onComplete","")
+
+    }
+
+    fun stopLoad(){
+        disposable?.dispose()
+    }
+
     fun parseHabrFeedsDetails(hc: HabrContent): NewsItem   {
         return NewsItem(
                 title = hc.title,

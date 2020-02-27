@@ -116,8 +116,7 @@ class FragmentFeed() :
     }
 
     override fun onDestroyView() {
-        //viewModel.news.removeObservers(viewLifecycleOwner)
-        //viewModel.isDownloadSuccessful.removeObservers(viewLifecycleOwner)
+
         super.onDestroyView()
         logIt("FragmentFeed", "onDestroyView", "вызван onDestroyView", DEBUG_LOG)
 

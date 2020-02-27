@@ -12,15 +12,15 @@ class FeedDetailsViewModel : ViewModel() {
     val isDownloadSuccessful = repository.isDownloadSuccessful
     val contentItem=repository.contentItem
 
-     var subscription:Disposable?=null
+     var subscription=repository.disposable
 
     fun loadContent(url: String,source:FeedsContentSource) {
-        subscription = repository.downloadFeedsDetails(url, source)
+        repository.downloadFeedsDetails(url, source)
         logIt("FeedDetailsViewModel", "loadContent", "загузка из сети ")
     }
 
     fun stopLoad() {
-       subscription?.dispose()
+      repository.stopLoad()
     }
 
     override fun onCleared() {

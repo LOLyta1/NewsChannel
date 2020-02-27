@@ -56,7 +56,7 @@ class FragmentFeedContent :
                 view?.news_content_progress_bar?.visibility = View.VISIBLE
                 DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
             }
-            viewModel.stopLoad()
+           // viewModel.stopLoad()
         })
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
