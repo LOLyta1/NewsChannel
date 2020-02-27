@@ -23,6 +23,7 @@
     <string name="dialog_filter_proger_text">Proger</string>
     <string name="dialog_filter_hbr_text">Habr</string>
     <string name="dialog_filter_cleare_cache_text">Очистить кэш перед фильтрацией</string>
+    <string name="feed_details_search_view">Search</string>
 
 
 </resources>

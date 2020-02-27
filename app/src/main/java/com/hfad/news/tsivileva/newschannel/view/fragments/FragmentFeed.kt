@@ -3,7 +3,10 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuItemImpl
+import androidx.core.view.MenuItemCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -104,6 +107,20 @@ class FragmentFeed() :
             }
             R.id.sort_feeds_item_menu -> {
                 DialogSortFeeds().show(childFragmentManager, DIALOG_WITH_SORT)
+            }
+            R.id.app_bar_search->{
+                (MenuItemCompat.getActionView(item) as SearchView).setOnQueryTextListener(object :SearchView.OnQueryTextListener{
+                    override fun onQueryTextSubmit(query: String?): Boolean {
+                        return  true
+                    }
+                    override fun onQueryTextChange(newText: String?): Boolean {
+                        newText?.let{ text: String ->
+                            val _temp=newsList.filter { it.title!!.contains(text)}
+                            newsAdapter.setmList(_temp)
+                        }
+                            return true
+                        }
+                })
             }
         }
         return super.onOptionsItemSelected(item)
