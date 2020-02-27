@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -37,26 +38,24 @@ class FragmentFeedContent :
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModel = ViewModelProviders.of(activity!!).get(FeedDetailsViewModel::class.java)
 
-        viewModel.contentItem.observe(viewLifecycleOwner, Observer {
-            logIt("FragmentFeedContent", " viewModel.newsStore.observe", "был загружен элемент $it ")
-            if (!news.isEmpty()) news = it
+        viewModel.newsItem.observe(viewLifecycleOwner, Observer {
+            logIt("FragmentFeedContent", " viewModel.newsStore.observe", "был загружен элемент ${it.id}")
+            if (!news.isEmpty())
+                news = it
 
         })
 
         viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer { isSuccessful ->
             if (isSuccessful) {
                 logIt("FragmentFeedContent", " viewModel.isDownloadSuccessful.observe", "загрузка прошла успешно")
-
                 if (!news.isEmpty()) {
                     showNews(news)
+                    removeFragmentError(childFragmentManager, FEED_CONTENT_ERROR_DOWNLOADING)
                 }
-                view?.news_content_progress_bar?.visibility = View.GONE
-                removeFragmentError(childFragmentManager, FEED_CONTENT_ERROR_DOWNLOADING)
             } else {
                 view?.news_content_progress_bar?.visibility = View.VISIBLE
                 DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
             }
-           // viewModel.stopLoad()
         })
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
@@ -68,36 +67,35 @@ class FragmentFeedContent :
             val choosenIntent = Intent.createChooser(intent, "Choose application")
             startActivity(choosenIntent)
         }
-        contentUrl?.let { viewModel.loadContent(it, getFeedsContentSource(it)) }
+        contentUrl?.let {
+            view.news_content_progress_bar?.visibility = View.VISIBLE
+            viewModel.loadContent(it, getFeedsContentSource(it))
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         viewModel.refreshData()
-        viewModel.isDownloadSuccessful.postValue(true)
     }
 
     private fun showNews(newsItem: NewsItem?) {
         logIt("FragmentFeedContent", " showNews", "показать элемент : $newsItem")
+        view?.news_content_container?.visibility = View.VISIBLE
+        view?.news_content_progress_bar?.visibility = View.GONE
+        view?.new_details_car_view?.visibility = View.VISIBLE
+        view?.news_details_text_view?.text = newsItem?.content
+        view?.news_details_date_text_view?.text = newsItem?.getStringDate()
+        view?.news_details_title_text_view?.text = newsItem?.title
+        view?.news_details_link_text_view?.text = newsItem?.link
 
-        if (newsItem?.id != null) {
-            view?.news_content_container?.visibility = View.VISIBLE
-            view?.news_content_progress_bar?.visibility = View.GONE
+        val path = newsItem?.picture
+        if (path != null && !path.isEmpty()) {
             view?.new_details_car_view?.visibility = View.VISIBLE
-            view?.news_details_text_view?.text = newsItem.content
-            view?.news_details_date_text_view?.text = newsItem.getStringDate()
-            view?.news_details_title_text_view?.text = newsItem.title
-            view?.news_details_link_text_view?.text = newsItem.link
-
-            val path = newsItem.picture
-            if (path != null && !path.isEmpty()) {
-                view?.new_details_car_view?.visibility = View.VISIBLE
-                Picasso.get().load(path).placeholder(R.drawable.no_photo)
-                        .error(R.drawable.no_photo)
-                        .into(view?.news_details_image_view);
-            } else {
-                view?.new_details_car_view?.visibility = View.GONE
-            }
+            Picasso.get().load(path).placeholder(R.drawable.no_photo)
+                    .error(R.drawable.no_photo)
+                    .into(view?.news_details_image_view);
+        } else {
+            view?.new_details_car_view?.visibility = View.GONE
         }
     }
 

@@ -8,6 +8,6 @@ enum class FeedsSource(val link:String){
 
 enum class FeedsContentSource(){
     HABR(),
-    PROGER(),
+    PROGER()
 }
 

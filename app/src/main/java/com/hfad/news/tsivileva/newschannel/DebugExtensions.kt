@@ -58,3 +58,9 @@ fun logIt(className:String?, methodName:String?, info: String, tag: String?= DEB
   //  val date=Date(GregorianCalendar().gregorianChange.time)
     Log.d(tag,"$className.$methodName(): $info")
 }
+
+fun printId(list:MutableList<NewsItem>){
+    list.forEach {
+        Log.d(DEBUG_LOG,"в списке ID-${it.id}")
+    }
+}

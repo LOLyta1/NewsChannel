@@ -1,22 +1,29 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteFeedsDetails
-import io.reactivex.disposables.Disposable
 
 class FeedDetailsViewModel : ViewModel() {
   private val repository = RemoteFeedsDetails()
 
     val isDownloadSuccessful = repository.isDownloadSuccessful
-    val contentItem=repository.contentItem
+    val newsList=repository.newsCache
+    val newsItem=repository.newsItem
 
-     var subscription=repository.disposable
 
     fun loadContent(url: String,source:FeedsContentSource) {
-        repository.downloadFeedsDetails(url, source)
-        logIt("FeedDetailsViewModel", "loadContent", "загузка из сети ")
+         val _newsItem=newsList.find { it.link==url || it.id== getIdInLink(url)}
+        if(_newsItem!=null){
+            logIt("FeedDetailsViewModel", "loadContent", "загузка из кэша ")
+            this.newsItem.postValue(_newsItem)
+            isDownloadSuccessful.postValue(true)
+        }else{
+            logIt("FeedDetailsViewModel", "loadContent", "загузка из сети ")
+            repository.downloadFeedsDetails(url, source)
+        }
     }
 
     fun stopLoad() {
@@ -29,7 +36,7 @@ class FeedDetailsViewModel : ViewModel() {
     }
 
     fun refreshData(){
-      repository.contentItem.postValue(NewsItem())
-      repository.isDownloadSuccessful.postValue(true)
+      newsItem.postValue(NewsItem())
+      isDownloadSuccessful.postValue(true)
     }
 }
