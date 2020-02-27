@@ -105,6 +105,9 @@ class FragmentFeed() :
             R.id.sort_feeds_item_menu -> {
                 DialogSortFeeds().show(childFragmentManager, DIALOG_WITH_SORT)
             }
+            R.id.app_bar_search->{
+                //TODO прописать функцию поиска в FeedViewModel
+            }
         }
         return super.onOptionsItemSelected(item)
     }
