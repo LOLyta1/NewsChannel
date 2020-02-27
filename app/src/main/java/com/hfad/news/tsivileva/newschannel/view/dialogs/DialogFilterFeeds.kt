@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.dialog_filter_feeds.view.*
 
 class DialogFilterFeeds : DialogFragment() {
     interface IDialogFilterFeedsListener{
-        fun onFilterButtonClick(sourceKind: FeedsSource)
+        fun onFilterButtonClick(sourceKind: FeedsSource, isNeedCleareCache : Boolean)
     }
     private lateinit var listener: IDialogFilterFeedsListener
 
@@ -28,18 +28,22 @@ class DialogFilterFeeds : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         listener=parentFragment as IDialogFilterFeedsListener
 
         view.dialog_filter_button.setOnClickListener {
-            if(view.dialog_proger_check_box.isChecked){
-                listener.onFilterButtonClick(FeedsSource.PROGER)
-            }else{
-                if(view.dialog_habr_check_box.isChecked){
-                    listener.onFilterButtonClick(FeedsSource.HABR)
+            val needCleare=view.dialog_filter_cleare_cache.isChecked
+            val needLoadProger=view.dialog_proger_check_box.isChecked
+            val needLoadHabr=view.dialog_habr_check_box.isChecked
 
+            if(needLoadHabr && needLoadProger){
+                listener.onFilterButtonClick(FeedsSource.BOTH,  needCleare)
+            }else{
+                if(needLoadHabr){
+                    listener.onFilterButtonClick(FeedsSource.HABR,needCleare)
                 }else
-                    if(view.dialog_proger_check_box.isChecked && view.dialog_habr_check_box.isChecked){
-                        listener.onFilterButtonClick(FeedsSource.BOTH)
+                    if(needLoadProger){
+                        listener.onFilterButtonClick(FeedsSource.PROGER,needCleare)
                     }
             }
 

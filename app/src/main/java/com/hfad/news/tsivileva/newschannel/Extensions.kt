@@ -84,12 +84,11 @@ fun sortNewsList(list: MutableList<NewsItem>, sortKind: Sort) {
 }
 
 fun getFeedsSource(link: String): FeedsSource {
-    var sourceKind = FeedsSource.BOTH
     if (link.contains("habr")) {
         return FeedsSource.HABR
     } else
         if (link.contains("tproger")) {
-            return FeedsSource.BOTH
+            return FeedsSource.PROGER
         } else
             return FeedsSource.BOTH
 

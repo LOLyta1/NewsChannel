@@ -24,28 +24,32 @@ class FragmentFeedContent :
 
     private var contentUrl: String? = null
     private lateinit var viewModel: FeedDetailsViewModel
-    private var news=NewsItem()
+    private var news = NewsItem()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.hide()
         contentUrl = arguments?.getString("url")
+        logIt("FragmentFeedContent", " onCreate", "URL $contentUrl ")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModel = ViewModelProviders.of(activity!!).get(FeedDetailsViewModel::class.java)
 
-        viewModel.newsStore.observe(viewLifecycleOwner, Observer {
-            logIt("FragmentFeedContent"," viewModel.newsStore.observe","был загружен элемент $it ")
+        viewModel.contentItem.observe(viewLifecycleOwner, Observer {
+            logIt("FragmentFeedContent", " viewModel.newsStore.observe", "был загружен элемент $it ")
+            if (!news.isEmpty()) news = it
 
-            if(!news.isEmpty()) news=it })
+        })
 
         viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer { isSuccessful ->
             if (isSuccessful) {
-                logIt("FragmentFeedContent"," viewModel.isDownloadSuccessful.observe","загрузка прошла успешно")
+                logIt("FragmentFeedContent", " viewModel.isDownloadSuccessful.observe", "загрузка прошла успешно")
 
-                showNews(news)
+                if (!news.isEmpty()) {
+                    showNews(news)
+                }
                 view?.news_content_progress_bar?.visibility = View.GONE
                 removeFragmentError(childFragmentManager, FEED_CONTENT_ERROR_DOWNLOADING)
             } else {
@@ -64,16 +68,17 @@ class FragmentFeedContent :
             val choosenIntent = Intent.createChooser(intent, "Choose application")
             startActivity(choosenIntent)
         }
-        contentUrl?.let { viewModel.loadContent(it) }
+        contentUrl?.let { viewModel.loadContent(it, getFeedsContentSource(it)) }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         viewModel.refreshData()
+        viewModel.isDownloadSuccessful.postValue(true)
     }
 
     private fun showNews(newsItem: NewsItem?) {
-        logIt("FragmentFeedContent"," showNews","показать элемент : $newsItem")
+        logIt("FragmentFeedContent", " showNews", "показать элемент : $newsItem")
 
         if (newsItem?.id != null) {
             view?.news_content_container?.visibility = View.VISIBLE
@@ -99,7 +104,7 @@ class FragmentFeedContent :
     override fun onDialogReloadClick(dialogNetwork: DialogNetworkError) {
         view?.news_content_progress_bar?.visibility = View.VISIBLE
         dialogNetwork.dismiss()
-        contentUrl?.let {viewModel.loadContent(it)}
+        contentUrl?.let { viewModel.loadContent(it, getFeedsContentSource(it)) }
     }
 
     override fun onDialogCancelClick(dialogNetwork: DialogNetworkError) {
@@ -113,7 +118,7 @@ class FragmentFeedContent :
     }
 
     override fun onFragmentErrorReloadButtonClick() {
-        contentUrl?.let { viewModel.loadContent(it) }
+        contentUrl?.let { viewModel.loadContent(it, getFeedsContentSource(it)) }
 
     }
 

@@ -33,17 +33,13 @@ class FeedViewModel : ViewModel() {
 
 
     fun cleareCache(){
-        cache.clear()
+      cache.clear()
         logIt("FeedViewModel","cleareCache","", FEED_VIEW_MODEL_LOG)
     }
 
     fun stopDownload() {
         subscriptions.dispose()
         logIt("FeedViewModel","stopDownload","", FEED_VIEW_MODEL_LOG)
-    }
-
-    fun sort(sortKind: Sort){
-     repository.sortNews(sortKind)
     }
 
     override fun onCleared() {

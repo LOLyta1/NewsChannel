@@ -34,11 +34,17 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
         this.mList = mList;
         notifyDataSetChanged();
     }
-    public NewsListAdapter(INewsItemClickListener listener) {
+    public NewsListAdapter() {
         this.mList = new ArrayList<>();
+    }
+
+    public void setListener(INewsItemClickListener listener){
         this.listener=listener;
     }
 
+    public List<NewsItem> getList(){
+        return this.mList;
+    }
 
     @NonNull
     @Override
@@ -103,10 +109,15 @@ public class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.ViewHo
         }
     }
 
+
     /*получить размер списка элементов*/
     @Override
     public int getItemCount() {
         return mList.size();
+    }
+
+    public void scrollToBottom(){
+
     }
 
 

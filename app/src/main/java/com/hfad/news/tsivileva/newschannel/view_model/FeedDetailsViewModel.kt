@@ -9,31 +9,14 @@ import io.reactivex.disposables.Disposable
 class FeedDetailsViewModel : ViewModel() {
   private val repository = RemoteFeedsDetails()
 
-    val cached=repository.cachedList
-    val newsStore = repository.newsStore
     val isDownloadSuccessful = repository.isDownloadSuccessful
+    val contentItem=repository.contentItem
 
      var subscription:Disposable?=null
 
-    fun loadContent(url: String) {
-        val _news=findNewsInCache(url)
-        if(_news==null){
-            subscription=repository.downloadFeedsDetails(url)
-            logIt("FeedDetailsViewModel","loadContent","загузка из сети ")
-
-        }else{
-            logIt("FeedDetailsViewModel","loadContent","загузка из кэша ")
-
-            newsStore.postValue(_news)
-            isDownloadSuccessful.postValue(true)
-        }
-
-    }
-
-    fun findNewsInCache(url:String):NewsItem?{
-     val id= getIdInLink(url)
-     val source= getFeedsSource(url)
-       return repository.cachedList.find { it.id == id && it.sourceKind == source}
+    fun loadContent(url: String,source:FeedsContentSource) {
+        subscription = repository.downloadFeedsDetails(url, source)
+        logIt("FeedDetailsViewModel", "loadContent", "загузка из сети ")
     }
 
     fun stopLoad() {
@@ -46,6 +29,7 @@ class FeedDetailsViewModel : ViewModel() {
     }
 
     fun refreshData(){
-     repository.cleareCache()
+      repository.contentItem.postValue(NewsItem())
+      repository.isDownloadSuccessful.postValue(true)
     }
 }

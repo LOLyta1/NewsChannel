@@ -30,7 +30,8 @@ class FragmentFeed() :
         DialogFilterFeeds.IDialogFilterFeedsListener {
 
     private lateinit var viewModel: FeedViewModel
-    private var newsItems = mutableListOf<NewsItem>()
+    private var newsList = mutableListOf<NewsItem>()
+    private var newsAdapter: NewsListAdapter = NewsListAdapter()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,29 +42,29 @@ class FragmentFeed() :
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        newsAdapter.setListener(this)
+
         view.swipe_container?.isRefreshing = true
-        val newsAdapter = NewsListAdapter(this)
         (activity as AppCompatActivity).supportActionBar?.show()
+
         viewModel.newsStore.observe(viewLifecycleOwner, Observer {
             if (it.isNotEmpty()) {
-                newsItems = it
+                newsList = it
             }
         })
 
         viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer<Boolean> { isDownloadingSuccessful ->
             viewModel.stopDownload()
             if (isDownloadingSuccessful) {
-                logIt("FragmentFeed", " viewModel.news.observe", "загрузка прошла успешно, пришло ${newsItems.count()} элементов", DEBUG_LOG)
-                if (newsItems.isNotEmpty() && isNotEmptyNewsList(newsItems)) {
-                    newsAdapter.setmList(newsItems)
+                logIt("FragmentFeed", " viewModel.news.observe", "загрузка прошла успешно, пришло ${newsList.count()} элементов", DEBUG_LOG)
+                if (newsList.isNotEmpty() && isNotEmptyNewsList(newsList)) {
+                    newsAdapter.setmList(newsList)
                     removeFragmentError(childFragmentManager, FEED_ERROR_DOWNLOADING)
                 }
                 view.swipe_container?.isRefreshing = false
@@ -97,7 +98,6 @@ class FragmentFeed() :
                 view?.swipe_container?.isRefreshing = true
                 viewModel.cleareCache()
                 viewModel.downloadFeeds(FeedsSource.BOTH)
-
             }
             R.id.filter_feeds_item_menu -> {
                 DialogFilterFeeds().show(childFragmentManager, DIALOG_WITH_FILTER)
@@ -124,8 +124,6 @@ class FragmentFeed() :
     }
 
     override fun onDestroy() {
-
-
         super.onDestroy()
         val text = "Есть ли у news подписчики? -  ${viewModel.newsStore.hasActiveObservers()}"
         logIt("FragmentFeed", "onDestroy", text, DEBUG_LOG)
@@ -141,8 +139,8 @@ class FragmentFeed() :
                 if (it.isNotEmpty()) {
                     bundle.putString("url", it.get(position).link)
                 } else {
-                    if (!newsItems.isNullOrEmpty()) {
-                        bundle.putString("url", newsItems.get(position).link)
+                    if (!newsList.isNullOrEmpty()) {
+                        bundle.putString("url", newsList.get(position).link)
                     }
                 }
                 detailsFragment.arguments = bundle
@@ -170,21 +168,38 @@ class FragmentFeed() :
     }
 
     override fun onDialogSortClick(sortKind: Sort) {
-        view?.swipe_container?.isRefreshing = true
-        if (viewModel.newsStore.value.isNullOrEmpty()) {
-            sortNewsList(newsItems, sortKind)
-            // newsAdapter?.setmList(newsItems)
-            viewModel.isDownloadSuccessful.postValue(true)
-        } else {
-            viewModel.sort(sortKind)
-        }
-        val manager = view?.news_resycler_view?.layoutManager
-        manager?.scrollToPosition(0)
+        val _list= mutableListOf<NewsItem>()
+        _list.addAll(newsAdapter.list)
+        sortNewsList(_list, sortKind)
+        newsAdapter.setmList(_list)
+
     }
 
-    override fun onFilterButtonClick(sourceKind: FeedsSource) {
-        logIt("FragmentFeed","onFilterButtonClick", sourceKind.link,DEBUG_LOG)
-        viewModel.downloadFeeds(sourceKind)
+
+
+    override fun onFilterButtonClick(sourceKind: FeedsSource, isNeedCleareCache: Boolean) {
+        if (isNeedCleareCache) {
+            viewModel.cleareCache()
+            viewModel.downloadFeeds(sourceKind)
+        }
+        if (sourceKind != FeedsSource.BOTH && newsList.isNotEmpty()) {
+            val _tempList=newsList.filter( { it.sourceKind==sourceKind }).toMutableList()
+            if(_tempList.any({ it.sourceKind==sourceKind })){
+                newsAdapter.setmList(_tempList)
+            }else{
+                viewModel.cleareCache()
+                viewModel.downloadFeeds(sourceKind)
+            }
+        } else
+            if(sourceKind == FeedsSource.BOTH && newsList.isNotEmpty()){
+                if(newsList.any({it.sourceKind==FeedsSource.HABR}) && newsList.any({it.sourceKind==FeedsSource.PROGER})){
+                    newsAdapter.setmList(newsList)
+                }else{
+                    viewModel.cleareCache()
+                    viewModel.downloadFeeds(FeedsSource.BOTH)
+                }
+        }
     }
+
 }
 

@@ -76,9 +76,11 @@ class RemoteFeeds {
         printCachedMutableList("","",cache)
     }
 
-    fun sortNews(sortKind: Sort) {
+     fun sortNews(sortKind: Sort) {
         sortNewsList(cache, sortKind)
         newsStore.postValue(cache)
         isDownloadSuccessful.postValue(true)
     }
+
+
 }

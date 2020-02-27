@@ -4,39 +4,46 @@ import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.FeedsContentSource
 import com.hfad.news.tsivileva.newschannel.FeedsSource
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.getFeedsContentSource
 import com.hfad.news.tsivileva.newschannel.getFeedsSource
+import com.hfad.news.tsivileva.newschannel.logIt
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
 import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
 import io.reactivex.disposables.Disposable
 
 class RemoteFeedsDetails {
 
-    var newsStore = MutableLiveData<NewsItem>()
+  //  var newsStore = MutableLiveData<NewsItem>()
 
     val isDownloadSuccessful = MutableLiveData<Boolean>()
-    var cachedFeed: NewsItem= NewsItem()
-    var cachedList= mutableListOf<NewsItem>()
-
-
+    var contentItem=MutableLiveData<NewsItem>()
+   val disposable:Disposable?=null
     //ниже - дзагрузка из 1 источника
-    fun downloadFeedsDetails(url:String): Disposable?{
-         return when (getFeedsSource(url)) {
-            FeedsSource.HABR -> {
+    fun downloadFeedsDetails(url:String, source: FeedsContentSource): Disposable{
+        logIt("RemoteFeedsDetails","downloadFeedsDetails"," ссылка - $url")
+         return when (source) {
+             FeedsContentSource.HABR -> {
+                 logIt("RemoteFeedsDetails","downloadFeedsDetails"," HABR")
                RemoteFactory.getHabrContentObservable(url).map(::parseHabrFeedsDetails).subscribe(::_onSuccess,::_onError)
             }
-            FeedsSource.PROGER ->{
-               RemoteFactory.getProgerContentObservable(url).map(::parseProgerFeedsDetails).subscribe(::_onSuccess,::_onError)
+             FeedsContentSource.PROGER ->{
+                 logIt("RemoteFeedsDetails","downloadFeedsDetails"," PROGER")
+
+                 RemoteFactory.getProgerContentObservable(url).map(::parseProgerFeedsDetails).subscribe(::_onSuccess,::_onError)
             }
-             FeedsSource.BOTH->{return null}
         }
     }
 
-    fun cleareCache(){
-        cachedList= mutableListOf()
-        newsStore.postValue(NewsItem())
+    fun _onSuccess(t:NewsItem) {
+        logIt("RemoteFeedsDetails","_onSuccess"," -  загружено - ${t}")
+        contentItem.postValue(t)
+        isDownloadSuccessful.postValue(true)
     }
 
+    fun _onError(e: Throwable) {
+        isDownloadSuccessful.postValue(false)
+        logIt("RemoteFeedsDetails","_onError"," -   ${e.message}")
+        e.printStackTrace()
+    }
     fun parseHabrFeedsDetails(hc: HabrContent): NewsItem   {
         return NewsItem(
                 title = hc.title,
@@ -61,14 +68,4 @@ class RemoteFeedsDetails {
                 sourceKind = FeedsSource.PROGER)
     }
 
-    fun _onSuccess(t:NewsItem) {
-        cachedList.add(t)
-        newsStore.postValue(t)
-        isDownloadSuccessful.postValue(true)
-    }
-
-    fun _onError(e: Throwable) {
-        isDownloadSuccessful.postValue(false)
-        e.printStackTrace()
-    }
 }
