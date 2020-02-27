@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="10dp">
@@ -9,6 +9,7 @@
         android:id="@+id/dialog_proger_check_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:checked="true"
         android:text="@string/dialog_filter_proger_text" />
 
     <CheckBox
@@ -16,6 +17,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/dialog_filter_hbr_text" />
+
+    <CheckBox
+        android:id="@+id/dialog_filter_cleare_cache"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:text="@string/dialog_filter_cleare_cache_text" />
 
     <Button
         android:id="@+id/dialog_filter_button"

@@ -7,15 +7,15 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.hfad.news.tsivileva.newschannel.R
-import com.hfad.news.tsivileva.newschannel.adapter.Source
+import com.hfad.news.tsivileva.newschannel.FeedsSource
 import kotlinx.android.synthetic.main.dialog_filter_feeds.view.*
 
 
 class DialogFilterFeeds : DialogFragment() {
     interface IDialogFilterFeedsListener{
-        fun onFilterButtonClick(sourceKind: Source)
+        fun onFilterButtonClick(sourceKind: FeedsSource, isNeedCleareCache : Boolean)
     }
-    private var listener: IDialogFilterFeedsListener?= null
+    private lateinit var listener: IDialogFilterFeedsListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,11 +28,25 @@ class DialogFilterFeeds : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         listener=parentFragment as IDialogFilterFeedsListener
 
         view.dialog_filter_button.setOnClickListener {
-            //TODO дописать, чтобы в FragmentFeeds появлялся фильтр отображения
-          //  listener.
+            val needCleare=view.dialog_filter_cleare_cache.isChecked
+            val needLoadProger=view.dialog_proger_check_box.isChecked
+            val needLoadHabr=view.dialog_habr_check_box.isChecked
+
+            if(needLoadHabr && needLoadProger){
+                listener.onFilterButtonClick(FeedsSource.BOTH,  needCleare)
+            }else{
+                if(needLoadHabr){
+                    listener.onFilterButtonClick(FeedsSource.HABR,needCleare)
+                }else
+                    if(needLoadProger){
+                        listener.onFilterButtonClick(FeedsSource.PROGER,needCleare)
+                    }
+            }
+
             dismiss()
         }
     }

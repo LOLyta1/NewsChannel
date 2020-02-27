@@ -3,7 +3,7 @@ package com.hfad.news.tsivileva.newschannel.repository.remote
 import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.adapter.Source
+
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
 import com.hfad.news.tsivileva.newschannel.model.proger.Proger
@@ -31,7 +31,7 @@ enum class RemoteRepositoryTypes {
 
 
 class RemoteRepository {
-    companion object {
+/*    companion object {
         fun createRetrofit(baseUrl: String, type: RemoteRepositoryTypes): Retrofit {
             val factory: Converter.Factory = when (type) {
                 RemoteRepositoryTypes.SIMPLE_XML -> SimpleXmlConverterFactory.create()
@@ -69,6 +69,8 @@ class RemoteRepository {
         fun cleareCache() {
             cacheList = mutableListOf()
         }
+
+
 
         fun sortNews(sortKind : Sort){
                 sortNewsList(cacheList,sortKind)
@@ -109,7 +111,6 @@ class RemoteRepository {
         }
 
         private fun parseNews(rssNews: MutableList<List<Any>?>) {
-            val format=""
 
             rssNews.forEach { items ->
                 items?.forEach {
@@ -167,12 +168,12 @@ class RemoteRepository {
 
         fun downloadProger(url: String) {
             URL = url
-            val newsItem = cachedList.find { it.link.matches(Regex(url)) && it.sourceKind == Source.PROGER }
-            if (newsItem == null) {
+           // val newsItem = cachedList.find { it.link.matches(Regex(url)) && it.sourceKind == Source.PROGER }
+         *//*   if (newsItem == null) {
                 createObservableProgerItem().subscribe(createObserverProger())
             } else {
                 content.postValue(newsItem)
-            }
+            }*//*
         }
 
         fun unsubscribeHabr() {
@@ -232,7 +233,7 @@ class RemoteRepository {
         private fun createObservableHabrItem(): Single<HabrContent> {
             return createRetrofit(URL, RemoteRepositoryTypes.JSPOON)
                     .create(IRemoteApi::class.java)
-                    .loadHabrDetails()
+                    .loadHabrContent()
                     .observeOn(Schedulers.io())
                     .subscribeOn(AndroidSchedulers.mainThread())
         }
@@ -249,7 +250,7 @@ class RemoteRepository {
             if (cachedList.find { item.id == it.id && item.sourceKind == it.sourceKind } == null)
                 cachedList.add(item)
         }
-    }
+    }*/
 
 }
 

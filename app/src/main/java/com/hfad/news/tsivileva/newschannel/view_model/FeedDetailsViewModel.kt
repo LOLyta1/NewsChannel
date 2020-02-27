@@ -1,26 +1,26 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
 import androidx.lifecycle.ViewModel
+import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
+import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteFeedsDetails
+import io.reactivex.disposables.Disposable
 
 class FeedDetailsViewModel : ViewModel() {
-    private val repository = RemoteRepository.NewsContent()
-    val news = repository.content
+  private val repository = RemoteFeedsDetails()
+
     val isDownloadSuccessful = repository.isDownloadSuccessful
+    val contentItem=repository.contentItem
 
-    fun loadHabrContent(url: String) {
-        repository.downloadHabr(url)
-    }
+     var subscription=repository.disposable
 
-    fun loadProgerContent(url: String) {
-        repository.downloadProger(url)
+    fun loadContent(url: String,source:FeedsContentSource) {
+        repository.downloadFeedsDetails(url, source)
+        logIt("FeedDetailsViewModel", "loadContent", "загузка из сети ")
     }
 
     fun stopLoad() {
-        repository.unsubscribeHabr()
-        repository.unsubscribeProger()
-
+      repository.stopLoad()
     }
 
     override fun onCleared() {
@@ -29,7 +29,7 @@ class FeedDetailsViewModel : ViewModel() {
     }
 
     fun refreshData(){
-      news.postValue(NewsItem())
-      isDownloadSuccessful.postValue(true)
+      repository.contentItem.postValue(NewsItem())
+      repository.isDownloadSuccessful.postValue(true)
     }
 }

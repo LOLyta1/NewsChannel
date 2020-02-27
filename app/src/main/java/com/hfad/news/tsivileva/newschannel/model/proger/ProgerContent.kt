@@ -2,12 +2,25 @@ package com.hfad.news.tsivileva.newschannel.model.proger;
 import android.util.Log
 import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import com.hfad.news.tsivileva.newschannel.getIdInLink
+import com.hfad.news.tsivileva.newschannel.model.IModel
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.annotation.Selector
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ProgerContent {
+class ProgerContent :IModel{
+
+    @Selector(value = "head")
+    var linkElement:Element?=null
+
+    var link:String?=null
+    get(){
+      linkElement?.getElementsByAttributeValue("rel","canonical")?.forEach {
+          return it.attr("href")
+      }
+        return null
+    }
+
 
     @Selector(value = ".entry-content")
     var content: String? = null

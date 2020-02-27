@@ -41,7 +41,7 @@
             android:paddingLeft="@dimen/feed_content_edge_padding"
             android:paddingEnd="@dimen/feed_content_edge_padding"
             android:paddingRight="@dimen/feed_content_edge_padding"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <ScrollView
                 android:layout_width="match_parent"
