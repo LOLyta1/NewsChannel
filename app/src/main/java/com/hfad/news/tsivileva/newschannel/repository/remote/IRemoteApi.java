@@ -6,7 +6,6 @@ import com.hfad.news.tsivileva.newschannel.model.proger.Proger;
 import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent;
 
 import io.reactivex.Observable;
-import io.reactivex.Single;
 import retrofit2.http.GET;
 
 

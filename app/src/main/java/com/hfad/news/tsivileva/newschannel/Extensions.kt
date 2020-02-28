@@ -4,12 +4,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr
+import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
 import com.hfad.news.tsivileva.newschannel.model.proger.Proger
-import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteFeeds
+import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
+import com.hfad.news.tsivileva.newschannel.repository.remote.FeedContentRepository
+import com.hfad.news.tsivileva.newschannel.repository.remote.FeedsRepository
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentNetworkError
 import com.hfad.news.tsivileva.newschannel.view_model.Sort
-import java.lang.NullPointerException
 
 
 val FEED = "fragment_with_feed"
@@ -51,67 +53,6 @@ fun isNotEmptyNewsList(news: MutableList<NewsItem>): Boolean {
     return true
 }
 
-fun showErrorFragment(fragmentManager: FragmentManager, cache: List<NewsItem>, containerEmptyCache: Int, containerFullCache:Int, tag: String) {
-    val fragment = FragmentNetworkError()
-    if (fragmentManager.findFragmentByTag(tag) == null) {
-        if(cache.isEmpty()){
-            fragmentManager.beginTransaction().add(containerEmptyCache, fragment, tag).addToBackStack(tag).commit()
-        }else{
-            fragmentManager.beginTransaction().add(containerFullCache, fragment, tag).addToBackStack(tag).commit()
-        }
-
-    }
-}
-
-fun showErrorFragment(fragmentManager: FragmentManager, cachedNews: NewsItem, containerEmptyCache: Int, containerFullCache:Int, tag: String) {
-    val fragment = FragmentNetworkError()
-    if (fragmentManager.findFragmentByTag(tag) == null) {
-        if(cachedNews.id==null){
-            fragmentManager.beginTransaction().add(containerEmptyCache, fragment, tag).addToBackStack(tag).commit()
-        }else{
-            fragmentManager.beginTransaction().add(containerFullCache, fragment, tag).addToBackStack(tag).commit()
-        }
-
-    }
-}
-
-fun removeFragmentError(fragmentManager: FragmentManager, tag: String) {
-    val fragment = fragmentManager.findFragmentByTag(tag)
-    fragment?.let {
-        fragmentManager.beginTransaction().remove(fragment).commit()
-        fragmentManager.popBackStackImmediate()
-    }
-    printFragmentsInManager(fragmentManager)
-}
-
-fun sortNewsList(list: MutableList<NewsItem>, sortKind: Sort) {
-    when (sortKind) {
-        Sort.BY_ABC_ASC -> {
-            list.sortBy { it.title }
-        }
-        Sort.BY_ABC_DESC -> {
-            list.sortByDescending { it.title }
-        }
-        Sort.BY_DATE_ASC -> {
-            list.sortBy { it.date }
-        }
-        Sort.BY_DATE_DESC -> {
-            list.sortByDescending { it.date }
-        }
-    }
-}
-
-fun getFeedsSource(link: String): FeedsSource {
-    if (link.contains("habr")) {
-        return FeedsSource.HABR
-    } else
-        if (link.contains("tproger")) {
-            return FeedsSource.PROGER
-        } else
-            return FeedsSource.BOTH
-
-}
-
 fun getFeedsContentSource(link: String): FeedsContentSource {
     var sourceKind = FeedsContentSource.HABR
     if (link.contains("habr")) {
@@ -123,7 +64,7 @@ fun getFeedsContentSource(link: String): FeedsContentSource {
 
 }
 
-fun RemoteFeeds.parsHabrFeed(habr: Habr): List<NewsItem> {
+fun parsHabrFeed(habr: Habr): List<NewsItem> {
     val list = mutableListOf<NewsItem>()
     habr.items?.forEach {
         var newsItem = NewsItem()
@@ -139,8 +80,7 @@ fun RemoteFeeds.parsHabrFeed(habr: Habr): List<NewsItem> {
 }
 
 
-fun RemoteFeeds.parsProgerFeed(proger: Proger): MutableList<NewsItem> {
-    logIt("Extensions", "parsProgerFeed", "items - ${proger.channel?.items?.count()}")
+fun parsProgerFeed(proger: Proger): MutableList<NewsItem> {
     val list = mutableListOf<NewsItem>()
     proger.channel?.items?.forEach {
         var newsItem = NewsItem()
@@ -152,13 +92,11 @@ fun RemoteFeeds.parsProgerFeed(proger: Proger): MutableList<NewsItem> {
         newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
         list.add(newsItem)
     }
-    printCachedMutableList("", "parsProgerFeed", list)
     return list
 }
 
 
-fun RemoteFeeds.parseFeed(feed: MutableList<List<Any>?>): MutableList<NewsItem> {
-    logIt("Extensions", "parseFeed", " количество элементов в списке ${feed.count()},список: ${feed}", DEBUG_LOG)
+fun FeedsRepository.parseFeed(feed: MutableList<List<Any>?>): MutableList<NewsItem> {
     val list = mutableListOf<NewsItem>()
     feed.forEach {
         it?.forEach {
@@ -172,7 +110,6 @@ fun RemoteFeeds.parseFeed(feed: MutableList<List<Any>?>): MutableList<NewsItem> 
                     newsItem.title = it.title
                     newsItem.date = it.date
                     list.add(newsItem)
-                    logIt("Extensions", "parseFeed", "Добавили - ${list.last()}", DEBUG_LOG)
                 }
                 is Proger.Channel.Item -> {
                     var newsItem = NewsItem()
@@ -183,15 +120,37 @@ fun RemoteFeeds.parseFeed(feed: MutableList<List<Any>?>): MutableList<NewsItem> 
                     newsItem.date = it.date
                     newsItem.picture = "https://tproger.ru/apple-touch-icon.png"
                     list.add(newsItem)
-                    logIt("Extensions", "parseFeed", "Добавили - ${list.last()}", DEBUG_LOG)
                 }
             }
         }
 
     }
-    printCachedMutableList("", "parseFeed", list)
     return list
 }
+
+fun FeedContentRepository.parseHabrFeedsContent(hc: HabrContent): NewsItem {
+    return NewsItem(
+            title = hc.title,
+            content = hc.content,
+            date = hc.date,
+            picture = hc.image,
+            link = hc.link,
+            id = hc.id,
+            sourceKind = FeedsSource.HABR
+    )
+}
+
+fun FeedContentRepository.parseProgerFeedsContent(pc: ProgerContent): NewsItem {
+    return NewsItem(
+            title = pc.title,
+            content = pc.content,
+            date = pc.date,
+            picture = pc.image,
+            link = pc.link,
+            id = pc.id,
+            sourceKind = FeedsSource.PROGER)
+}
+
 
 
 

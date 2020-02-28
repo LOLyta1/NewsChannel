@@ -7,7 +7,7 @@ import pl.droidsonroids.jspoon.annotation.Selector
 import java.text.SimpleDateFormat
 import java.util.*
 
-class HabrContent:IModel {
+class HabrContent : IModel {
     val id: Long?
         get() = getIdInLink(link)
 
@@ -22,8 +22,8 @@ class HabrContent:IModel {
 
     var date: Date? = null
         get() {
-            dateString?.let{
-                val from=SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'",Locale.US)
+            dateString?.let {
+                val from = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US)
                 return from.parse(it)
             }
             return null

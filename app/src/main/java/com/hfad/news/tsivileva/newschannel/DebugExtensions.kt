@@ -2,13 +2,9 @@ package com.hfad.news.tsivileva.newschannel
 
 import android.util.Log
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
-import java.time.Instant
-import java.util.*
 
 val DEBUG_LOG = "mylog"
 val CACHE_LOG = "cache_log"
@@ -25,12 +21,13 @@ fun printCachedLiveData(className: String,
 
     cached.value?.forEach {
         Log.d(DEBUG_LOG, "$className.$methodName --- $it")
-    }}
+    }
+}
 
 
 fun printCachedMutableList(className: String,
-                        methodName: String,
-                        cached:MutableList<NewsItem>
+                           methodName: String,
+                           cached: MutableList<NewsItem>
 ) {
     Log.d(DEBUG_LOG, "$className.$methodName Содержимое списка  ")
     cached.forEach {
@@ -40,27 +37,27 @@ fun printCachedMutableList(className: String,
 
 }
 
-fun logStateSwiper(swiper:SwipeRefreshLayout?,info:String){
-      Log.d(DEBUG_LOG, info)
-    when(swiper?.isRefreshing){
-        true->Log.d(DEBUG_LOG,"swiper is REFRESH")
-        false->Log.d(DEBUG_LOG,"swiper is NOT REFRESH")
+fun logStateSwiper(swiper: SwipeRefreshLayout?, info: String) {
+    Log.d(DEBUG_LOG, info)
+    when (swiper?.isRefreshing) {
+        true -> Log.d(DEBUG_LOG, "swiper is REFRESH")
+        false -> Log.d(DEBUG_LOG, "swiper is NOT REFRESH")
     }
 }
 
-fun printFragmentsInManager(manager :FragmentManager){
-     manager.fragments.forEach {
-         Log.d(DEBUG_LOG,"${it.tag}")
-     }
+fun printFragmentsInManager(manager: FragmentManager) {
+    manager.fragments.forEach {
+        Log.d(DEBUG_LOG, "${it.tag}")
+    }
 }
 
-fun logIt(className:String?, methodName:String?, info: String, tag: String?= DEBUG_LOG){
-  //  val date=Date(GregorianCalendar().gregorianChange.time)
-    Log.d(tag,"$className.$methodName(): $info")
+fun logIt(className: String?, methodName: String?, info: String, tag: String? = DEBUG_LOG) {
+    //  val date=Date(GregorianCalendar().gregorianChange.time)
+    Log.d(tag, "$className.$methodName(): $info")
 }
 
-fun printId(list:MutableList<NewsItem>){
+fun printId(list: MutableList<NewsItem>) {
     list.forEach {
-        Log.d(DEBUG_LOG,"в списке ID-${it.id}")
+        Log.d(DEBUG_LOG, "в списке ID-${it.id}")
     }
 }

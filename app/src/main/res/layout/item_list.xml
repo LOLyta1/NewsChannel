@@ -3,21 +3,20 @@
 <!---на всякий случай добавила LinearLayout, для того, чтобы
 потом можно было вынести заголовок и источник из карточки-->
 
-<LinearLayout
-    android:background="?android:attr/selectableItemBackground"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-
     android:layout_width="match_parent"
+
     android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
     android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
-        android:background="@drawable/ripple"
         android:id="@+id/news_card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/ripple"
         android:orientation="vertical"
         app:cardCornerRadius="30dp"
         app:cardElevation="5dp">
