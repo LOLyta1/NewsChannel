@@ -12,7 +12,7 @@
         tools:context=".activity.MainActivity">
 
         <FrameLayout
-            android:id="@+id/news_error_container"
+            android:id="@+id/news_error_full_cach_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -23,20 +23,28 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
+
+            <FrameLayout
+                android:id="@+id/news_error_empty_cach_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:foregroundGravity="fill">
+
+            </FrameLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/news_resycler_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 tools:itemCount="5"
                 tools:listitem="@android:layout/activity_list_item">
 
             </androidx.recyclerview.widget.RecyclerView>
-        </LinearLayout>
+        </FrameLayout>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

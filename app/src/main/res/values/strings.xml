@@ -11,7 +11,7 @@
     <string name="reload_news_content_button_text">Обновить</string>
     <string name="reload_text">Обновить</string>
     <string name="cleare_cache_text">Очистить кэш</string>
-    <string name="sort_by_date_text">Отсортировать</string>
+    <string name="sort_by_date_text">Сортировать</string>
 
     <string name="filter_text">Фильтр</string>
     <string name="sort_date_asc_text">По дате (По возрастанию)</string>
