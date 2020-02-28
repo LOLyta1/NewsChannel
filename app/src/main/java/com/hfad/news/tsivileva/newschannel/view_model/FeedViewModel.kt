@@ -15,7 +15,7 @@ import io.reactivex.disposables.Disposable
 class FeedViewModel : ViewModel() {
     private val repository = RemoteFeeds()
     var newsStore =repository.newsStore
-    val cache=repository.cache
+    var cache=repository.cache
     val isDownloadSuccessful = repository.isDownloadSuccessful
     lateinit var subscriptions:Disposable
 
@@ -33,7 +33,7 @@ class FeedViewModel : ViewModel() {
 
 
     fun cleareCache(){
-      cache.clear()
+      cache= mutableListOf()
         logIt("FeedViewModel","cleareCache","", FEED_VIEW_MODEL_LOG)
     }
 

@@ -51,10 +51,27 @@ fun isNotEmptyNewsList(news: MutableList<NewsItem>): Boolean {
     return true
 }
 
-fun showErrorFragment(fragmentManager: FragmentManager, containerId: Int, tag: String) {
+fun showErrorFragment(fragmentManager: FragmentManager, cache: List<NewsItem>, containerEmptyCache: Int, containerFullCache:Int, tag: String) {
     val fragment = FragmentNetworkError()
     if (fragmentManager.findFragmentByTag(tag) == null) {
-        fragmentManager.beginTransaction().add(containerId, fragment, tag).addToBackStack(tag).commit()
+        if(cache.isEmpty()){
+            fragmentManager.beginTransaction().add(containerEmptyCache, fragment, tag).addToBackStack(tag).commit()
+        }else{
+            fragmentManager.beginTransaction().add(containerFullCache, fragment, tag).addToBackStack(tag).commit()
+        }
+
+    }
+}
+
+fun showErrorFragment(fragmentManager: FragmentManager, cachedNews: NewsItem, containerEmptyCache: Int, containerFullCache:Int, tag: String) {
+    val fragment = FragmentNetworkError()
+    if (fragmentManager.findFragmentByTag(tag) == null) {
+        if(cachedNews.id==null){
+            fragmentManager.beginTransaction().add(containerEmptyCache, fragment, tag).addToBackStack(tag).commit()
+        }else{
+            fragmentManager.beginTransaction().add(containerFullCache, fragment, tag).addToBackStack(tag).commit()
+        }
+
     }
 }
 
@@ -62,6 +79,7 @@ fun removeFragmentError(fragmentManager: FragmentManager, tag: String) {
     val fragment = fragmentManager.findFragmentByTag(tag)
     fragment?.let {
         fragmentManager.beginTransaction().remove(fragment).commit()
+        fragmentManager.popBackStackImmediate()
     }
     printFragmentsInManager(fragmentManager)
 }

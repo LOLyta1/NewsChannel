@@ -7,15 +7,19 @@ import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.logIt
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
 import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
+import com.hfad.news.tsivileva.newschannel.printId
 import io.reactivex.disposables.Disposable
 
 class RemoteFeedsDetails {
 
   //  var newsStore = MutableLiveData<NewsItem>()
 
-    val isDownloadSuccessful = MutableLiveData<Boolean>()
-    var contentItem=MutableLiveData<NewsItem>()
+    var isDownloadSuccessful =MutableLiveData<Boolean>()
     var disposable:Disposable?=null
+    var newsCache= mutableListOf<NewsItem>()
+    var newsItem=MutableLiveData<NewsItem>()
+
+
     //ниже - дзагрузка из 1 источника
     fun downloadFeedsDetails(url:String, source: FeedsContentSource){
         logIt("RemoteFeedsDetails","downloadFeedsDetails"," ссылка - $url")
@@ -32,8 +36,10 @@ class RemoteFeedsDetails {
     }
 
     fun _onNext(t:NewsItem) {
-        logIt("RemoteFeedsDetails","_OnNext"," -  загружено - ${t}")
-        contentItem.postValue(t)
+      newsItem.postValue(t)
+      newsCache.add(t)
+        logIt("RemoteFeedsDetails","_OnNext"," -  добавлено в кэш лист - ${t.id}")
+        printId(newsCache)
     }
 
     fun _onError(e: Throwable) {
@@ -44,8 +50,8 @@ class RemoteFeedsDetails {
 
     fun _onComplete(){
         isDownloadSuccessful.postValue(true)
+        disposable?.dispose()
         logIt("RemoteFeedsDetails","_onComplete","")
-
     }
 
     fun stopLoad(){

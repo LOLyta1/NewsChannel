@@ -5,7 +5,7 @@ import android.util.Log
 import android.view.*
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.menu.MenuItemImpl
+
 import androidx.core.view.MenuItemCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -40,7 +40,7 @@ class FragmentFeed() :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        (activity as AppCompatActivity).supportActionBar?.show()
+
         viewModel = ViewModelProviders.of(activity!!).get(FeedViewModel::class.java)
     }
 
@@ -48,13 +48,13 @@ class FragmentFeed() :
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        newsAdapter.setListener(this)
 
-        view.swipe_container?.isRefreshing = true
         (activity as AppCompatActivity).supportActionBar?.show()
+        newsAdapter.setListener(this)
+        view.swipe_container?.isRefreshing = true
+
 
         viewModel.newsStore.observe(viewLifecycleOwner, Observer {
             if (it.isNotEmpty()) {
@@ -66,13 +66,13 @@ class FragmentFeed() :
             viewModel.stopDownload()
             if (isDownloadingSuccessful) {
                 logIt("FragmentFeed", " viewModel.news.observe", "загрузка прошла успешно, пришло ${newsList.count()} элементов", DEBUG_LOG)
-                if (newsList.isNotEmpty() && isNotEmptyNewsList(newsList)) {
+                if (newsList.isNotEmpty()) {
                     newsAdapter.setmList(newsList)
                     removeFragmentError(childFragmentManager, FEED_ERROR_DOWNLOADING)
                 }
                 view.swipe_container?.isRefreshing = false
             } else {
-                showErrorFragment(childFragmentManager, R.id.news_error_container, FEED_ERROR_DOWNLOADING)
+                showErrorFragment(childFragmentManager,newsList,R.id.news_error_empty_cach_container,R.id.news_error_full_cach_container, FEED_ERROR_DOWNLOADING)
                 DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
                 view.swipe_container?.isRefreshing = true
             }
@@ -172,7 +172,8 @@ class FragmentFeed() :
 
     override fun onDialogCancelClick(dialogNetwork: DialogNetworkError) {
         dialogNetwork.dismiss()
-        showErrorFragment(childFragmentManager, R.id.news_error_container, FEED_ERROR_DOWNLOADING)
+        showErrorFragment(childFragmentManager,newsList,R.id.news_error_empty_cach_container,R.id.news_error_full_cach_container, FEED_ERROR_DOWNLOADING)
+
         view?.swipe_container?.isRefreshing = false
     }
 
@@ -216,6 +217,5 @@ class FragmentFeed() :
                 }
         }
     }
-
 }
 

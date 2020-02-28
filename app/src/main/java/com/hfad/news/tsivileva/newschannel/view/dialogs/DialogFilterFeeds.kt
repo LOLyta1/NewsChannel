@@ -20,6 +20,7 @@ class DialogFilterFeeds : DialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         isCancelable=false
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -28,9 +29,7 @@ class DialogFilterFeeds : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         listener=parentFragment as IDialogFilterFeedsListener
-
         view.dialog_filter_button.setOnClickListener {
             val needCleare=view.dialog_filter_cleare_cache.isChecked
             val needLoadProger=view.dialog_proger_check_box.isChecked
@@ -55,5 +54,4 @@ class DialogFilterFeeds : DialogFragment() {
             super.show(manager, tag)
         }
     }
-
 }
