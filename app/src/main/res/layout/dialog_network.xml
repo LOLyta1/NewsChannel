@@ -9,7 +9,7 @@
         android:id="@+id/dialog_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/dialog_network_connection_lost_text" />
+        android:text="@string/network_connection_lost_text" />
 
     <LinearLayout
         android:layout_width="match_parent"

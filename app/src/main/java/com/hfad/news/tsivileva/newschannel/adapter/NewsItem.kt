@@ -1,7 +1,5 @@
 package com.hfad.news.tsivileva.newschannel.adapter
 
-import android.util.Log
-import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import com.hfad.news.tsivileva.newschannel.FeedsSource
 import java.text.SimpleDateFormat
 import java.util.*
@@ -17,7 +15,7 @@ data class NewsItem(
         var title: String? = null,
         var content: String? = null
 ) {
-    fun getStringDate(): String {
+    fun dateToString(): String {
         date?.let {
             return SimpleDateFormat("dd MMM yyyy, hh:mm", Locale.US).format(date?.time)
         }
@@ -25,9 +23,9 @@ data class NewsItem(
     }
 
     fun isEmpty() = (
-            picture == null
+            id==null
+                    && picture == null
                     && sourceKind == null
-                    && link == null
                     && date == null
                     && title == null
                     && content == null

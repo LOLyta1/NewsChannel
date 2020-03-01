@@ -12,8 +12,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeed
+import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
+import com.hfad.news.tsivileva.newschannel.repository.DownloadingSuccessful
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
-import com.hfad.news.tsivileva.newschannel.view_model.FeedDetailsViewModel
+import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
@@ -23,7 +26,7 @@ class FragmentFeedContent :
         FragmentNetworkError.IErrorFragmentListener {
 
     private var contentUrl: String? = null
-    private lateinit var viewModel: FeedDetailsViewModel
+    private lateinit var viewModel: FeedContentViewModel
     private var news = NewsItem()
 
 
@@ -31,40 +34,26 @@ class FragmentFeedContent :
         super.onCreate(savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.hide()
         contentUrl = arguments?.getString("url")
-        logIt("FragmentFeedContent", " onCreate", "URL $contentUrl ")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        viewModel = ViewModelProviders.of(activity!!).get(FeedDetailsViewModel::class.java)
-        viewModel.newsItem.observe(viewLifecycleOwner, Observer {
-            logIt("FragmentFeedContent", " viewModel.newsStore.observe", "был загружен элемент ${it.id}")
-            if (!news.isEmpty())
-                news = it
+        viewModel = ViewModelProviders.of(activity!!).get(FeedContentViewModel::class.java)
 
-        })
 
-        viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer { isSuccessful ->
-            if (isSuccessful) {
-                logIt("FragmentFeedContent", " viewModel.isDownloadSuccessful.observe", "загрузка прошла успешно")
-                if (!news.isEmpty()) {
-                    showNews(news)
-                    removeFragmentError(childFragmentManager, FEED_CONTENT_ERROR_DOWNLOADING)
+        viewModel.downloading.observe(viewLifecycleOwner, Observer { status ->
+            when(status){
+                is DownloadedFeed->{
+                    if( !status.feed.isEmpty()) {
+                    showNews(status.feed)
+                    view?.feeds_details_error_container?.visibility=View.GONE
+                }}
+                is DownloadingError->{view?.news_content_progress_bar?.visibility = View.VISIBLE
+                    view?.feeds_details_error_container?.visibility=View.VISIBLE
+                    DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)}
                 }
-            } else {
-                view?.news_content_progress_bar?.visibility = View.VISIBLE
-                showErrorFragment(
-                        fragmentManager = childFragmentManager,
-                        containerEmptyCache =R.id.news_details_empty_cache_error_container,
-                        containerFullCache =  R.id.news_details_full_cache_error_container,
-                        cachedNews = news ,
-                        tag = FEED_CONTENT_ERROR_DOWNLOADING
-                )
-                DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
-            }
         })
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
-
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -82,17 +71,16 @@ class FragmentFeedContent :
 
     override fun onDestroyView() {
         super.onDestroyView()
-         viewModel.refreshData()
+        viewModel.refreshData()
     }
 
     private fun showNews(newsItem: NewsItem?) {
-        if(newsItem?.id!=null){
-            logIt("FragmentFeedContent", " showNews", "показать элемент : $newsItem")
+        if (newsItem?.id != null) {
             view?.news_content_container?.visibility = View.VISIBLE
             view?.news_content_progress_bar?.visibility = View.GONE
             view?.new_details_car_view?.visibility = View.VISIBLE
             view?.news_details_text_view?.text = newsItem?.content
-            view?.news_details_date_text_view?.text = newsItem?.getStringDate()
+            view?.news_details_date_text_view?.text = newsItem?.dateToString()
             view?.news_details_title_text_view?.text = newsItem?.title
             view?.news_details_link_text_view?.text = newsItem?.link
 
@@ -109,22 +97,16 @@ class FragmentFeedContent :
 
     }
 
-    override fun onDialogReloadClick(dialogNetwork: DialogNetworkError) {
+    override fun onDialogErrorReloadClick(dialogNetwork: DialogNetworkError) {
         view?.news_content_progress_bar?.visibility = View.VISIBLE
         dialogNetwork.dismiss()
         contentUrl?.let { viewModel.loadContent(it, getFeedsContentSource(it)) }
     }
 
-    override fun onDialogCancelClick(dialogNetwork: DialogNetworkError) {
+    override fun onDialogErrorCancelClick(dialogNetwork: DialogNetworkError) {
         dialogNetwork.dismiss()
         view?.news_content_progress_bar?.visibility = View.GONE
-        showErrorFragment(
-                fragmentManager = childFragmentManager,
-                containerEmptyCache =R.id.news_details_empty_cache_error_container,
-                containerFullCache =  R.id.news_details_full_cache_error_container,
-                cachedNews = news ,
-                tag = FEED_CONTENT_ERROR_DOWNLOADING
-        )
+        view?.feeds_details_error_container?.visibility=View.VISIBLE
     }
 
     override fun onFragmentErrorReloadButtonClick() {

@@ -1,4 +1,5 @@
 package com.hfad.news.tsivileva.newschannel.model.proger;
+
 import android.util.Log
 import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import com.hfad.news.tsivileva.newschannel.getIdInLink
@@ -8,33 +9,33 @@ import pl.droidsonroids.jspoon.annotation.Selector
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ProgerContent :IModel{
+class ProgerContent : IModel {
 
     @Selector(value = "head")
-    var linkElement:Element?=null
+    var linkElement: Element? = null
 
-    var link:String?=null
-    get(){
-      linkElement?.getElementsByAttributeValue("rel","canonical")?.forEach {
-          return it.attr("href")
-      }
-        return null
-    }
+    var link: String? = null
+        get() {
+            linkElement?.getElementsByAttributeValue("rel", "canonical")?.forEach {
+                return it.attr("href")
+            }
+            return null
+        }
 
 
     @Selector(value = ".entry-content")
     var content: String? = null
 
     @Selector(value = "head")
-    var dateElements:Element?=null
+    var dateElements: Element? = null
 
     var date: Date? = null
-    get() =findDate()
+        get() = findDate()
 
-    @Selector(value =".entry-title")
+    @Selector(value = ".entry-title")
     var title: String? = null
 
-    var image ="https://tproger.ru/apple-touch-icon.png"
+    var image = "https://tproger.ru/apple-touch-icon.png"
 
     @Selector(value = "article", attr = "id")
     var idElement: Element? = null
@@ -46,22 +47,22 @@ class ProgerContent :IModel{
         return getIdInLink(element?.attr("id"))
     }
 
-    fun findDate():Date?{
-        var dateString=""
-              //Log.d(DEBUG_LOG,"атрибут - ${dateElements.toString()}")
-        dateElements?.getElementsByAttributeValue("property","og:updated_time")?.forEach {
-            Log.d(DEBUG_LOG,"атрибут - ${it.attr("content")}")
-           dateString= it.attr("content")
+    fun findDate(): Date? {
+        var dateString = ""
+        //Log.d(DEBUG_LOG,"атрибут - ${dateElements.toString()}")
+        dateElements?.getElementsByAttributeValue("property", "og:updated_time")?.forEach {
+            Log.d(DEBUG_LOG, "атрибут - ${it.attr("content")}")
+            dateString = it.attr("content")
         }
-        Log.d(DEBUG_LOG,"Дата для парсинга:- $dateString")
+        Log.d(DEBUG_LOG, "Дата для парсинга:- $dateString")
 
-        val startGmtIndex=dateString.indexOf("+")
-        var gmt=dateString.substring(startGmtIndex,dateString.length)
-        gmt=gmt.replace(":","")
+        val startGmtIndex = dateString.indexOf("+")
+        var gmt = dateString.substring(startGmtIndex, dateString.length)
+        gmt = gmt.replace(":", "")
 
-        dateString=dateString.substring(0, startGmtIndex)+gmt
-        Log.d(DEBUG_LOG,"Обрезанная дата для парсинга:- $dateString")
-        val from=SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ",Locale.US)
-       return from.parse(dateString)
+        dateString = dateString.substring(0, startGmtIndex) + gmt
+        Log.d(DEBUG_LOG, "Обрезанная дата для парсинга:- $dateString")
+        val from = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US)
+        return from.parse(dateString)
     }
 }

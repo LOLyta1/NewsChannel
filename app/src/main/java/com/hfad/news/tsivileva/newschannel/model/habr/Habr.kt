@@ -3,12 +3,15 @@ package com.hfad.news.tsivileva.newschannel.model.habr
 
 import com.hfad.news.tsivileva.newschannel.model.IModel
 import com.hfad.news.tsivileva.newschannel.toNonNullString
-import org.simpleframework.xml.*
+import org.simpleframework.xml.Element
+import org.simpleframework.xml.ElementList
+import org.simpleframework.xml.Path
+import org.simpleframework.xml.Root
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Root(name = "rss", strict = false)
-class Habr: IModel{
+class Habr : IModel {
 
 
     @field:ElementList(name = "item", inline = true)
@@ -32,40 +35,39 @@ class Habr: IModel{
         @field:Element(name = "pubDate", required = false)
         var dateString: String? = null
 
-        var  date: Date?=null
-        get() {
-            dateString?.let {
-                val from = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US)
-                return from.parse(it)
+        var date: Date? = null
+            get() {
+                dateString?.let {
+                    val from = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US)
+                    return from.parse(it)
+                }
+                return null
             }
-            return null
-        }
 
 
         var image: String? = null
             get() = findImage()
 
 
-
         private fun findImage(): String? {
             var IMG_SRC_REG_EX = "<img src=\"([^>]+)\">"
             var imageUrl = Regex(IMG_SRC_REG_EX).find(description.toNonNullString(), 0)?.value.toString()
 
-            if(imageUrl.isEmpty()){
-                 IMG_SRC_REG_EX = "<img src=\"([^>]+)\"/>"
-                imageUrl=Regex(IMG_SRC_REG_EX).find(description.toNonNullString(), 0)?.value.toString()
+            if (imageUrl.isEmpty()) {
+                IMG_SRC_REG_EX = "<img src=\"([^>]+)\"/>"
+                imageUrl = Regex(IMG_SRC_REG_EX).find(description.toNonNullString(), 0)?.value.toString()
             }
 
             val start_tag = "<img src=\""
             val end_tag = "\""
             val start_pos = imageUrl.indexOf(start_tag)
-            var end_pos=-1
+            var end_pos = -1
 
-            if (start_pos!=-1){
-               end_pos=imageUrl.indexOf(end_tag, startIndex = start_pos+start_tag.length)
-               if(end_pos!=-1){
-                   imageUrl=imageUrl.substring(start_pos+start_tag.length,end_pos)
-               }
+            if (start_pos != -1) {
+                end_pos = imageUrl.indexOf(end_tag, startIndex = start_pos + start_tag.length)
+                if (end_pos != -1) {
+                    imageUrl = imageUrl.substring(start_pos + start_tag.length, end_pos)
+                }
             }
             return imageUrl
         }

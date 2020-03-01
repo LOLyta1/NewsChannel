@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Root(name = "rss", strict = false)
-class Proger:IModel{
+class Proger : IModel {
     @field:Element
     var channel: Channel? = null
     @field:Element(required = false)
@@ -17,6 +17,7 @@ class Proger:IModel{
     override fun toString(): String {
         return "ClassPojo [channel = $channel, version = $version]"
     }
+
     @Root(name = "channel", strict = false)
     class Channel {
         @field:Element()
@@ -53,13 +54,14 @@ class Proger:IModel{
                 return "ClassPojo [link = $link, title = $title, url = $url]"
             }
         }
+
         @Root(name = "item", strict = false)
         class Item {
             @field:Path("comments")
             @field:Text(required = false)
             var comments: String? = null
             @field:Element(required = false)
-            var link: String =""
+            var link: String = ""
             @field:Element(required = false)
             var guid: String? = null
             @field:Element(required = false)
@@ -72,15 +74,15 @@ class Proger:IModel{
             @field:Element(required = false)
             var pubDate: String? = null
 
-            var date: Date?=null
-            get(){
-                pubDate?.let{
-                    Log.d(DEBUG_LOG,"Proger() сериализация , dateString=$pubDate")
-                    val from = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z",Locale.US)
-                    return from.parse(pubDate!!)
+            var date: Date? = null
+                get() {
+                    pubDate?.let {
+                        Log.d(DEBUG_LOG, "Proger() сериализация , dateString=$pubDate")
+                        val from = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US)
+                        return from.parse(pubDate!!)
+                    }
+                    return null
                 }
-                return null
-            }
 
             override fun toString(): String {
                 return "ClassPojo [comments = $comments, link = $link, guid = $guid, description = $description, title = $title, category = $category, pubDate = $pubDate]"
@@ -88,6 +90,7 @@ class Proger:IModel{
         }
     }
 }
+
 @Root(name = "image", strict = false)
 class Atom {
     @field:Element(required = false)
