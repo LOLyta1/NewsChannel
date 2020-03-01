@@ -12,11 +12,6 @@
         android:id="@+id/reload_feeds_item_menu"
         android:title="@string/reload_text" />
     <item
-        android:id="@+id/filter_feeds_item_menu"
-        android:icon="@drawable/filter"
-        android:title="@string/filter_text"
-        app:showAsAction="withText" />
-    <item
         android:id="@+id/sort_feeds_item_menu"
         android:icon="@drawable/sorting_asc"
         android:title="@string/sort_by_date_text"

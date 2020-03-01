@@ -5,6 +5,39 @@
     android:orientation="vertical"
     android:padding="10dp">
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Фильтр" />
+
+    <CheckBox
+        android:id="@+id/dialog_proger_check_box"
+        style="@style/Widget.AppCompat.CompoundButton.CheckBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/dialog_filter_proger_text"
+        android:textSize="18sp"
+        android:theme="@style/CheckBoxStyle" />
+
+    <CheckBox
+        android:id="@+id/dialog_habr_check_box"
+        style="@style/Widget.AppCompat.CompoundButton.CheckBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/dialog_filter_hbr_text"
+        android:textSize="18sp"
+        android:theme="@style/CheckBoxStyle"/>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/sort_by_date_text" />
+
     <RadioGroup
         android:theme="@style/RadioButtonStyle"
         android:id="@+id/sort_feeds_radio_group"
