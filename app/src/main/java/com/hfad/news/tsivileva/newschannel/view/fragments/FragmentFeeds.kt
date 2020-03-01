@@ -172,7 +172,7 @@ class FragmentFeeds() :
         recyclerAdapter.list = _list
     }
 
-    override fun onDialogFilterButtonClick(sourceKind: FeedsSource, isNeedCleareCache: Boolean) {
+    override fun onDialogFilterButtonClick(sourceKind: FeedsSource) {
         recyclerAdapter.list = viewModel.filterNews(sourceKind)
     }
 }
