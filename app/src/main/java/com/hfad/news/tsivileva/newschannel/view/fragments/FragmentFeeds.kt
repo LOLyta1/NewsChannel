@@ -1,7 +1,10 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.*
+import android.widget.EditText
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -111,17 +114,13 @@ class FragmentFeeds() :
                 DialogSortFeeds().show(childFragmentManager, DIALOG_WITH_SORT)
             }
             R.id.app_bar_search -> {
-                //TODO: Запихать поиск в viewModel
-                (item.actionView as SearchView).setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                    override fun onQueryTextSubmit(query: String?): Boolean {
-                        return true
-                    }
-                    override fun onQueryTextChange(newText: String?): Boolean {
-                        newText?.let { text: String ->
-                            val _temp = feeds.filter { it.title!!.contains(text) }.toMutableList()
-                            recyclerAdapter.list = _temp
-                        }
-                        return true
+                val searchField = (item.actionView as EditText).apply{setHint(R.string.search_text)
+                }
+                searchField.addTextChangedListener(object : TextWatcher {
+                    override fun afterTextChanged(s: Editable?) {}
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                            recyclerAdapter.list = viewModel.searchByTitle(s.toString())
                     }
                 })
             }

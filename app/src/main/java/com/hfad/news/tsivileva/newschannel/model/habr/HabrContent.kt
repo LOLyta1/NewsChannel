@@ -8,46 +8,44 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class HabrContent : IModel {
-    val id: Long?
+    val id: Long
         get() = getIdInLink(link)
 
     @Selector(value = "html")
     val htmlElement: Element? = null
 
     @Selector(value = ".post__title-text")
-    var title: String? = null
+    var title: String = ""
 
     @Selector(value = ".post__time", attr = "data-time_published")
-    var dateString: String? = null
+    var dateString: String=""
 
-    var date: Date? = null
+    val date: Date?
         get() {
-            dateString?.let {
                 val from = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US)
-                return from.parse(it)
-            }
-            return null
+                return from.parse(dateString)
         }
 
 
     @Selector(value = "#post-content-body")
-    var content: String? = null
+    var content: String = ""
 
 
-    var image: String? = null
+    val image: String
         get() = findImage(htmlElement)
 
-    private fun findImage(el: Element?): String? {
+    private fun findImage(el: Element?): String {
+        var image=""
         el?.getElementsByTag("div")?.forEach {
             it.getElementsByClass("post__text post__text-html").forEach {
-                return it.getElementsByTag("img").attr("src")
+               image=it.getElementsByTag("img").attr("src")
             }
         }
-        return null
+        return image
     }
 
 
-    var link: String? = null
+    val link: String
         get() = findLink(htmlElement)
 
     private fun findLink(el: Element?): String {

@@ -36,19 +36,14 @@ fun String?.toNonNullString(): String {
     }
 }
 
-fun getIdInLink(link: String?): Long? {
-    link?.let {
-        return Regex("[0-9]{5,8}").find(link, 0)?.value?.toLong()
+fun getIdInLink(link: String?): Long {
+    val id = Regex("[0-9]{5,8}").find(link.toString(), 0)?.value?.toLong()
+    return when (id) {
+        null -> 0L
+        else -> id
     }
-    return null
 }
 
-fun isNotEmptyNewsList(news: MutableList<NewsItem>): Boolean {
-    news.forEach {
-        if (it.id == null) return false
-    }
-    return true
-}
 
 fun getFeedsContentSource(link: String): FeedsContentSource {
     var sourceKind = FeedsContentSource.HABR
@@ -64,7 +59,7 @@ fun getFeedsContentSource(link: String): FeedsContentSource {
 fun RemoteRepository.Factory.parsHabrFeed(habr: Habr): List<NewsItem> {
     val list = mutableListOf<NewsItem>()
     habr.items?.forEach {
-        var newsItem = NewsItem()
+        val newsItem = NewsItem()
         newsItem.sourceKind = FeedsSource.HABR
         newsItem.id = getIdInLink(it.link)
         newsItem.link = it.link
@@ -80,7 +75,7 @@ fun RemoteRepository.Factory.parsHabrFeed(habr: Habr): List<NewsItem> {
 fun RemoteRepository.Factory.parsProgerFeed(proger: Proger): MutableList<NewsItem> {
     val list = mutableListOf<NewsItem>()
     proger.channel?.items?.forEach {
-        var newsItem = NewsItem()
+        val newsItem = NewsItem()
         newsItem.sourceKind = FeedsSource.PROGER
         newsItem.id = getIdInLink(it.guid)
         newsItem.link = it.link
@@ -99,7 +94,7 @@ fun RemoteRepository.Factory.parseFeed(feed: MutableList<List<Any>?>): MutableLi
         it?.forEach {
             when (it) {
                 is Habr.HabrlItems -> {
-                    var newsItem = NewsItem()
+                    val newsItem = NewsItem()
                     newsItem.sourceKind = FeedsSource.HABR
                     newsItem.id = getIdInLink(it.link)
                     newsItem.link = it.link
@@ -109,7 +104,7 @@ fun RemoteRepository.Factory.parseFeed(feed: MutableList<List<Any>?>): MutableLi
                     list.add(newsItem)
                 }
                 is Proger.Channel.Item -> {
-                    var newsItem = NewsItem()
+                    val newsItem = NewsItem()
                     newsItem.sourceKind = FeedsSource.PROGER
                     newsItem.id = getIdInLink(it.guid)
                     newsItem.link = it.link

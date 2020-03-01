@@ -75,4 +75,6 @@ class FeedViewModel : ViewModel() {
 
         return _tempList
     }
+
+    fun searchByTitle(title: String) = newsList.filter {it.title.contains(title) }
 }

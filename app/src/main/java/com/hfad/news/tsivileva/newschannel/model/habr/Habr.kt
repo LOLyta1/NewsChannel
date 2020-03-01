@@ -23,7 +23,7 @@ class Habr : IModel {
     class HabrlItems() {
 
         @field:Element(name = "title", required = false)
-        var title: String? = null
+        var title: String = ""
 
         @field:Element(name = "guid", required = false)
         var link: String = ""
@@ -45,11 +45,11 @@ class Habr : IModel {
             }
 
 
-        var image: String? = null
+        val image: String
             get() = findImage()
 
 
-        private fun findImage(): String? {
+        private fun findImage(): String {
             var IMG_SRC_REG_EX = "<img src=\"([^>]+)\">"
             var imageUrl = Regex(IMG_SRC_REG_EX).find(description.toNonNullString(), 0)?.value.toString()
 

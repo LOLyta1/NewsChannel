@@ -63,11 +63,11 @@ class Proger : IModel {
             @field:Element(required = false)
             var link: String = ""
             @field:Element(required = false)
-            var guid: String? = null
+            var guid: String = ""
             @field:Element(required = false)
             var description: String? = null
             @field:Element(required = false)
-            var title: String? = null
+            var title: String = ""
             @field:Path("category")
             @field:Text(required = false)
             var category: String? = null

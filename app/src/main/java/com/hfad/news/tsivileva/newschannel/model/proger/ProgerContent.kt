@@ -14,17 +14,18 @@ class ProgerContent : IModel {
     @Selector(value = "head")
     var linkElement: Element? = null
 
-    var link: String? = null
+    val link: String
         get() {
+            var attr=""
             linkElement?.getElementsByAttributeValue("rel", "canonical")?.forEach {
-                return it.attr("href")
+                attr= it.attr("href")
             }
-            return null
+            return attr
         }
 
 
     @Selector(value = ".entry-content")
-    var content: String? = null
+    var content: String = ""
 
     @Selector(value = "head")
     var dateElements: Element? = null
@@ -33,17 +34,17 @@ class ProgerContent : IModel {
         get() = findDate()
 
     @Selector(value = ".entry-title")
-    var title: String? = null
+    var title: String = ""
 
     var image = "https://tproger.ru/apple-touch-icon.png"
 
     @Selector(value = "article", attr = "id")
     var idElement: Element? = null
 
-    var id: Long? = 0L
+    var id: Long = 0L
         get() = findID(idElement)
 
-    fun findID(element: Element?): Long? {
+    fun findID(element: Element?): Long {
         return getIdInLink(element?.attr("id"))
     }
 
