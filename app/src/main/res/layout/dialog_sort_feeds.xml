@@ -6,6 +6,7 @@
     android:padding="10dp">
 
     <RadioGroup
+        android:theme="@style/RadioButtonStyle"
         android:id="@+id/sort_feeds_radio_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

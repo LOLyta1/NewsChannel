@@ -25,15 +25,14 @@ class FragmentFeedContent :
         DialogNetworkError.IDialogListener,
         FragmentNetworkError.IErrorFragmentListener {
 
-    private var contentUrl: String? = null
+    private var contentUrl: String = ""
     private lateinit var viewModel: FeedContentViewModel
-    private var news = NewsItem()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         (activity as AppCompatActivity).supportActionBar?.hide()
-        contentUrl = arguments?.getString("url")
+        contentUrl = arguments?.getString("url").toString()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -41,16 +40,21 @@ class FragmentFeedContent :
 
 
         viewModel.downloading.observe(viewLifecycleOwner, Observer { status ->
-            when(status){
-                is DownloadedFeed->{
-                    if( !status.feed.isEmpty()) {
-                    showNews(status.feed)
-                    view?.feeds_details_error_container?.visibility=View.GONE
-                }}
-                is DownloadingError->{view?.news_content_progress_bar?.visibility = View.VISIBLE
-                    view?.feeds_details_error_container?.visibility=View.VISIBLE
-                    DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)}
+            when (status) {
+                is DownloadedFeed -> {
+                    if (!status.feed.isEmpty()) {
+                        view?.news_content_progress_bar?.visibility = View.GONE
+                        view?.feeds_details_error_container?.visibility = View.GONE
+                        view?.feed_content_container?.visibility=View.VISIBLE
+                        showNews(status.feed)
+                    }
                 }
+                is DownloadingError -> {
+                    view?.news_content_progress_bar?.visibility = View.VISIBLE
+                    view?.feeds_details_error_container?.visibility = View.VISIBLE
+                    DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
+                }
+            }
         })
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
@@ -63,10 +67,13 @@ class FragmentFeedContent :
             val choosenIntent = Intent.createChooser(intent, "Choose application")
             startActivity(choosenIntent)
         }
-        contentUrl?.let {
-            view.news_content_progress_bar?.visibility = View.VISIBLE
-            viewModel.loadContent(it, getFeedsContentSource(it))
+        view.error_reload_button.setOnClickListener {
+            viewModel.loadContent(contentUrl, getFeedsContentSource(contentUrl))
         }
+
+        view.news_content_progress_bar?.visibility = View.VISIBLE
+        viewModel.loadContent(contentUrl, getFeedsContentSource(contentUrl))
+
     }
 
     override fun onDestroyView() {
@@ -74,18 +81,15 @@ class FragmentFeedContent :
         viewModel.refreshData()
     }
 
-    private fun showNews(newsItem: NewsItem?) {
-        if (newsItem?.id != null) {
-            view?.news_content_container?.visibility = View.VISIBLE
-            view?.news_content_progress_bar?.visibility = View.GONE
-            view?.new_details_car_view?.visibility = View.VISIBLE
-            view?.news_details_text_view?.text = newsItem?.content
-            view?.news_details_date_text_view?.text = newsItem?.dateToString()
-            view?.news_details_title_text_view?.text = newsItem?.title
+    private fun showNews(newsItem: NewsItem) {
+        if (!newsItem.isEmpty()) {
+            view?.news_details_text_view?.text = newsItem.content
+            view?.news_details_date_text_view?.text = newsItem.dateToString()
+            view?.news_details_title_text_view?.text = newsItem.title
             view?.news_details_link_text_view?.text = newsItem?.link
 
-            val path = newsItem?.picture
-            if (path != null && !path.isEmpty()) {
+            val path = newsItem.picture
+            if (path != "" && path.isNotEmpty()) {
                 view?.new_details_car_view?.visibility = View.VISIBLE
                 Picasso.get().load(path).placeholder(R.drawable.no_photo)
                         .error(R.drawable.no_photo)
@@ -106,7 +110,7 @@ class FragmentFeedContent :
     override fun onDialogErrorCancelClick(dialogNetwork: DialogNetworkError) {
         dialogNetwork.dismiss()
         view?.news_content_progress_bar?.visibility = View.GONE
-        view?.feeds_details_error_container?.visibility=View.VISIBLE
+        view?.feeds_details_error_container?.visibility = View.VISIBLE
     }
 
     override fun onFragmentErrorReloadButtonClick() {

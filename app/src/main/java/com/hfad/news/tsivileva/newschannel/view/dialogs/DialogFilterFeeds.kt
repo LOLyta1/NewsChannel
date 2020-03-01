@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.dialog_filter_feeds.view.*
 
 class DialogFilterFeeds : DialogFragment() {
     interface IDialogFilterFeedsListener {
-        fun onDialogFilterButtonClick(sourceKind: FeedsSource, isNeedCleareCache: Boolean)
+        fun onDialogFilterButtonClick(sourceKind: FeedsSource)
     }
 
     private lateinit var listener: IDialogFilterFeedsListener
@@ -32,18 +32,17 @@ class DialogFilterFeeds : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         listener = parentFragment as IDialogFilterFeedsListener
         view.dialog_filter_button.setOnClickListener {
-            val needCleare = view.dialog_filter_cleare_cache.isChecked
             val needLoadProger = view.dialog_proger_check_box.isChecked
             val needLoadHabr = view.dialog_habr_check_box.isChecked
 
             if (needLoadHabr && needLoadProger) {
-                listener.onDialogFilterButtonClick(FeedsSource.BOTH, needCleare)
+                listener.onDialogFilterButtonClick(FeedsSource.BOTH)
             } else {
                 if (needLoadHabr) {
-                    listener.onDialogFilterButtonClick(FeedsSource.HABR, needCleare)
+                    listener.onDialogFilterButtonClick(FeedsSource.HABR)
                 } else
                     if (needLoadProger) {
-                        listener.onDialogFilterButtonClick(FeedsSource.PROGER, needCleare)
+                        listener.onDialogFilterButtonClick(FeedsSource.PROGER)
                     }
             }
 

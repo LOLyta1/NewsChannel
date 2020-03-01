@@ -2,6 +2,7 @@
 
 
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/swipe_container"
     android:layout_width="match_parent"
@@ -14,26 +15,31 @@
 
         <LinearLayout
             android:id="@+id/feeds_error_container"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginStart="5dp"
             android:background="@color/colorPrimaryDark"
-            android:padding="10dp"
+            android:padding="5dp"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
             android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/network_connection_lost_text" />
+                android:text="@string/network_connection_lost_text"
+                android:textColor="@color/colorAccent" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/error_reload_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:text="@string/reload_text" />
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:background="@null"
+                android:tintMode="add"
+                app:srcCompat="@android:drawable/ic_popup_sync" />
+
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

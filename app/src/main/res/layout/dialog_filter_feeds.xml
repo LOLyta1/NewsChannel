@@ -12,25 +12,19 @@
         android:layout_height="wrap_content"
         android:checked="true"
         android:text="@string/dialog_filter_proger_text"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:theme="@style/CheckBoxStyle" />
 
     <CheckBox
         android:id="@+id/dialog_habr_check_box"
+        style="@style/Widget.AppCompat.CompoundButton.CheckBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="true"
         android:text="@string/dialog_filter_hbr_text"
-        android:textSize="18sp" />
-
-    <CheckBox
-        android:id="@+id/dialog_filter_cleare_cache"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:text="@string/dialog_filter_cleare_cache_text"
-        android:textSize="12sp" />
-
-    <Button
+        android:textSize="18sp"
+        android:theme="@style/CheckBoxStyle"/>
+   <Button
         android:id="@+id/dialog_filter_button"
         style='style="@style/Widget.AppCompat.Button.Borderless'
         android:layout_width="wrap_content"

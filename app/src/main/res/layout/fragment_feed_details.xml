@@ -19,56 +19,58 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/news_content_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingStart="@dimen/feed_content_edge_padding"
-            android:paddingLeft="@dimen/feed_content_edge_padding"
-            android:paddingEnd="@dimen/feed_content_edge_padding"
-            android:paddingRight="@dimen/feed_content_edge_padding"
-            android:visibility="visible">
 
-            <ScrollView
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/feeds_details_error_container"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="5dp">
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:background="@color/colorPrimaryDark"
+                    android:padding="5dp"
+                    android:visibility="gone">
 
-                    <LinearLayout
-                        android:id="@+id/feeds_details_error_container"
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginStart="5dp"
-                        android:background="@color/colorPrimaryDark"
-                        android:padding="10dp"
-                        android:visibility="gone">
+                        android:text="@string/network_connection_lost_text"
+                        android:textColor="@color/colorAccent" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="@string/network_connection_lost_text" />
+                    <ImageButton
+                        android:id="@+id/error_reload_button"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginLeft="5dp"
+                        android:background="@null"
+                        android:tintMode="add"
+                        app:srcCompat="@android:drawable/ic_popup_sync" />
 
-                        <Button
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="5dp"
-                            android:text="@string/reload_text" />
-                    </LinearLayout>
+                </LinearLayout>
 
+
+                <LinearLayout
+                    android:id="@+id/feed_content_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:paddingTop="5dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
 
                     <androidx.cardview.widget.CardView
                         android:id="@+id/new_details_car_view"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:visibility="gone"
+                        android:visibility="visible"
                         app:cardBackgroundColor="@android:color/darker_gray"
                         app:cardCornerRadius="40dp">
 
@@ -91,7 +93,7 @@
                         android:textColor="@color/colorAccent"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        tools:text="дата новости" />
+                        tools:text="дата" />
 
                     <TextView
                         android:id="@+id/news_details_link_text_view"
@@ -124,9 +126,9 @@
                         tools:text="текст статьи" />
 
                 </LinearLayout>
-            </ScrollView>
 
-        </FrameLayout>
+            </LinearLayout>
+        </ScrollView>
 
 
     </LinearLayout>
