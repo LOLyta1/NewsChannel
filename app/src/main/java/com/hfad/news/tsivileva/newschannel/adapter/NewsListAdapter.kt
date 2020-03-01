@@ -3,6 +3,8 @@ package com.hfad.news.tsivileva.newschannel.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +15,9 @@ import com.squareup.picasso.Picasso
 /*
  * Адаптер для RecyclerView
  */
-class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
+class NewsListAdapter :
+        RecyclerView.Adapter<NewsListAdapter.ViewHolder>(){
+
     interface INewsItemClickListener {
         fun onNewsClick(position: Int?)
     }
@@ -23,10 +27,7 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
             field = value
             notifyDataSetChanged()
         }
-
     var listener: INewsItemClickListener? = null
-
-    override fun getItemCount(): Int = list.count()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val cv = LayoutInflater.from(parent.context).inflate(R.layout.item_list, parent, false)
@@ -67,4 +68,5 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
                     .into(holder.imageView)
         }
     }
+    override fun getItemCount(): Int = list.count()
 }

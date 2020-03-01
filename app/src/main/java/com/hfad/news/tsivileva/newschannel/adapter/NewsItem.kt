@@ -23,9 +23,9 @@ data class NewsItem(
     }
 
     fun isEmpty() = (
-            picture == null
+            id==null
+                    && picture == null
                     && sourceKind == null
-                    && link == null
                     && date == null
                     && title == null
                     && content == null

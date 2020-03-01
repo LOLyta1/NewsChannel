@@ -7,11 +7,8 @@ import com.hfad.news.tsivileva.newschannel.model.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
 import com.hfad.news.tsivileva.newschannel.model.proger.Proger
 import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
-import com.hfad.news.tsivileva.newschannel.repository.remote.FeedContentRepository
-import com.hfad.news.tsivileva.newschannel.repository.remote.FeedsRepository
+import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
-import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentNetworkError
-import com.hfad.news.tsivileva.newschannel.view_model.Sort
 
 
 val FEED = "fragment_with_feed"
@@ -64,7 +61,7 @@ fun getFeedsContentSource(link: String): FeedsContentSource {
 
 }
 
-fun parsHabrFeed(habr: Habr): List<NewsItem> {
+fun RemoteRepository.Factory.parsHabrFeed(habr: Habr): List<NewsItem> {
     val list = mutableListOf<NewsItem>()
     habr.items?.forEach {
         var newsItem = NewsItem()
@@ -80,7 +77,7 @@ fun parsHabrFeed(habr: Habr): List<NewsItem> {
 }
 
 
-fun parsProgerFeed(proger: Proger): MutableList<NewsItem> {
+fun RemoteRepository.Factory.parsProgerFeed(proger: Proger): MutableList<NewsItem> {
     val list = mutableListOf<NewsItem>()
     proger.channel?.items?.forEach {
         var newsItem = NewsItem()
@@ -96,7 +93,7 @@ fun parsProgerFeed(proger: Proger): MutableList<NewsItem> {
 }
 
 
-fun FeedsRepository.parseFeed(feed: MutableList<List<Any>?>): MutableList<NewsItem> {
+fun RemoteRepository.Factory.parseFeed(feed: MutableList<List<Any>?>): MutableList<NewsItem> {
     val list = mutableListOf<NewsItem>()
     feed.forEach {
         it?.forEach {
@@ -128,7 +125,7 @@ fun FeedsRepository.parseFeed(feed: MutableList<List<Any>?>): MutableList<NewsIt
     return list
 }
 
-fun FeedContentRepository.parseHabrFeedsContent(hc: HabrContent): NewsItem {
+fun RemoteRepository.Factory.parseHabrFeedsContent(hc: HabrContent): NewsItem {
     return NewsItem(
             title = hc.title,
             content = hc.content,
@@ -140,7 +137,7 @@ fun FeedContentRepository.parseHabrFeedsContent(hc: HabrContent): NewsItem {
     )
 }
 
-fun FeedContentRepository.parseProgerFeedsContent(pc: ProgerContent): NewsItem {
+fun RemoteRepository.Factory.parseProgerFeedsContent(pc: ProgerContent): NewsItem {
     return NewsItem(
             title = pc.title,
             content = pc.content,

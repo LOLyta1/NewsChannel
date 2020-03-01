@@ -13,5 +13,6 @@ class MainActivity : AppCompatActivity() {
         if (supportFragmentManager.findFragmentByTag(FEED) == null) {
             supportFragmentManager.beginTransaction().add(R.id.container, FragmentFeeds(), FEED).commit()
         }
+        supportActionBar?.title=""
     }
 }

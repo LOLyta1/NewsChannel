@@ -6,61 +6,18 @@
     android:layout_height="match_parent">
 
 
-    <FrameLayout
+    <ProgressBar
+        android:id="@+id/news_content_progress_bar"
+        style="?android:attr/progressBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:foregroundGravity="fill_horizontal|fill_vertical">
-
-        <FrameLayout
-            android:id="@+id/news_details_empty_cache_error_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
-
-        <ProgressBar
-            android:id="@+id/news_content_progress_bar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|center_vertical"
-            android:visibility="visible" />
-
-        <LinearLayout
-            android:padding="10dp"
-            android:background="@color/colorPrimaryDark"
-            android:visibility="visible"
-            android:id="@+id/feeds_details_error_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/network_connection_lost_text" />
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="5dp"
-                android:text="@string/reload_text" />
-        </LinearLayout>
-    </FrameLayout>
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:visibility="visible" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
-        <FrameLayout
-            android:id="@+id/news_details_full_cache_error_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-        </FrameLayout>
 
         <FrameLayout
             android:id="@+id/news_content_container"
@@ -82,6 +39,30 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:paddingTop="5dp">
+
+                    <LinearLayout
+                        android:id="@+id/feeds_details_error_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="5dp"
+                        android:background="@color/colorPrimaryDark"
+                        android:padding="10dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/network_connection_lost_text" />
+
+                        <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:text="@string/reload_text" />
+                    </LinearLayout>
+
 
                     <androidx.cardview.widget.CardView
                         android:id="@+id/new_details_car_view"

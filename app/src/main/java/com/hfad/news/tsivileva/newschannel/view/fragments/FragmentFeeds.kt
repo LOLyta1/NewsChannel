@@ -12,6 +12,7 @@ import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListDecorator
+import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeeds
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingProgress
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingSuccessful
@@ -21,7 +22,6 @@ import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSortFeeds
 import com.hfad.news.tsivileva.newschannel.view_model.FeedViewModel
 import com.hfad.news.tsivileva.newschannel.view_model.Sort
 import kotlinx.android.synthetic.main.fragment_feed.view.*
-import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
 class FragmentFeeds() :
         Fragment(),
@@ -54,11 +54,11 @@ class FragmentFeeds() :
         recyclerAdapter.listener = this
         viewModel.downloadFeeds()
 
-        viewModel.downloadingNews.observe(viewLifecycleOwner, Observer {
+        viewModel.downloading.observe(viewLifecycleOwner, Observer {
             when(it){
-                is DownloadingSuccessful -> {
-                    if (it.newsList.isNotEmpty()) {
-                        feeds = it.newsList
+                is DownloadedFeeds->{
+                    if (it.feedList.isNotEmpty()) {
+                        feeds = it.feedList
                         recyclerAdapter.list = feeds
                         view.feeds_error_container.visibility=View.GONE
                         view.swipe_container?.isRefreshing = false

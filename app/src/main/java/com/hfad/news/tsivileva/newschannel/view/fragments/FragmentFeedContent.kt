@@ -12,6 +12,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeed
+import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
+import com.hfad.news.tsivileva.newschannel.repository.DownloadingSuccessful
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
 import com.squareup.picasso.Picasso
@@ -35,23 +38,19 @@ class FragmentFeedContent :
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModel = ViewModelProviders.of(activity!!).get(FeedContentViewModel::class.java)
-        viewModel.newsItem.observe(viewLifecycleOwner, Observer {
-            if (!news.isEmpty())
-                news = it
 
-        })
 
-        viewModel.isDownloadSuccessful.observe(viewLifecycleOwner, Observer { isSuccessful ->
-            if (isSuccessful) {
-                if (!news.isEmpty()) {
-                    showNews(news)
+        viewModel.downloading.observe(viewLifecycleOwner, Observer { status ->
+            when(status){
+                is DownloadedFeed->{
+                    if( !status.feed.isEmpty()) {
+                    showNews(status.feed)
                     view?.feeds_details_error_container?.visibility=View.GONE
+                }}
+                is DownloadingError->{view?.news_content_progress_bar?.visibility = View.VISIBLE
+                    view?.feeds_details_error_container?.visibility=View.VISIBLE
+                    DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)}
                 }
-            } else {
-                view?.news_content_progress_bar?.visibility = View.VISIBLE
-                view?.feeds_details_error_container?.visibility=View.VISIBLE
-                DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
-            }
         })
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
