@@ -27,7 +27,6 @@ class FragmentFeeds() :
         Fragment(),
         NewsListAdapter.INewsItemClickListener,
         DialogNetworkError.IDialogListener,
-        FragmentNetworkError.IErrorFragmentListener,
         DialogSortFeeds.IDialogSortFeedsClickListener {
 
     private lateinit var viewModel: FeedViewModel
@@ -152,19 +151,10 @@ class FragmentFeeds() :
     }
 
 
-    override fun onFragmentErrorReloadButtonClick() {
-        viewModel.cleareCache()
-        viewModel.downloadFeeds()
-        view?.swipe_container?.isRefreshing = true
-        view?.feeds_error_container?.visibility = View.GONE
-    }
-
-
     override fun onDialogSortClick(filter: FeedsSource, sortKind: Sort) {
-        var _list = viewModel.filterNews(filter)
-        _list = viewModel.sortNews(sortKind, _list.toMutableList())
-        recyclerAdapter.list = _list
-
+        var tempList = viewModel.filterNews(filter)
+        tempList = viewModel.sortNews(sortKind, tempList.toMutableList())
+        recyclerAdapter.list = tempList
     }
 }
 

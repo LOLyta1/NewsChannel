@@ -25,11 +25,11 @@ class DialogSortFeeds : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        dialog?.setTitle(R.string.dialog_title)
         listener = parentFragment as IDialogSortFeedsClickListener
 
-
-
         view.dialog_sort_feed_button.setOnClickListener {
+
             var filter: FeedsSource = FeedsSource.BOTH
             var sort: Sort = Sort.BY_ABC_ASC
 
@@ -42,18 +42,15 @@ class DialogSortFeeds : DialogFragment() {
                     if (view.dialog_proger_check_box.isChecked) {
                         filter = FeedsSource.PROGER
                     }
-
             when (view.sort_feeds_radio_group.checkedRadioButtonId) {
                 R.id.sort_feeds_by_abc_asc_radio_button -> sort = Sort.BY_ABC_ASC
                 R.id.sort_feeds_by_abs_desc_radio_button -> sort = Sort.BY_ABC_DESC
                 R.id.sort_feeds_by_date_asc_radio_button -> sort = Sort.BY_DATE_ASC
                 R.id.sort_feeds_by_date_desc_radio_button -> sort = Sort.BY_DATE_DESC
             }
-            dismiss()
             listener?.onDialogSortClick(filter, sort)
+            dismiss()
         }
-
-
     }
 
     override fun show(manager: FragmentManager, tag: String?) {
