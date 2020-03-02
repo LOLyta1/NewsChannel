@@ -3,17 +3,14 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.hfad.news.tsivileva.newschannel.DIALOG_WITH_ERROR
-import com.hfad.news.tsivileva.newschannel.R
+import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.getFeedsContentSource
 import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeed
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
@@ -30,14 +27,16 @@ class FragmentFeedContent :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (activity as AppCompatActivity).supportActionBar?.hide()
+        val actionBar = (activity as AppCompatActivity).supportActionBar
+        actionBar?.setHomeAsUpIndicator(R.drawable.back_icon)
+        actionBar?.setDisplayHomeAsUpEnabled(true)
+        setHasOptionsMenu(true)
+
         contentUrl = arguments?.getString("url").toString()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModel = ViewModelProviders.of(activity!!).get(FeedContentViewModel::class.java)
-
-
         viewModel.downloading.observe(viewLifecycleOwner, Observer { status ->
             when (status) {
                 is DownloadedFeed -> {
@@ -61,23 +60,51 @@ class FragmentFeedContent :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         view.news_details_link_text_view.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(contentUrl))
             val choosenIntent = Intent.createChooser(intent, "Choose application")
             startActivity(choosenIntent)
         }
         view.error_reload_button.setOnClickListener {
-            viewModel.loadContent(contentUrl, getFeedsContentSource(contentUrl))
+            viewModel.download(contentUrl, getFeedsContentSource(contentUrl))
         }
 
         view.news_content_progress_bar?.visibility = View.VISIBLE
-        viewModel.loadContent(contentUrl, getFeedsContentSource(contentUrl))
+        viewModel.download(contentUrl, getFeedsContentSource(contentUrl))
 
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         viewModel.refreshData()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_feed_content_fragment, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when (item.itemId) {
+            android.R.id.home -> {
+                parentFragmentManager.popBackStackImmediate()
+            }
+            R.id.feed_content_add_to_favorites_menu_button -> {
+                //TODO() сделать сохранение в базу
+            }
+            R.id.feed_content_share_menu_button -> {
+                val intent = Intent().apply {
+                    action = Intent.ACTION_SEND
+                    putExtra(Intent.EXTRA_TEXT,getFeedInfo())
+                    type = "text/plain"
+                }
+                val chooserIntent=Intent.createChooser(intent,"Select source")
+                startActivity(chooserIntent)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun showNews(newsItem: NewsItem) {
@@ -102,7 +129,7 @@ class FragmentFeedContent :
     override fun onDialogErrorReloadClick(dialogNetwork: DialogNetworkError) {
         view?.news_content_progress_bar?.visibility = View.VISIBLE
         dialogNetwork.dismiss()
-        viewModel.loadContent(contentUrl, getFeedsContentSource(contentUrl))
+        viewModel.download(contentUrl, getFeedsContentSource(contentUrl))
     }
 
     override fun onDialogErrorCancelClick(dialogNetwork: DialogNetworkError) {

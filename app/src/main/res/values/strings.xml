@@ -23,6 +23,9 @@
     <string name="dialog_filter_cleare_cache_text">Очистить кэш перед фильтрацией</string>
     <string name="feed_details_search_view">Search</string>
     <string name="search_text">Поиск по заголовку…</string>
+    <string name="add_to_favorites_text">Добавить в избранное</string>
+    <string name="back_text">Назад</string>
+    <string name="share_text">Поделиться</string>
 
 
 </resources>

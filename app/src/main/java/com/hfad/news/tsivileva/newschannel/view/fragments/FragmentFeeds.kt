@@ -45,11 +45,12 @@ class FragmentFeeds() :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val actionBar = (activity as AppCompatActivity).supportActionBar
+        actionBar?.setDisplayHomeAsUpEnabled(false)
 
-        (activity as AppCompatActivity).supportActionBar?.show()
         view.swipe_container?.isRefreshing = true
-
         recyclerAdapter.listener = this
+
         viewModel.downloadFeeds()
 
         viewModel.downloading.observe(viewLifecycleOwner, Observer {
