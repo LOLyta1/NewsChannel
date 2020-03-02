@@ -10,11 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.hfad.news.tsivileva.newschannel.*
+import com.hfad.news.tsivileva.newschannel.DIALOG_WITH_ERROR
+import com.hfad.news.tsivileva.newschannel.R
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import com.hfad.news.tsivileva.newschannel.getFeedsContentSource
 import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeed
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingSuccessful
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
 import com.squareup.picasso.Picasso
@@ -22,12 +23,10 @@ import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
 class FragmentFeedContent :
         Fragment(),
-        DialogNetworkError.IDialogListener,
-        FragmentNetworkError.IErrorFragmentListener {
+        DialogNetworkError.IDialogListener {
 
     private var contentUrl: String = ""
     private lateinit var viewModel: FeedContentViewModel
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +44,7 @@ class FragmentFeedContent :
                     if (!status.feed.isEmpty()) {
                         view?.news_content_progress_bar?.visibility = View.GONE
                         view?.feeds_details_error_container?.visibility = View.GONE
-                        view?.feed_content_container?.visibility=View.VISIBLE
+                        view?.feed_content_container?.visibility = View.VISIBLE
                         showNews(status.feed)
                     }
                 }
@@ -86,7 +85,7 @@ class FragmentFeedContent :
             view?.news_details_text_view?.text = newsItem.content
             view?.news_details_date_text_view?.text = newsItem.dateToString()
             view?.news_details_title_text_view?.text = newsItem.title
-            view?.news_details_link_text_view?.text = newsItem?.link
+            view?.news_details_link_text_view?.text = newsItem.link
 
             val path = newsItem.picture
             if (path != "" && path.isNotEmpty()) {
@@ -98,13 +97,12 @@ class FragmentFeedContent :
                 view?.new_details_car_view?.visibility = View.GONE
             }
         }
-
     }
 
     override fun onDialogErrorReloadClick(dialogNetwork: DialogNetworkError) {
         view?.news_content_progress_bar?.visibility = View.VISIBLE
         dialogNetwork.dismiss()
-        contentUrl?.let { viewModel.loadContent(it, getFeedsContentSource(it)) }
+        viewModel.loadContent(contentUrl, getFeedsContentSource(contentUrl))
     }
 
     override fun onDialogErrorCancelClick(dialogNetwork: DialogNetworkError) {
@@ -112,10 +110,6 @@ class FragmentFeedContent :
         view?.news_content_progress_bar?.visibility = View.GONE
         view?.feeds_details_error_container?.visibility = View.VISIBLE
     }
-
-    override fun onFragmentErrorReloadButtonClick() {
-        contentUrl?.let { viewModel.loadContent(it, getFeedsContentSource(it)) }
-
-    }
-
 }
+
+

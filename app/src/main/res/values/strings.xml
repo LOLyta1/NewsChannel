@@ -4,11 +4,8 @@
     <string name="news_image_descriprion_text">Картинка</string>
 
     <string name="network_connection_lost_text">Произошла ошибка при загрузке данных!</string>
-    <string name="dialog_update_button_text">Обновить</string>
     <string name="dialog_cancel_button_text">Отмена</string>
-    <string name="activity_menu_item_update_text">Обновить</string>
     <string name="load_is_successful_text">загрузка завершена"</string>
-    <string name="reload_news_content_button_text">Обновить</string>
     <string name="reload_text">Обновить</string>
     <string name="cleare_cache_text">Очистить кэш</string>
     <string name="sort_by_date_text">Сортировать</string>
@@ -19,12 +16,13 @@
     <string name="sort_abs_asc_text">По алфавиту (По возрастанию)</string>
     <string name="sort_abs_desc_text">По алфавиту (По убыванию)</string>
 
+    <string name="dialog_title">Сортировка списка</string>
     <string name="dialog_filter_text">Выберите источник загрузки</string>
     <string name="dialog_filter_proger_text">Proger</string>
     <string name="dialog_filter_hbr_text">Habr</string>
     <string name="dialog_filter_cleare_cache_text">Очистить кэш перед фильтрацией</string>
     <string name="feed_details_search_view">Search</string>
-    <string name="search_text">Поиск по заголовку...</string>
+    <string name="search_text">Поиск по заголовку…</string>
 
 
 </resources>

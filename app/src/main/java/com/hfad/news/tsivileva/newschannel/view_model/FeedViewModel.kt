@@ -30,7 +30,7 @@ class FeedViewModel : ViewModel() {
     }
 
     private fun onComplete() {
-        sortNews(Sort.BY_ABC_ASC)
+        newsList=sortNews(Sort.BY_ABC_ASC,newsList)
         downloading.postValue(DownloadedFeeds(newsList))
         subscription?.dispose()
     }
@@ -47,28 +47,30 @@ class FeedViewModel : ViewModel() {
     }
 
 
-    fun sortNews(sortKind: Sort) {
+    fun sortNews(sortKind: Sort,list: MutableList<NewsItem> ) : MutableList<NewsItem> {
+        val _list= list
         when (sortKind) {
             Sort.BY_ABC_ASC -> {
-                newsList.sortBy { it.title }
+               _list.sortBy { it.title }
             }
             Sort.BY_ABC_DESC -> {
-                newsList.sortByDescending { it.title }
+                _list.sortByDescending { it.title }
             }
             Sort.BY_DATE_ASC -> {
-                newsList.sortBy { it.date }
+               _list.sortBy { it.date }
             }
             Sort.BY_DATE_DESC -> {
-                newsList.sortByDescending { it.date }
+                _list.sortByDescending { it.date }
             }
         }
+        return _list
     }
 
     fun filterNews(sourceKind: FeedsSource): List<NewsItem> {
         val _tempList: List<NewsItem>
 
         if(sourceKind== FeedsSource.BOTH){
-            _tempList= newsList
+            _tempList= newsList.filter { it.sourceKind==FeedsSource.HABR || it.sourceKind==FeedsSource.PROGER }
         }else{
             _tempList=newsList.filter { it.sourceKind == sourceKind }
         }
