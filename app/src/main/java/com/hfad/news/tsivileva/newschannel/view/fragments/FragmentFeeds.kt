@@ -8,6 +8,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hfad.news.tsivileva.newschannel.*
@@ -17,6 +18,7 @@ import com.hfad.news.tsivileva.newschannel.adapter.NewsListDecorator
 import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeeds
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingProgress
+import com.hfad.news.tsivileva.newschannel.repository.local.LocalDatabase
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSortFeeds
 import com.hfad.news.tsivileva.newschannel.view_model.FeedViewModel
@@ -36,8 +38,8 @@ class FragmentFeeds() :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        viewModel = ViewModelProviders.of(activity!!).get(FeedViewModel::class.java)
-    }
+
+   }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_feed, container, false)
@@ -45,6 +47,9 @@ class FragmentFeeds() :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel = ViewModelProviders.of(activity!!).get(FeedViewModel::class.java)
+
         val actionBar = (activity as AppCompatActivity).supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(false)
 

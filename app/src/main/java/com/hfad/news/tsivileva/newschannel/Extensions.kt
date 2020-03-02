@@ -1,7 +1,11 @@
 package com.hfad.news.tsivileva.newschannel
 
+import android.app.Application
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
@@ -10,15 +14,28 @@ import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentFeedContent
+import com.hfad.news.tsivileva.newschannel.view_model.FeedViewModel
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
+import java.lang.reflect.InvocationTargetException
+
+const val DATABASE_NAME="NewsDatabase"
+const val DATABASE_TABLE_NAME="News"
+const val DATABASE_ID_COLUMN="_id"
+const val DATABASE_DATE_COLUMN="date"
+const val DATABASE_PICTURE_COLUMN="picture"
+const val DATABASE_SOURCE_COLUMN="sourceKind"
+const val DATABASE_LINK_COLUMN="link"
+const val DATABASE_TITLE_COLUMN="title"
+const val DATABASE_CONTENT_COLUMN="content"
+const val DATABASE_FAVOURITE_COLUMN="favorite"
+
 
 
 val FEED = "fragment_with_feed"
 val FEED_CONTENT = "fragment_with_feed_content"
-val FEED_ERROR_DOWNLOADING = "fragment_with_error_downloading_feed"
-val FEED_CONTENT_ERROR_DOWNLOADING = "fragment_with_error_downloading_feed_content"
+
 val DIALOG_WITH_ERROR = "dialog_with_error"
-val DIALOG_WITH_FILTER = "dialog_with_filter"
+
 val DIALOG_WITH_SORT = "dialog_with_sort"
 
 
@@ -150,6 +167,29 @@ fun FragmentFeedContent.getFeedInfo(): String {
                 id = pc.id,
                 sourceKind = FeedsSource.PROGER)
     }
+
+
+
+fun getViewModelFactory(app: Application) : ViewModelProvider.NewInstanceFactory {
+    return object: ViewModelProvider.NewInstanceFactory() {
+        override fun <T : ViewModel> create(modelClass: Class<T>) : T {
+            try {
+                return modelClass.getConstructor(Application::class.java).newInstance(app);
+            } catch (e:InstantiationException) {
+                e.printStackTrace();
+            } catch (e:IllegalAccessException ) {
+                e.printStackTrace();
+            } catch (e: InvocationTargetException) {
+                e.printStackTrace();
+            } catch (e: NoSuchMethodException) {
+                e.printStackTrace();
+            }
+            return super.create(modelClass)
+        }
+    }
+}
+
+
 
 
 
