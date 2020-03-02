@@ -16,7 +16,7 @@ class FeedContentViewModel : ViewModel() {
     private var newsItem = NewsItem()
     private var disposable:Disposable?=null
 
-    fun loadContent(url: String, source: FeedsContentSource) {
+    fun download(url: String, source: FeedsContentSource) {
         val _newsItem = newsList.find { it.link == url || it.id == getIdInLink(url) }
         if (_newsItem == null){
             when(source){
