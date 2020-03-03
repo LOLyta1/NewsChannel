@@ -3,6 +3,7 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -12,6 +13,8 @@ import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeed
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
+import com.hfad.news.tsivileva.newschannel.repository.DownloadingProgress
+import com.hfad.news.tsivileva.newschannel.repository.DownloadingSuccessful
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
 import com.squareup.picasso.Picasso
@@ -35,10 +38,12 @@ class FragmentFeedContent :
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        viewModel = ViewModelProviders.of(activity!!).get(FeedContentViewModel::class.java)
+        viewModel = ViewModelProviders.of(this).get(FeedContentViewModel::class.java)
         viewModel.downloading.observe(viewLifecycleOwner, Observer { status ->
             when (status) {
                 is DownloadedFeed -> {
+                    Log.d(DEBUG_LOG, "FragmentFeedContent - viewModel.downloading.observe()  - ${status.feed?.date}.$${status.feed?.title},content - ${status.feed?.content}")
+
                     status.feed?.let{
                         if(!it.isEmpty()){
                             view?.news_content_progress_bar?.visibility = View.GONE
@@ -52,6 +57,9 @@ class FragmentFeedContent :
                     view?.news_content_progress_bar?.visibility = View.VISIBLE
                     view?.feeds_details_error_container?.visibility = View.VISIBLE
                     DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
+                }
+                is DownloadingProgress->{
+                    Log.d(DEBUG_LOG, "FragmentContent.DownloadingSuccessful ${status.message}")
                 }
             }
         })

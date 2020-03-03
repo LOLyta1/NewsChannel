@@ -31,7 +31,7 @@ android {
 }
 
 dependencies {
-    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
+    kapt "android.arch.persistence.room:compiler:1.1.1"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -82,7 +82,7 @@ dependencies {
     //RxJava For room
     implementation "androidx.room:room-rxjava2:2.2.4"
     implementation "androidx.room:room-runtime:2.2.4"
-    kapt "androidx.room:room-compiler:2.2.4"
+   kapt "androidx.room:room-compiler:2.2.4"
 
 }
 repositories {

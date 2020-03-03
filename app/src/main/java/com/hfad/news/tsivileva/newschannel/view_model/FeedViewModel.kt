@@ -62,7 +62,6 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
 
     fun sortNews(sortKind: Sort, source: FeedsSource) {
         val observable: Observable<List<NewsItem>>?
-
         when (source) {
             FeedsSource.HABR, FeedsSource.PROGER -> {
                 when (sortKind) {
@@ -77,7 +76,6 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
                 }
             }
         }
-
         subscription = observable
                 ?.subscribeOn(Schedulers.io())
                 ?.observeOn(AndroidSchedulers.mainThread())
@@ -86,9 +84,8 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
                     _list ->
                     downloading.postValue(DownloadedFeeds(_list))
                     _list.forEach {
-                        Log.d(DEBUG_LOG, "doOnNext()  - ${it.date}.${it.title}")
+                        Log.d(DEBUG_LOG, "doOnNext()  - ${it.date}.${it.title},content - ${it.content}")
                     }
-
                 }
                 ?.doOnComplete { subscription?.dispose() }
                 ?.doOnError { e -> e.printStackTrace() }
@@ -98,6 +95,15 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
     override fun onCleared() {
         LocalDatabase.destroyInstance()
         super.onCleared()
+    }
+
+    fun searchByTitle(title: String) {
+        subscription = database?.getLocalRepo()?.selectByTitle("%$title%")
+                ?.doOnSuccess {  downloading.postValue(DownloadedFeeds(it))}
+                ?.doOnError { e -> e.printStackTrace() }
+                ?.subscribeOn(Schedulers.io())
+                ?.subscribe()
+
     }
 
 

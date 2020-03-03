@@ -11,10 +11,12 @@ import com.hfad.news.tsivileva.newschannel.getIdInLink
 import com.hfad.news.tsivileva.newschannel.getSourceByLink
 import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeed
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
+import com.hfad.news.tsivileva.newschannel.repository.DownloadingProgress
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingState
 import com.hfad.news.tsivileva.newschannel.repository.local.LocalDatabase
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     val downloading = MutableLiveData<DownloadingState>()
@@ -24,6 +26,13 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
 
     fun download(url: String) {
         link = url
+
+                loadFromSource(url)
+                Log.d(DEBUG_LOG,"загрузка из инета")
+
+
+    }
+    fun loadFromSource(url:String){
         if (getSourceByLink(url) == FeedsSource.PROGER) {
             disposable = RemoteRepository.getProgerContentObservable(url)
                     .subscribe(::_onSuccess, ::_onError)
@@ -33,12 +42,17 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
                         .subscribe(::_onSuccess, ::_onError)
         }
     }
+
+
     fun _onSuccess(t: NewsItem) {
         Log.d(DEBUG_LOG,"_onSuccess - Инстанс базы ${database}")
         if(link!=null){
-          val news= database?.getLocalRepo()?.update(t.content, getIdInLink(link), getSourceByLink(link!!))
-            downloading.postValue(DownloadedFeed(news))
+
+           database?.getLocalRepo()?.update(t)
+            val nserted=database?.getLocalRepo()?.selectById(t.id)
+            downloading.postValue(DownloadedFeed(nserted))
         }
+
 //        database?.getLocalRepo()?.insert(t)
 //        database
 //                ?.getLocalRepo()
@@ -55,12 +69,16 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     fun _onError(e: Throwable) {
         Log.d(DEBUG_LOG,"_onError - Инстанс базы ${database}")
         downloading.postValue(DownloadingError(e))
-        disposable= database
-                ?.getLocalRepo()
-                ?.selectByIdObserc(getIdInLink(link))?.doOnSuccess{
-                   downloading.postValue(DownloadedFeed(it))
-                   disposable?.dispose()
-               }?.subscribe()
+        link?.let {
+            val news= database
+                    ?.getLocalRepo()
+                    ?.selectByLink(it)
+
+            Log.d(DEBUG_LOG, "FeedContentViewModel - _onError()  - ${news?.date}.${news?.title},content - ${news?.content}")
+            downloading.postValue(DownloadedFeed(news))
+
+        }
+
 
            /*     ?.doOnSuccess {
                     Log.d(DEBUG_LOG,"вставленное содержимое ${it.link}")
@@ -70,6 +88,7 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
                 }?.subscribe()*/
 
         e.printStackTrace()
+
     }
 
 
