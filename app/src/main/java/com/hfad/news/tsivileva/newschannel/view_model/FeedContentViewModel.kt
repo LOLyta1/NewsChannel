@@ -1,10 +1,13 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import com.hfad.news.tsivileva.newschannel.FeedsSource
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import com.hfad.news.tsivileva.newschannel.getIdInLink
 import com.hfad.news.tsivileva.newschannel.getSourceByLink
 import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeed
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
@@ -31,29 +34,40 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
         }
     }
     fun _onSuccess(t: NewsItem) {
-        database?.getLocalRepo()?.insert(t)
-        disposable = database
-                ?.getLocalRepo()
-                ?.selectByLink(t.link)
-                ?.doOnSuccess {
-                    downloading.postValue(DownloadedFeed(it))
-                    disposable?.dispose()
-                }
-                ?.doOnError { e -> e.printStackTrace() }
-                ?.subscribe()
+        Log.d(DEBUG_LOG,"_onSuccess - Инстанс базы ${database}")
+        if(link!=null){
+          val news= database?.getLocalRepo()?.update(t.content, getIdInLink(link), getSourceByLink(link!!))
+            downloading.postValue(DownloadedFeed(news))
+        }
+//        database?.getLocalRepo()?.insert(t)
+//        database
+//                ?.getLocalRepo()
+//                ?.selectByLink(t.link)
+//                ?.doOnSuccess {
+//                    downloading.postValue(DownloadedFeed(it))
+//                    disposable?.dispose()
+//                }
+//                ?.doOnError { e -> e.printStackTrace() }
+//                ?.subscribe()
 
     }
 
     fun _onError(e: Throwable) {
+        Log.d(DEBUG_LOG,"_onError - Инстанс базы ${database}")
         downloading.postValue(DownloadingError(e))
-        disposable = database
+        disposable= database
                 ?.getLocalRepo()
-                ?.selectByLink(link)
-                ?.doOnSuccess {
+                ?.selectByIdObserc(getIdInLink(link))?.doOnSuccess{
+                   downloading.postValue(DownloadedFeed(it))
+                   disposable?.dispose()
+               }?.subscribe()
+
+           /*     ?.doOnSuccess {
+                    Log.d(DEBUG_LOG,"вставленное содержимое ${it.link}")
                     downloading.postValue(DownloadedFeed(it))
                     disposable?.dispose()
 
-                }?.subscribe()
+                }?.subscribe()*/
 
         e.printStackTrace()
     }

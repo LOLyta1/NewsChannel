@@ -27,9 +27,14 @@ interface ILocaRepository {
     @Query(value = "SELECT * FROM $DATABASE_TABLE_NAME WHERE $DATABASE_FAVOURITE_COLUMN=='true' ")
     fun selectFavorite() : List<NewsItem>
 
-    @Query(value = "SELECT * FROM $DATABASE_TABLE_NAME WHERE ${DATABASE_LINK_COLUMN}=:link ")
+    @Query(value = "SELECT * FROM $DATABASE_TABLE_NAME WHERE ${DATABASE_LINK_COLUMN} LIKE :link ")
     fun selectByLink(link:String?) : Single<NewsItem>
 
+    @Query(value = "SELECT * FROM $DATABASE_TABLE_NAME WHERE ${DATABASE_ID_COLUMN}=:id ")
+    fun selectById(id:Long) : NewsItem
+
+    @Query(value = "SELECT * FROM $DATABASE_TABLE_NAME WHERE ${DATABASE_ID_COLUMN}=:id ")
+    fun selectByIdObserc(id:Long) : Single<NewsItem>
 
     @Query(value = "SELECT * FROM $DATABASE_TABLE_NAME ORDER BY  $DATABASE_DATE_COLUMN ASC ")
     fun selectAllSortedByDateAsc() : Observable<List<NewsItem>>
@@ -47,8 +52,9 @@ interface ILocaRepository {
     fun updateById(content: String, id: Long, source: FeedsSource)
 
     @Transaction
-    fun update(content: String, id: Long, source: FeedsSource){
+    fun update(content: String, id: Long, source: FeedsSource) :NewsItem {
         updateById(content, id, source)
+        return selectById(id)
     }
 
 }

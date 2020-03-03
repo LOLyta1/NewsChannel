@@ -79,7 +79,7 @@ data class NewsItem(
                     && link == ""
                     && date == Date(0L)
                     && title == ""
-                    && content == ""
+
 
             )
 
