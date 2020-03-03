@@ -14,6 +14,7 @@ import com.hfad.news.tsivileva.newschannel.parseHabrFeedsContent
 import com.hfad.news.tsivileva.newschannel.parseProgerFeedsContent
 import com.hfad.news.tsivileva.newschannel.repository.local.LocalDatabase
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
@@ -50,13 +51,13 @@ class RemoteRepository {
         }
 
 
-        fun getProgerContentObservable(url: String): Observable<NewsItem> {
+        fun getProgerContentObservable(url: String): Single<NewsItem> {
             return createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java)
                     .loadProgDetails()
                     .map(::parseProgerFeedsContent)
         }
 
-        fun getHabrContentObservable(url: String): Observable<NewsItem> {
+        fun getHabrContentObservable(url: String): Single<NewsItem> {
             return createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java)
                     .loadHabrContent()
                     .map(::parseHabrFeedsContent)

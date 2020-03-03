@@ -3,7 +3,6 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -40,11 +39,13 @@ class FragmentFeedContent :
         viewModel.downloading.observe(viewLifecycleOwner, Observer { status ->
             when (status) {
                 is DownloadedFeed -> {
-                    if (!status.feed.isEmpty()) {
-                        view?.news_content_progress_bar?.visibility = View.GONE
-                        view?.feeds_details_error_container?.visibility = View.GONE
-                        view?.feed_content_container?.visibility = View.VISIBLE
-                        showNews(status.feed)
+                    status.feed?.let{
+                        if(!it.isEmpty()){
+                            view?.news_content_progress_bar?.visibility = View.GONE
+                            view?.feeds_details_error_container?.visibility = View.GONE
+                            view?.feed_content_container?.visibility = View.VISIBLE
+                            showNews(status.feed)
+                        }
                     }
                 }
                 is DownloadingError -> {
@@ -67,11 +68,11 @@ class FragmentFeedContent :
             startActivity(choosenIntent)
         }
         view.error_reload_button.setOnClickListener {
-            viewModel.download(contentUrl, getFeedsContentSource(contentUrl))
+            viewModel.download(contentUrl)
         }
 
         view.news_content_progress_bar?.visibility = View.VISIBLE
-        viewModel.download(contentUrl, getFeedsContentSource(contentUrl))
+        viewModel.download(contentUrl)
 
     }
 
@@ -129,7 +130,7 @@ class FragmentFeedContent :
     override fun onDialogErrorReloadClick(dialogNetwork: DialogNetworkError) {
         view?.news_content_progress_bar?.visibility = View.VISIBLE
         dialogNetwork.dismiss()
-        viewModel.download(contentUrl, getFeedsContentSource(contentUrl))
+        viewModel.download(contentUrl)
     }
 
     override fun onDialogErrorCancelClick(dialogNetwork: DialogNetworkError) {

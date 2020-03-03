@@ -60,18 +60,6 @@
             android:text="@string/sort_date_desc_text" />
 
 
-        <RadioButton
-            android:id="@+id/sort_feeds_by_abc_asc_radio_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sort_abs_asc_text" />
-
-        <RadioButton
-            android:id="@+id/sort_feeds_by_abs_desc_radio_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/sort_abs_desc_text" />
-
     </RadioGroup>
 
     <Button

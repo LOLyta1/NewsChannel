@@ -5,7 +5,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
@@ -14,7 +13,6 @@ import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentFeedContent
-import com.hfad.news.tsivileva.newschannel.view_model.FeedViewModel
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -73,13 +71,13 @@ fun FragmentFeedContent.getFeedInfo(): String {
     }
 
 
-    fun getFeedsContentSource(link: String): FeedsContentSource {
-        var sourceKind = FeedsContentSource.HABR
+    fun getSourceByLink(link: String): FeedsSource {
+        var sourceKind = FeedsSource.BOTH
         if (link.contains("habr")) {
-            return FeedsContentSource.HABR
+            return FeedsSource.HABR
         } else
             if (link.contains("proger")) {
-                return FeedsContentSource.PROGER
+                return FeedsSource.PROGER
             } else return sourceKind
 
     }

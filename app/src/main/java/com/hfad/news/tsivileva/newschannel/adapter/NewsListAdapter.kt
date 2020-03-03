@@ -54,7 +54,7 @@ class NewsListAdapter :
         holder.linkView.text = list[position].link
         holder.dateView.text = list[position].dateToString()
 
-        if (list[position].picture != null) {
+        if (list[position].picture != "") {
             Picasso.get().load(list[position].picture)
                     .placeholder(R.drawable.no_photo)
                     .memoryPolicy(MemoryPolicy.NO_STORE)

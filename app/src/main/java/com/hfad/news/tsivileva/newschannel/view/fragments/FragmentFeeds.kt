@@ -62,12 +62,12 @@ class FragmentFeeds() :
         viewModel.downloading.observe(viewLifecycleOwner, Observer {
             when (it) {
                 is DownloadedFeeds -> {
-                    if (it.feedList.isNotEmpty()) {
+                 //   if (it.feedList.isNotEmpty()) {
                         feeds = it.feedList
                         recyclerAdapter.list = feeds
                         view.feeds_error_container.visibility = View.GONE
                         view.swipe_container?.isRefreshing = false
-                    }
+                 //   }
                 }
                 is DownloadingError -> {
                     view.feeds_error_container.visibility = View.VISIBLE
@@ -75,7 +75,7 @@ class FragmentFeeds() :
                     view.swipe_container?.isRefreshing = true
                 }
                 is DownloadingProgress -> {//it.message
-                    Log.d(DEBUG_LOG,"receive - $it.message")
+                    Log.d(DEBUG_LOG,"receive - ${it.message}")
                 }
             }
         })
@@ -120,7 +120,7 @@ class FragmentFeeds() :
                     override fun afterTextChanged(s: Editable?) {}
                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                        recyclerAdapter.list = viewModel.searchByTitle(s.toString())
+                       // recyclerAdapter.list = viewModel.searchByTitle(s.toString())
                     }
                 })
             }
@@ -159,10 +159,11 @@ class FragmentFeeds() :
     }
 
 
-    override fun onDialogSortClick(filter: FeedsSource, sortKind: Sort) {
-        var tempList = viewModel.filterNews(filter)
-        tempList = viewModel.sortNews(sortKind, tempList.toMutableList())
-        recyclerAdapter.list = tempList
+    override fun onDialogSortClick( sortKind: Sort, source:FeedsSource) {
+        viewModel.sortNews(sortKind, source)
+//        var tempList = viewModel.filterNews(filter)
+//        tempList = viewModel.sortNews(sortKind, tempList.toMutableList())
+//        recyclerAdapter.list = tempList
     }
 }
 

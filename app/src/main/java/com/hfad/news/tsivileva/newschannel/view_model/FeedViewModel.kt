@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import com.hfad.news.tsivileva.newschannel.FeedsSource
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.getViewModelFactory
 import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeeds
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingProgress
@@ -15,7 +14,7 @@ import com.hfad.news.tsivileva.newschannel.repository.DownloadingState
 import com.hfad.news.tsivileva.newschannel.repository.local.LocalDatabase
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import io.reactivex.Observable
-import io.reactivex.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
@@ -23,88 +22,78 @@ import io.reactivex.schedulers.Schedulers
 class FeedViewModel(val app: Application) : AndroidViewModel(app) {
 
     private var subscription: Disposable? = null
-    private var newsList = mutableListOf<NewsItem>()
-    private var database:LocalDatabase? = LocalDatabase.instance(getApplication())
+    //   private var newsList = mutableListOf<NewsItem>()
+    private var database: LocalDatabase? = LocalDatabase.instance(getApplication())
 
     var downloading = MutableLiveData<DownloadingState>()
 
     fun downloadFeeds() {
-        if (newsList.isEmpty()) {
-            subscription = RemoteRepository
-                    .getFeedsObservable()
-                    .subscribe(::onNext, ::onError, ::onComplete)
-        } else {
-            downloading.value = DownloadedFeeds(newsList)
-        }
+        subscription = RemoteRepository
+                .getFeedsObservable()
+                .subscribe(::onNext, ::onError, ::onComplete)
     }
 
     fun cleareCache() {
-        newsList = mutableListOf()
+        //  newsList = mutableListOf()
     }
 
     private fun onComplete() {
-        Log.d(DEBUG_LOG,"onComplete() on thread - ${Thread.currentThread().id}")
-        newsList = sortNews(Sort.BY_ABC_ASC, newsList)
-        downloading.postValue(DownloadedFeeds(newsList))
+        val list = database?.getLocalRepo()?.selectAll()
+        if (list != null) {
+            downloading.postValue(DownloadedFeeds(list))
+        }
         subscription?.dispose()
     }
 
     private fun onError(e: Throwable) {
         downloading.postValue(DownloadingError(e))
+        val list = database?.getLocalRepo()?.selectAll()
+        if (list != null) {
+            downloading.postValue(DownloadedFeeds(list))
+        }
+        subscription?.dispose()
         e.printStackTrace()
     }
 
-    //ТЕПЕРЬ В ДРУГОМ ПОТОКЕ =)
     private fun onNext(item: List<NewsItem>) {
-        Log.d(DEBUG_LOG,"onNext() on thread - ${Thread.currentThread().id}")
-
-        //  if (!newsList.containsAll(item)) {
-       //     newsList.addAll(item)
-       // }
-   database?.getLocalRepo()?.insert(item)
-        downloading.postValue(DownloadingProgress("next (count):${item.count()}"))
+        database?.getLocalRepo()?.insert(item)
+        downloading.postValue(DownloadingProgress("вставлено в базу ${item.count()}"))
     }
 
-/*    private fun insertInDatabase(newsObserv : Observable<MutableList<NewsItem>>) : Observable<MutableList<NewsItem>>{
-     return   newsObserv.subscribeOn(Schedulers.io()).subscribe({
+    fun sortNews(sortKind: Sort, source: FeedsSource) {
+        val observable: Observable<List<NewsItem>>?
 
-        })
-
-    }*/
-
-
-    fun sortNews(sortKind: Sort, list: MutableList<NewsItem>): MutableList<NewsItem> {
-        val _list = list
-        when (sortKind) {
-            Sort.BY_ABC_ASC -> {
-                _list.sortBy { it.title }
+        when (source) {
+            FeedsSource.HABR, FeedsSource.PROGER -> {
+                when (sortKind) {
+                    Sort.ASC -> observable = database?.getLocalRepo()?.selectSortedByDateAsc(source)
+                    Sort.DESC -> observable = database?.getLocalRepo()?.selectSortedByDateDesc(source)
+                }
             }
-            Sort.BY_ABC_DESC -> {
-                _list.sortByDescending { it.title }
-            }
-            Sort.BY_DATE_ASC -> {
-                _list.sortBy { it.date }
-            }
-            Sort.BY_DATE_DESC -> {
-                _list.sortByDescending { it.date }
+            FeedsSource.BOTH -> {
+                when (sortKind) {
+                    Sort.ASC -> observable = database?.getLocalRepo()?.selectAllSortedByDateAsc()
+                    Sort.DESC -> observable = database?.getLocalRepo()?.selectAllSortedByDateDesc()
+                }
             }
         }
-        return _list
+
+        subscription = observable
+                ?.subscribeOn(Schedulers.io())
+                ?.observeOn(AndroidSchedulers.mainThread())
+                ?.doOnNext {
+
+                    _list ->
+                    downloading.postValue(DownloadedFeeds(_list))
+                    _list.forEach {
+                        Log.d(DEBUG_LOG, "doOnNext()  - ${it.date}.${it.title}")
+                    }
+
+                }
+                ?.doOnComplete { subscription?.dispose() }
+                ?.doOnError { e -> e.printStackTrace() }
+                ?.subscribe()
     }
-
-    fun filterNews(sourceKind: FeedsSource): List<NewsItem> {
-        val _tempList: List<NewsItem>
-
-        if (sourceKind == FeedsSource.BOTH) {
-            _tempList = newsList.filter { it.sourceKind == FeedsSource.HABR || it.sourceKind == FeedsSource.PROGER }
-        } else {
-            _tempList = newsList.filter { it.sourceKind == sourceKind }
-        }
-
-        return _tempList
-    }
-
-    fun searchByTitle(title: String) = newsList.filter { it.title.contains(title) }
 
     override fun onCleared() {
         LocalDatabase.destroyInstance()
