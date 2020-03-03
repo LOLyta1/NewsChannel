@@ -1,6 +1,8 @@
 package com.hfad.news.tsivileva.newschannel.repository.remote
 
 
+import android.app.Application
+import android.content.Context
 import com.hfad.news.tsivileva.newschannel.FeedsSource
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr
@@ -10,6 +12,7 @@ import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
 import com.hfad.news.tsivileva.newschannel.parseFeed
 import com.hfad.news.tsivileva.newschannel.parseHabrFeedsContent
 import com.hfad.news.tsivileva.newschannel.parseProgerFeedsContent
+import com.hfad.news.tsivileva.newschannel.repository.local.LocalDatabase
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
@@ -22,27 +25,28 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 
 
-class RemoteRepository private constructor() {
+class RemoteRepository {
 
-    companion object Factory {
 
-        fun getFeedsObservable(): Observable<MutableList<NewsItem>> {
+   companion object Factory {
+
+        fun getFeedsObservable(): Observable<List<NewsItem>> {
             var service = createService(FeedsSource.PROGER.link, SimpleXmlConverterFactory.create(), IRemoteApi::class.java)
             val proger = service
                     .loadProger()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(Schedulers.io())
 
             service = createService(FeedsSource.HABR.link, SimpleXmlConverterFactory.create(), IRemoteApi::class.java)
             val habr = service
                     .loadHabr()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(Schedulers.io())
 
             return Observable.zip(habr, proger,
-                    BiFunction<Habr, Proger, MutableList<List<Any>?>> { h, p ->
-                        mutableListOf(h.items, p.channel?.items)
-                    }).map(::parseFeed)
+                    BiFunction<Habr, Proger, List<List<Any>?>> { h, p ->
+                        listOf(h.items, p.channel?.items)
+                    }).flatMap (::parseFeed)
         }
 
 

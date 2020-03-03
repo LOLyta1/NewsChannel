@@ -15,6 +15,9 @@ import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentFeedContent
 import com.hfad.news.tsivileva.newschannel.view_model.FeedViewModel
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 import java.lang.reflect.InvocationTargetException
 
@@ -113,7 +116,7 @@ fun FragmentFeedContent.getFeedInfo(): String {
     }
 
 
-    fun RemoteRepository.Factory.parseFeed(feed: MutableList<List<Any>?>): MutableList<NewsItem> {
+    fun RemoteRepository.Factory.parseFeed(feed:List<List<Any>?>): Observable<MutableList<NewsItem>> {
         val list = mutableListOf<NewsItem>()
         feed.forEach {
             it?.forEach {
@@ -142,7 +145,9 @@ fun FragmentFeedContent.getFeedInfo(): String {
             }
 
         }
-        return list
+        return Observable.fromArray(list).
+                observeOn(Schedulers.io()).
+                subscribeOn(AndroidSchedulers.mainThread())
     }
 
     fun RemoteRepository.Factory.parseHabrFeedsContent(hc: HabrContent): NewsItem {

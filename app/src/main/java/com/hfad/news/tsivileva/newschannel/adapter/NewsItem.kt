@@ -2,7 +2,7 @@ package com.hfad.news.tsivileva.newschannel.adapter
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.Index
 import androidx.room.TypeConverter
 import com.hfad.news.tsivileva.newschannel.*
 import java.text.SimpleDateFormat
@@ -10,7 +10,7 @@ import java.util.*
 
 class DateConverter() {
     @TypeConverter
-    fun toDate(time:Long): Date? {
+    fun toDate(time: Long): Date? {
         return Date(time)
     }
 
@@ -23,7 +23,7 @@ class DateConverter() {
 class SourceKindConverter() {
     @TypeConverter
     fun toNumber(sourceKind: FeedsSource): Int {
-        return when(sourceKind){
+        return when (sourceKind) {
             FeedsSource.HABR -> 1
             FeedsSource.PROGER -> 2
             FeedsSource.BOTH -> 0
@@ -32,18 +32,17 @@ class SourceKindConverter() {
 
     @TypeConverter
     fun toSourceKind(number: Int): FeedsSource? {
-        return when(number){
-            1->FeedsSource.HABR
-            2->FeedsSource.PROGER
-            0->FeedsSource.BOTH
+        return when (number) {
+            1 -> FeedsSource.HABR
+            2 -> FeedsSource.PROGER
+            0 -> FeedsSource.BOTH
             else -> null
         }
     }
 }
 
-@Entity(tableName = DATABASE_TABLE_NAME)
+@Entity(tableName = DATABASE_TABLE_NAME, primaryKeys = [DATABASE_ID_COLUMN, DATABASE_SOURCE_COLUMN])
 data class NewsItem(
-        @PrimaryKey(autoGenerate = false)
         @ColumnInfo(name = DATABASE_ID_COLUMN)
         var id: Long = 0L,
 

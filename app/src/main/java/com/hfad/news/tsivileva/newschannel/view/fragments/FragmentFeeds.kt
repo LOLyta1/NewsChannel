@@ -3,6 +3,7 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -74,6 +75,7 @@ class FragmentFeeds() :
                     view.swipe_container?.isRefreshing = true
                 }
                 is DownloadingProgress -> {//it.message
+                    Log.d(DEBUG_LOG,"receive - $it.message")
                 }
             }
         })

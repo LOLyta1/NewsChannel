@@ -4,6 +4,7 @@ import androidx.room.*
 import com.hfad.news.tsivileva.newschannel.DATABASE_FAVOURITE_COLUMN
 import com.hfad.news.tsivileva.newschannel.DATABASE_TABLE_NAME
 import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import io.reactivex.Observable
 
 @Dao
 interface ILocaRepository {
@@ -11,7 +12,7 @@ interface ILocaRepository {
     fun insert(news:NewsItem)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(news:List<NewsItem>)
+    fun insert(news: List<NewsItem> )
 
     @Update
     fun update(news:NewsItem)
