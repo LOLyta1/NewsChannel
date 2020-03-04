@@ -77,7 +77,6 @@ class Proger : IModel {
             var date: Date? = null
                 get() {
                     pubDate?.let {
-                        Log.d(DEBUG_LOG, "Proger() сериализация , dateString=$pubDate")
                         val from = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US)
                         return from.parse(pubDate!!)
                     }

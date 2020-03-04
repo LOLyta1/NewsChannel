@@ -9,17 +9,15 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hfad.news.tsivileva.newschannel.*
-import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import com.hfad.news.tsivileva.newschannel.repository.local.News
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListDecorator
 import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeeds
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingProgress
-import com.hfad.news.tsivileva.newschannel.repository.local.LocalDatabase
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSortFeeds
 import com.hfad.news.tsivileva.newschannel.view_model.FeedViewModel
@@ -33,7 +31,7 @@ class FragmentFeeds() :
         DialogSortFeeds.IDialogSortFeedsClickListener {
 
     private lateinit var viewModel: FeedViewModel
-    private var feeds = listOf<NewsItem>()
+    private var feeds = listOf<News>()
     private var recyclerAdapter: NewsListAdapter = NewsListAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -135,7 +133,8 @@ class FragmentFeeds() :
 
         if (position != null) {
             if (!feeds.isNullOrEmpty()) {
-                bundle.putString("url", feeds.get(position).link)
+                bundle.putLong("id", feeds.get(position).id)
+                bundle.putString("url",feeds.get(position).link)
 
                 detailsFragment.arguments = bundle
                 parentFragmentManager

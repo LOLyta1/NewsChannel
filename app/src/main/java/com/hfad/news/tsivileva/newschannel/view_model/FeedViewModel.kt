@@ -1,12 +1,10 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import com.hfad.news.tsivileva.newschannel.FeedsSource
-import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import com.hfad.news.tsivileva.newschannel.repository.local.News
 import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeeds
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingProgress
@@ -38,7 +36,7 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
     private fun onComplete() {
-        val list = database?.getLocalRepo()?.selectAll()
+        val list = database?.getLocalRepo()?.selectAllNews()
         if (list != null) {
             downloading.postValue(DownloadedFeeds(list))
         }
@@ -47,7 +45,7 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
 
     private fun onError(e: Throwable) {
         downloading.postValue(DownloadingError(e))
-        val list = database?.getLocalRepo()?.selectAll()
+        val list = database?.getLocalRepo()?.selectAllNews()
         if (list != null) {
             downloading.postValue(DownloadedFeeds(list))
         }
@@ -55,13 +53,13 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
         e.printStackTrace()
     }
 
-    private fun onNext(item: List<NewsItem>) {
-        database?.getLocalRepo()?.insert(item)
+    private fun onNext(item: List<News>) {
+        database?.getLocalRepo()?.insertIntoNews(item)
         downloading.postValue(DownloadingProgress("вставлено в базу ${item.count()}"))
     }
 
     fun sortNews(sortKind: Sort, source: FeedsSource) {
-        val observable: Observable<List<NewsItem>>?
+        val observable: Observable<List<News>>?
         when (source) {
             FeedsSource.HABR, FeedsSource.PROGER -> {
                 when (sortKind) {
@@ -84,7 +82,7 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
                     _list ->
                     downloading.postValue(DownloadedFeeds(_list))
                     _list.forEach {
-                        Log.d(DEBUG_LOG, "doOnNext()  - ${it.date}.${it.title},content - ${it.content}")
+                        //Log.d(DEBUG_LOG, "doOnNext()  - ${it.date}.${it.title},content - ${it.content}")
                     }
                 }
                 ?.doOnComplete { subscription?.dispose() }
@@ -98,13 +96,10 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
     fun searchByTitle(title: String) {
-        subscription = database?.getLocalRepo()?.selectByTitle("%$title%")
+        subscription = database?.getLocalRepo()?.selectNewsByTitle("%$title%")
                 ?.doOnSuccess {  downloading.postValue(DownloadedFeeds(it))}
                 ?.doOnError { e -> e.printStackTrace() }
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe()
-
     }
-
-
 }

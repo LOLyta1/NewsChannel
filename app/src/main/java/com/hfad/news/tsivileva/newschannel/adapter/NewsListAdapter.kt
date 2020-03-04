@@ -3,12 +3,11 @@ package com.hfad.news.tsivileva.newschannel.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Filter
-import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.hfad.news.tsivileva.newschannel.R
+import com.hfad.news.tsivileva.newschannel.repository.local.News
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 
@@ -22,7 +21,7 @@ class NewsListAdapter :
         fun onNewsClick(position: Int?)
     }
 
-    var list = listOf<NewsItem>()
+    var list = listOf<News>()
         set(value) {
             field = value
             notifyDataSetChanged()

@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
+import com.hfad.news.tsivileva.newschannel.repository.local.News
 
 val DEBUG_LOG = "mylog"
 val CACHE_LOG = "cache_log"
@@ -14,7 +14,7 @@ val REMOTE_LOG = "remote_log"
 
 fun printCachedLiveData(className: String,
                         methodName: String,
-                        cached: MutableLiveData<MutableList<NewsItem>>
+                        cached: MutableLiveData<MutableList<News>>
 ) {
     Log.d(DEBUG_LOG, "$className.$methodName Данные по кэшу ")
     Log.d(DEBUG_LOG, "$className.$methodName Содержимое кэша: ")
@@ -27,7 +27,7 @@ fun printCachedLiveData(className: String,
 
 fun printCachedMutableList(className: String,
                            methodName: String,
-                           cached: MutableList<NewsItem>
+                           cached: MutableList<News>
 ) {
     Log.d(DEBUG_LOG, "$className.$methodName Содержимое списка  ")
     cached.forEach {
@@ -56,7 +56,7 @@ fun logIt(className: String?, methodName: String?, info: String, tag: String? = 
     Log.d(tag, "$className.$methodName(): $info")
 }
 
-fun printId(list: MutableList<NewsItem>) {
+fun printId(list: MutableList<News>) {
     list.forEach {
         Log.d(DEBUG_LOG, "в списке ID-${it.id}")
     }

@@ -7,14 +7,13 @@ import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.hfad.news.tsivileva.newschannel.*
-import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeed
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingProgress
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingSuccessful
+import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
+import com.hfad.news.tsivileva.newschannel.R
+import com.hfad.news.tsivileva.newschannel.getFeedInfo
+import com.hfad.news.tsivileva.newschannel.repository.local.NewsAndContent
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
 import com.squareup.picasso.Picasso
@@ -25,7 +24,9 @@ class FragmentFeedContent :
         DialogNetworkError.IDialogListener {
 
     private var contentUrl: String = ""
+    private var newsId:Long?=0L
     private lateinit var viewModel: FeedContentViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,34 +36,28 @@ class FragmentFeedContent :
         setHasOptionsMenu(true)
 
         contentUrl = arguments?.getString("url").toString()
+        newsId= arguments?.getLong("id")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModel = ViewModelProviders.of(this).get(FeedContentViewModel::class.java)
-        viewModel.downloading.observe(viewLifecycleOwner, Observer { status ->
-            when (status) {
-                is DownloadedFeed -> {
-                    Log.d(DEBUG_LOG, "FragmentFeedContent - viewModel.downloading.observe()  - ${status.feed?.date}.$${status.feed?.title},content - ${status.feed?.content}")
 
-                    status.feed?.let{
-                        if(!it.isEmpty()){
-                            view?.news_content_progress_bar?.visibility = View.GONE
-                            view?.feeds_details_error_container?.visibility = View.GONE
-                            view?.feed_content_container?.visibility = View.VISIBLE
-                            showNews(status.feed)
-                        }
-                    }
-                }
-                is DownloadingError -> {
-                    view?.news_content_progress_bar?.visibility = View.VISIBLE
-                    view?.feeds_details_error_container?.visibility = View.VISIBLE
-                    DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
-                }
-                is DownloadingProgress->{
-                    Log.d(DEBUG_LOG, "FragmentContent.DownloadingSuccessful ${status.message}")
-                }
-            }
+        viewModel.downloadingFromInternet(contentUrl, newsId!!)
+        Log.d(DEBUG_LOG,"Fragment - value= ${ viewModel.news?.value}")
+                viewModel.news?.observe(viewLifecycleOwner, Observer {
+            Log.d(DEBUG_LOG,"Fragment - id ${it.newsInfo.id}")
+            view?.news_content_progress_bar?.visibility = View.GONE
+            view?.feeds_details_error_container?.visibility = View.GONE
+            view?.feed_content_container?.visibility = View.VISIBLE
+            showNews(it)
         })
+
+
+
+
+
+
+
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
 
@@ -76,17 +71,17 @@ class FragmentFeedContent :
             startActivity(choosenIntent)
         }
         view.error_reload_button.setOnClickListener {
-            viewModel.download(contentUrl)
+            newsId?.let {  viewModel.downloadFromDatabase(it) }
         }
 
         view.news_content_progress_bar?.visibility = View.VISIBLE
-        viewModel.download(contentUrl)
+        newsId?.let {  viewModel.downloadFromDatabase(it) }
 
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.refreshData()
+       // viewModel.refreshData()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -106,24 +101,24 @@ class FragmentFeedContent :
             R.id.feed_content_share_menu_button -> {
                 val intent = Intent().apply {
                     action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_TEXT,getFeedInfo())
+                    putExtra(Intent.EXTRA_TEXT, getFeedInfo())
                     type = "text/plain"
                 }
-                val chooserIntent=Intent.createChooser(intent,"Select source")
+                val chooserIntent = Intent.createChooser(intent, "Select source")
                 startActivity(chooserIntent)
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun showNews(newsItem: NewsItem) {
-        if (!newsItem.isEmpty()) {
-            view?.news_details_text_view?.text = newsItem.content
-            view?.news_details_date_text_view?.text = newsItem.dateToString()
-            view?.news_details_title_text_view?.text = newsItem.title
-            view?.news_details_link_text_view?.text = newsItem.link
+    private fun showNews(news: NewsAndContent?) {
+        if (news!= null) {
+           view?.news_details_text_view?.text = news.newsContent.last().content
+            view?.news_details_date_text_view?.text = news.newsInfo.date.toString()
+            view?.news_details_title_text_view?.text = news.newsInfo.title
+            view?.news_details_link_text_view?.text = news.newsInfo.link
 
-            val path = newsItem.picture
+            val path = news.newsInfo.picture
             if (path != "" && path.isNotEmpty()) {
                 view?.new_details_car_view?.visibility = View.VISIBLE
                 Picasso.get().load(path).placeholder(R.drawable.no_photo)
@@ -133,12 +128,15 @@ class FragmentFeedContent :
                 view?.new_details_car_view?.visibility = View.GONE
             }
         }
+
+
     }
 
     override fun onDialogErrorReloadClick(dialogNetwork: DialogNetworkError) {
         view?.news_content_progress_bar?.visibility = View.VISIBLE
         dialogNetwork.dismiss()
-        viewModel.download(contentUrl)
+        newsId?.let {  viewModel.downloadFromDatabase(it) }
+
     }
 
     override fun onDialogErrorCancelClick(dialogNetwork: DialogNetworkError) {
