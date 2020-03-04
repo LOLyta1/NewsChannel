@@ -3,10 +3,12 @@ package com.hfad.news.tsivileva.newschannel.repository.remote
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.repository.local.News
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.proger.Proger
+import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
 import com.hfad.news.tsivileva.newschannel.repository.local.LocalDatabase
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsAndContent
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsContent
@@ -86,7 +88,17 @@ class RemoteRepository {
                     .map(::parseProgerFeedsContent)
         }
 
-        fun getHabrContentObservable(url: String): Single<NewsContent> {
+       fun getTestProgerContentObservable(url: String): LiveData<NewsContent> {
+          val _liveData:LiveData<ProgerContent> = createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java).loadTestProger()
+           return  Transformations.map(_liveData,{
+               NewsContent(null,it.id,it.content)
+           })
+
+       }
+
+
+
+       fun getHabrContentObservable(url: String): Single<NewsContent> {
             return createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java)
                     .loadHabrContent()
                     .map(::parseHabrFeedsContent)

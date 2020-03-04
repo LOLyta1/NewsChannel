@@ -173,6 +173,8 @@ fun RemoteRepository.Factory.parseProgerFeedsContent(pc: ProgerContent): NewsCon
 }
 
 
+
+
 fun getViewModelFactory(app: Application): ViewModelProvider.NewInstanceFactory {
     return object : ViewModelProvider.NewInstanceFactory() {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {

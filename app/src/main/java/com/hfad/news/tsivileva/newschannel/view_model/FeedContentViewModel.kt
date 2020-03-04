@@ -11,6 +11,7 @@ import com.hfad.news.tsivileva.newschannel.FeedsSource
 import com.hfad.news.tsivileva.newschannel.getSourceByLink
 import com.hfad.news.tsivileva.newschannel.repository.local.LocalDatabase
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsAndContent
+import com.hfad.news.tsivileva.newschannel.repository.local.NewsContent
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -27,6 +28,18 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
     fun downloadingFromInternet(url: String, id:Long){
+        if(getSourceByLink(url)==FeedsSource.PROGER){
+           disposable= RemoteRepository
+                   .getHabrContentObservable(url)
+                   .subscribeOn(Schedulers.io())
+                   .subscribe(::_onSuccess,::_onError)
+        }else
+            if(getSourceByLink(url)==FeedsSource.HABR){
+                disposable= RemoteRepository
+                        .getProgerContentObservable(url)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(::_onSuccess,::_onError)
+            }
         news=RemoteRepository.downloadingFromInternet(database,url,id)
     }
 
@@ -35,51 +48,27 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
 
-//       disposable= database?.getLocalRepo()?.selectByLink(url)?.subscribeOn(Schedulers.io())
-//               ?.doOnSuccess {
-//           Log.d(DEBUG_LOG, "контект нужно обновить в ${it.id}, content ${it.content}")
-//            if(it!=null && it.content.isEmpty()){
-//                loadFromNetwork(url)
-//            }else{
-//                Log.d(DEBUG_LOG, "загрузка c базы")
-//                downloading.postValue(DownloadedFeed(it))
-//            }
-//        }?.doOnError{
-//           it.printStackTrace()
-//       }?.doFinally {
-//            disposable?.dispose()
-//        }?.subscribe()
-
-
-/*
-
-fun loadFromNetwork(url: String): LiveData<NewsAndContent> {
-    Log.d(DEBUG_LOG, "загрузка из инета")
-
+fun _onSuccess(t: NewsContent) {
+        Log.d(DEBUG_LOG, "_onSuccess - контент для вставки ${t.content}")
+            val id= database?.getLocalRepo()?.insertContent(t)
+        Log.d(DEBUG_LOG, "_onSuccess - вставлена запись с id ${id}")
+       // downloading.postValue(DownloadedFeed(t))
 }
 
-fun _onSuccess(t: News) {
-//        Log.d(DEBUG_LOG, "_onSuccess - контент для вставки ${t.content}")
-//     //        val id= database?.getLocalRepo()?.insert(t)
-//        Log.d(DEBUG_LOG, "_onSuccess - вставлена запись с id ${id}")
-//        downloading.postValue(DownloadedFeed(t))
-}
-
-fun _onError(e: Throwable) {
-    Log.d(DEBUG_LOG, "_onError - Инстанс базы ${database}")
-    //       downloading.postValue(DownloadingError(e))
-}
-*/
+    fun _onError(e: Throwable) {
+        Log.d(DEBUG_LOG, "_onError - Инстанс базы ${database}")
+        //       downloading.postValue(DownloadingError(e))
+    }
 
 
-/*
+
+
 override fun onCleared() {
     disposable?.dispose()
     LocalDatabase.destroyInstance()
     super.onCleared()
 
 }
-*/
 
 /*fun refreshData() {
     //downloading.postValue(DownloadedFeed(News()))

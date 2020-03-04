@@ -1,9 +1,12 @@
 package com.hfad.news.tsivileva.newschannel.repository.remote;
 
+import androidx.lifecycle.LiveData;
+
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr;
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent;
 import com.hfad.news.tsivileva.newschannel.model.proger.Proger;
 import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent;
+import com.hfad.news.tsivileva.newschannel.repository.local.NewsContent;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;
@@ -25,5 +28,8 @@ public interface IRemoteApi {
 
     @GET(".")
     Single<ProgerContent> loadProgDetails();
+
+    @GET(".")
+    LiveData<ProgerContent> loadTestProger();
 
 }
