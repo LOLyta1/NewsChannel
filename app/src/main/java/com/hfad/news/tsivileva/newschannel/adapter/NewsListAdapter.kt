@@ -7,7 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.hfad.news.tsivileva.newschannel.R
-import com.hfad.news.tsivileva.newschannel.repository.local.News
+import com.hfad.news.tsivileva.newschannel.repository.local.NewsDescription
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 
@@ -18,10 +18,10 @@ class NewsListAdapter :
         RecyclerView.Adapter<NewsListAdapter.ViewHolder>(){
 
     interface INewsItemClickListener {
-        fun onNewsClick(position: Int?)
+        fun onNewsClick(position: Int)
     }
 
-    var list = listOf<News>()
+    var list = listOf<NewsDescription>()
         set(value) {
             field = value
             notifyDataSetChanged()

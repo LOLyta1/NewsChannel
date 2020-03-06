@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.hfad.news.tsivileva.newschannel.*
-import com.hfad.news.tsivileva.newschannel.repository.local.News
+import com.hfad.news.tsivileva.newschannel.repository.local.NewsDescription
 import com.hfad.news.tsivileva.newschannel.model.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.proger.Proger
 import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
@@ -28,41 +28,9 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 class RemoteRepository {
 
 
-   companion object Factory {
+    companion object Factory {
 
-       fun downloadingFromInternet(database: LocalDatabase?, url: String, id:Long): LiveData<NewsAndContent>? {
-           var _news: LiveData<NewsAndContent>? = null
-
-           if (getSourceByLink(url) == FeedsSource.HABR) {
-               RemoteRepository.getHabrContentObservable(url)
-                       .map { database?.getLocalRepo()?.insertContent(it) }
-                       .map { database?.getLocalRepo()?.selectNewsAndContent(it) }
-                       .doOnSuccess {_news=it
-                           Log.d(DEBUG_LOG,"source ${it.toString()}")
-                       }
-                       .doOnError { e -> e.printStackTrace()
-                           database?.getLocalRepo()?.selectNewsAndContent(id)}
-                       .subscribeOn(Schedulers.io()).subscribe()
-           } else {
-              if (getSourceByLink(url) == FeedsSource.PROGER){
-                  RemoteRepository.getProgerContentObservable(url)
-                          .map { database?.getLocalRepo()?.insertContent(it) }
-                          .map {  database?.getLocalRepo()?.selectNewsAndContent(it) }
-                          .doOnSuccess {it->_news=it}
-                          .doOnError { e -> e.printStackTrace()
-                              database?.getLocalRepo()?.selectNewsAndContent(id)}
-                                      .subscribeOn(Schedulers.io())
-                                      .subscribe()
-
-              }
-
-           }
-       return _news
-       }
-
-
-
-        fun getFeedsObservable(): Observable<List<News>> {
+        fun getFeedsObservable(): Observable<List<NewsDescription>> {
             var service = createService(FeedsSource.PROGER.link, SimpleXmlConverterFactory.create(), IRemoteApi::class.java)
             val proger = service
                     .loadProger()
@@ -78,7 +46,7 @@ class RemoteRepository {
             return Observable.zip(habr, proger,
                     BiFunction<Habr, Proger, List<List<Any>?>> { h, p ->
                         listOf(h.items, p.channel?.items)
-                    }).flatMap (::parseFeed)
+                    }).flatMap(::parseFeed)
         }
 
 
@@ -88,17 +56,8 @@ class RemoteRepository {
                     .map(::parseProgerFeedsContent)
         }
 
-       fun getTestProgerContentObservable(url: String): LiveData<NewsContent> {
-          val _liveData:LiveData<ProgerContent> = createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java).loadTestProger()
-           return  Transformations.map(_liveData,{
-               NewsContent(null,it.id,it.content)
-           })
 
-       }
-
-
-
-       fun getHabrContentObservable(url: String): Single<NewsContent> {
+        fun getHabrContentObservable(url: String): Single<NewsContent> {
             return createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java)
                     .loadHabrContent()
                     .map(::parseHabrFeedsContent)

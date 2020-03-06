@@ -1,6 +1,7 @@
 package com.hfad.news.tsivileva.newschannel
 
 import android.app.Application
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
@@ -9,7 +10,7 @@ import com.hfad.news.tsivileva.newschannel.model.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
 import com.hfad.news.tsivileva.newschannel.model.proger.Proger
 import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
-import com.hfad.news.tsivileva.newschannel.repository.local.News
+import com.hfad.news.tsivileva.newschannel.repository.local.NewsDescription
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsContent
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
@@ -93,10 +94,10 @@ fun getSourceByLink(link: String): FeedsSource {
 
 }
 
-fun RemoteRepository.Factory.parsHabrFeed(habr: Habr): List<News> {
-    val list = mutableListOf<News>()
+fun RemoteRepository.Factory.parsHabrFeed(habr: Habr): List<NewsDescription> {
+    val list = mutableListOf<NewsDescription>()
     habr.items?.forEach {
-        val newsItem = News()
+        val newsItem = NewsDescription()
         newsItem.sourceKind = FeedsSource.HABR
         newsItem.id = getIdInLink(it.link)
         newsItem.link = it.link
@@ -109,10 +110,10 @@ fun RemoteRepository.Factory.parsHabrFeed(habr: Habr): List<News> {
 }
 
 
-fun RemoteRepository.Factory.parsProgerFeed(proger: Proger): MutableList<News> {
-    val list = mutableListOf<News>()
+fun RemoteRepository.Factory.parsProgerFeed(proger: Proger): MutableList<NewsDescription> {
+    val list = mutableListOf<NewsDescription>()
     proger.channel?.items?.forEach {
-        val newsItem = News()
+        val newsItem = NewsDescription()
         newsItem.sourceKind = FeedsSource.PROGER
         newsItem.id = getIdInLink(it.guid)
         newsItem.link = it.link
@@ -125,13 +126,13 @@ fun RemoteRepository.Factory.parsProgerFeed(proger: Proger): MutableList<News> {
 }
 
 
-fun RemoteRepository.Factory.parseFeed(feed: List<List<Any>?>): Observable<MutableList<News>> {
-    val list = mutableListOf<News>()
+fun RemoteRepository.Factory.parseFeed(feed: List<List<Any>?>): Observable<MutableList<NewsDescription>> {
+    val list = mutableListOf<NewsDescription>()
     feed.forEach {
         it?.forEach {
             when (it) {
                 is Habr.HabrlItems -> {
-                    val newsItem = News()
+                    val newsItem = NewsDescription()
                     newsItem.sourceKind = FeedsSource.HABR
                     newsItem.id = getIdInLink(it.link)
                     newsItem.link = it.link
@@ -141,7 +142,7 @@ fun RemoteRepository.Factory.parseFeed(feed: List<List<Any>?>): Observable<Mutab
                     list.add(newsItem)
                 }
                 is Proger.Channel.Item -> {
-                    val newsItem = News()
+                    val newsItem = NewsDescription()
                     newsItem.sourceKind = FeedsSource.PROGER
                     newsItem.id = getIdInLink(it.guid)
                     newsItem.link = it.link
@@ -194,6 +195,21 @@ fun getViewModelFactory(app: Application): ViewModelProvider.NewInstanceFactory 
     }
 }
 
+fun FragmentFeedContent.showErrorUI(){
+
+   // this.view?.feed_content_container?.visibility = View.VISIBLE
+}
+fun FragmentFeedContent.hideErrorUI(){
+
+}
+
+fun FragmentFeedContent.loadContent(){
+    this.arguments
+            ?.getParcelable<NewsDescription>("news_description")
+            ?.let{
+                this.viewModel?.downloadingFromInternet(it.id, it.link)
+            }
+}
 
 
 

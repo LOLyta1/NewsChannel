@@ -4,17 +4,50 @@ import android.util.Log
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.hfad.news.tsivileva.newschannel.repository.local.News
+import com.hfad.news.tsivileva.newschannel.repository.local.NewsAndContent
+import com.hfad.news.tsivileva.newschannel.repository.local.NewsDescription
 
 val DEBUG_LOG = "mylog"
 val CACHE_LOG = "cache_log"
 val FEED_VIEW_MODEL_LOG = "feed_view_model_log"
 val REMOTE_LOG = "remote_log"
 
+fun printNewsDescriptionList(list:MutableList<NewsDescription>){
+    list.forEach {
+        Log.d(DEBUG_LOG," id=${it.id};" +
+                "\ntitle=${it.title.substring(10)}"+
+        "\n date=${it.date}"+
+        "\n link=${it.link}"+
+        "\n picture=${it.picture}"+
+        "\n sourceKind=${it.sourceKind}")
+    }
+}
+fun printNewsAndContentList(list: MutableList<NewsAndContent?>){
+    list.forEach {
+        val description=it?.newsInfo
+        Log.d(DEBUG_LOG,"================================" )
+        Log.d(DEBUG_LOG," id=${description?.id};" +
+                "\ntitle=${getTenSymbols(description?.title)}"+
+                "\n date=${description?.date}"+
+                "\n link=${description?.link}"+
+                "\n picture=${description?.picture}"+
+                "\n sourceKind=${description?.sourceKind}")
+        val info=it?.newsContent
+        Log.d(DEBUG_LOG,"\nid=${info?.id};" +
+                "\nnewsId=${info?.newsId}"+
+                "\n content=${getTenSymbols(info?.content)}")
 
+    }
+}
+fun getTenSymbols(string: String?):String{
+    if(string!=null && string.length>10){
+        return string.substring(0,9)
+    }else
+        return "<10 символов ($string)"
+}
 fun printCachedLiveData(className: String,
                         methodName: String,
-                        cached: MutableLiveData<MutableList<News>>
+                        cached: MutableLiveData<MutableList<NewsDescription>>
 ) {
     Log.d(DEBUG_LOG, "$className.$methodName Данные по кэшу ")
     Log.d(DEBUG_LOG, "$className.$methodName Содержимое кэша: ")
@@ -27,7 +60,7 @@ fun printCachedLiveData(className: String,
 
 fun printCachedMutableList(className: String,
                            methodName: String,
-                           cached: MutableList<News>
+                           cached: MutableList<NewsDescription>
 ) {
     Log.d(DEBUG_LOG, "$className.$methodName Содержимое списка  ")
     cached.forEach {
@@ -56,7 +89,7 @@ fun logIt(className: String?, methodName: String?, info: String, tag: String? = 
     Log.d(tag, "$className.$methodName(): $info")
 }
 
-fun printId(list: MutableList<News>) {
+fun printId(list: MutableList<NewsDescription>) {
     list.forEach {
         Log.d(DEBUG_LOG, "в списке ID-${it.id}")
     }

@@ -28,8 +28,4 @@ public interface IRemoteApi {
 
     @GET(".")
     Single<ProgerContent> loadProgDetails();
-
-    @GET(".")
-    LiveData<ProgerContent> loadTestProger();
-
 }

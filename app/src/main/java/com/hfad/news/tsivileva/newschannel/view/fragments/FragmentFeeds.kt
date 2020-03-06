@@ -12,12 +12,13 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hfad.news.tsivileva.newschannel.*
-import com.hfad.news.tsivileva.newschannel.repository.local.News
+import com.hfad.news.tsivileva.newschannel.repository.local.NewsDescription
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
 import com.hfad.news.tsivileva.newschannel.adapter.NewsListDecorator
-import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeeds
+
 import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingProgress
+import com.hfad.news.tsivileva.newschannel.repository.DownloadingSuccessful
+
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSortFeeds
 import com.hfad.news.tsivileva.newschannel.view_model.FeedViewModel
@@ -31,7 +32,7 @@ class FragmentFeeds() :
         DialogSortFeeds.IDialogSortFeedsClickListener {
 
     private lateinit var viewModel: FeedViewModel
-    private var feeds = listOf<News>()
+    private var feeds = listOf<NewsDescription>()
     private var recyclerAdapter: NewsListAdapter = NewsListAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,21 +60,17 @@ class FragmentFeeds() :
 
         viewModel.downloading.observe(viewLifecycleOwner, Observer {
             when (it) {
-                is DownloadedFeeds -> {
-                 //   if (it.feedList.isNotEmpty()) {
-                        feeds = it.feedList
-                        recyclerAdapter.list = feeds
+                is DownloadingSuccessful -> {
+
+                        recyclerAdapter.list = it.data
                         view.feeds_error_container.visibility = View.GONE
                         view.swipe_container?.isRefreshing = false
-                 //   }
                 }
                 is DownloadingError -> {
-                    view.feeds_error_container.visibility = View.VISIBLE
+                    //view.feeds_error_container.visibility = View.VISIBLE
                     DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
                     view.swipe_container?.isRefreshing = true
-                }
-                is DownloadingProgress -> {//it.message
-                    Log.d(DEBUG_LOG,"receive - ${it.message}")
+                    recyclerAdapter.list = it.cachedData
                 }
             }
         })
@@ -127,14 +124,13 @@ class FragmentFeeds() :
     }
 
 
-    override fun onNewsClick(position: Int?) {
+    override fun onNewsClick(position: Int) {
         val detailsFragment = FragmentFeedContent()
         val bundle = Bundle()
-
-        if (position != null) {
-            if (!feeds.isNullOrEmpty()) {
-                bundle.putLong("id", feeds.get(position).id)
-                bundle.putString("url",feeds.get(position).link)
+val list=recyclerAdapter.list.get(position)
+                bundle.putParcelable("news_description",list)
+              // bundle.putLong("id", feeds.get(position).id)
+               // bundle.putString("url",feeds.get(position).link)
 
                 detailsFragment.arguments = bundle
                 parentFragmentManager
@@ -142,8 +138,8 @@ class FragmentFeeds() :
                         .replace(R.id.container, detailsFragment, FEED_CONTENT)
                         .addToBackStack(FEED_CONTENT)
                         .commit()
-            }
-        }
+
+
     }
 
     override fun onDialogErrorReloadClick(dialogNetwork: DialogNetworkError) {

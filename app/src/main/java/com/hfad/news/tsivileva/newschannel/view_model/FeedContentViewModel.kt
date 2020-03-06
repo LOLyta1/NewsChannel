@@ -3,64 +3,82 @@ package com.hfad.news.tsivileva.newschannel.view_model
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
-import com.hfad.news.tsivileva.newschannel.FeedsSource
-import com.hfad.news.tsivileva.newschannel.getSourceByLink
+import com.hfad.news.tsivileva.newschannel.*
+
+import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
+import com.hfad.news.tsivileva.newschannel.repository.DownloadingState
+import com.hfad.news.tsivileva.newschannel.repository.DownloadingSuccessful
 import com.hfad.news.tsivileva.newschannel.repository.local.LocalDatabase
-import com.hfad.news.tsivileva.newschannel.repository.local.NewsAndContent
+
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsContent
+
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
-    var news: LiveData<NewsAndContent>? = null
+
+    var news =  MutableLiveData<DownloadingState<NewsContent>>()
 
     private var disposable: Disposable? = null
-    private var database: LocalDatabase? = LocalDatabase.instance(getApplication())
+
+    private var newsDescriptionId: Long? = null
     private var link: String? = null
 
-    fun download() {
-        return
-    }
 
-    fun downloadingFromInternet(url: String, id:Long){
-        if(getSourceByLink(url)==FeedsSource.PROGER){
-           disposable= RemoteRepository
-                   .getHabrContentObservable(url)
-                   .subscribeOn(Schedulers.io())
-                   .subscribe(::_onSuccess,::_onError)
-        }else
-            if(getSourceByLink(url)==FeedsSource.HABR){
-                disposable= RemoteRepository
+
+    fun downloadingFromInternet(id: Long?, url: String?) {
+        if(id!=null && url!=null){
+            newsDescriptionId = id
+            link = url
+            if (getSourceByLink(url) == FeedsSource.PROGER) {
+                disposable = RemoteRepository
                         .getProgerContentObservable(url)
                         .subscribeOn(Schedulers.io())
-                        .subscribe(::_onSuccess,::_onError)
-            }
-        news=RemoteRepository.downloadingFromInternet(database,url,id)
+                        .subscribe(::_onSuccess, ::_onError)
+            } else
+                if (getSourceByLink(url) == FeedsSource.HABR) {
+                    disposable = RemoteRepository
+                            .getHabrContentObservable(url)
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(::_onSuccess, ::_onError)
+                }
+        }
+
+        //news=RemoteRepository.downloadingFromInternet(database,url,id)
     }
 
-    fun downloadFromDatabase(id: Long): LiveData<NewsAndContent>? {
-        return database?.getLocalRepo()?.selectNewsAndContent(id)
-    }
 
-
-fun _onSuccess(t: NewsContent) {
-        Log.d(DEBUG_LOG, "_onSuccess - контент для вставки ${t.content}")
-            val id= database?.getLocalRepo()?.insertContent(t)
+    fun _onSuccess(t: NewsContent) {
+        Log.d(DEBUG_LOG, "ID конента ${newsDescriptionId}")
+        val _news = NewsContent(newsId = newsDescriptionId, content = t.content, id = null)
+        val id = LocalDatabase.instance(getApplication())?.getLocalRepo()?.insertContent(_news)
         Log.d(DEBUG_LOG, "_onSuccess - вставлена запись с id ${id}")
-       // downloading.postValue(DownloadedFeed(t))
-}
+        news.postValue(DownloadingSuccessful(t))
 
-    fun _onError(e: Throwable) {
-        Log.d(DEBUG_LOG, "_onError - Инстанс базы ${database}")
-        //       downloading.postValue(DownloadingError(e))
     }
+    //printNewsAndContentList(mutableListOf(newsAndontent))
+    //news.postValue(newsAndontent)
 
 
+
+//news.postValue( NewsAndContent(newsDescription,t))
+
+
+// downloading.postValue(DownloadedFeed(t))
+
+
+fun _onError(e: Throwable) {
+    if(newsDescriptionId!=null) {
+        val content = LocalDatabase.instance(getApplication())?.getLocalRepo()
+                ?.selectContentByNewsId(newsDescriptionId!!)
+                ?.apply {
+                    val cachedNewsContent=NewsContent(null, newsDescriptionId, this)
+                    news.postValue(DownloadingError(e,cachedNewsContent))
+                }
+    }
+}
 
 
 override fun onCleared() {

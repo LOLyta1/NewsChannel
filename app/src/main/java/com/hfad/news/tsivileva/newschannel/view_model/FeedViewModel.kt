@@ -4,11 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.FeedsSource
-import com.hfad.news.tsivileva.newschannel.repository.local.News
-import com.hfad.news.tsivileva.newschannel.repository.DownloadedFeeds
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingProgress
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingState
+import com.hfad.news.tsivileva.newschannel.repository.*
+import com.hfad.news.tsivileva.newschannel.repository.local.NewsDescription
 import com.hfad.news.tsivileva.newschannel.repository.local.LocalDatabase
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import io.reactivex.Observable
@@ -23,7 +20,7 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
     //   private var newsList = mutableListOf<NewsItem>()
     private var database: LocalDatabase? = LocalDatabase.instance(getApplication())
 
-    var downloading = MutableLiveData<DownloadingState>()
+    var downloading = MutableLiveData<DownloadingState<List<NewsDescription>>>()
 
     fun downloadFeeds() {
         subscription = RemoteRepository
@@ -38,28 +35,25 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
     private fun onComplete() {
         val list = database?.getLocalRepo()?.selectAllNews()
         if (list != null) {
-            downloading.postValue(DownloadedFeeds(list))
+            downloading.postValue(DownloadingSuccessful(list))
         }
-        subscription?.dispose()
     }
 
     private fun onError(e: Throwable) {
-        downloading.postValue(DownloadingError(e))
-        val list = database?.getLocalRepo()?.selectAllNews()
-        if (list != null) {
-            downloading.postValue(DownloadedFeeds(list))
-        }
-        subscription?.dispose()
-        e.printStackTrace()
+        val list = database
+                ?.getLocalRepo()
+                ?.selectAllNews()
+                ?.let{ cachedList:List<NewsDescription>->
+                    downloading.postValue(DownloadingError(e,cachedList))
+                }
     }
 
-    private fun onNext(item: List<News>) {
+    private fun onNext(item: List<NewsDescription>) {
         database?.getLocalRepo()?.insertIntoNews(item)
-        downloading.postValue(DownloadingProgress("вставлено в базу ${item.count()}"))
     }
 
     fun sortNews(sortKind: Sort, source: FeedsSource) {
-        val observable: Observable<List<News>>?
+        val observable: Observable<List<NewsDescription>>?
         when (source) {
             FeedsSource.HABR, FeedsSource.PROGER -> {
                 when (sortKind) {
@@ -80,7 +74,7 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
                 ?.doOnNext {
 
                     _list ->
-                    downloading.postValue(DownloadedFeeds(_list))
+                    downloading.postValue(DownloadingSuccessful(_list))
                     _list.forEach {
                         //Log.d(DEBUG_LOG, "doOnNext()  - ${it.date}.${it.title},content - ${it.content}")
                     }
@@ -92,12 +86,13 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
 
     override fun onCleared() {
         LocalDatabase.destroyInstance()
+        subscription?.dispose()
         super.onCleared()
     }
 
     fun searchByTitle(title: String) {
         subscription = database?.getLocalRepo()?.selectNewsByTitle("%$title%")
-                ?.doOnSuccess {  downloading.postValue(DownloadedFeeds(it))}
+                ?.doOnSuccess {  downloading.postValue(DownloadingSuccessful(it))}
                 ?.doOnError { e -> e.printStackTrace() }
                 ?.subscribeOn(Schedulers.io())
                 ?.subscribe()

@@ -1,9 +1,11 @@
 package com.hfad.news.tsivileva.newschannel.repository.local
 
-import androidx.annotation.Nullable
+import android.os.Parcelable
 import androidx.room.*
 import com.hfad.news.tsivileva.newschannel.*
+import kotlinx.android.parcel.Parcelize
 import java.text.SimpleDateFormat
+
 import java.util.*
 
 class DateConverter() {
@@ -38,9 +40,9 @@ class SourceKindConverter() {
         }
     }
 }
-
+@Parcelize
 @Entity(tableName = DATABASE_NEWS_TABLE_NAME)
-data class News(
+data class NewsDescription(
         @PrimaryKey(autoGenerate = false)
         @ColumnInfo(name = DATABASE_NEWS_ID_COLUMN)
         var id: Long = 0L,
@@ -60,9 +62,9 @@ data class News(
         @ColumnInfo(name = DATABASE_TITLE_COLUMN)
         var title: String = ""
 
-) {
+) : Parcelable {
 
-    fun dateToString(): String {
+    fun dateToString(): String? {
         return SimpleDateFormat("dd MMM yyyy, hh:mm:ss a Z", Locale.getDefault()).format(date?.time)
     }
 
@@ -78,7 +80,9 @@ data class News(
 
 }
 
-@Entity(tableName = DATABASE_FAV_TABLE_NAME)
+@Parcelize
+@Entity(tableName = DATABASE_FAV_TABLE_NAME,
+        indices = [Index(value = [DATABASE_NEWS_ID_COLUMN], unique = true)])
 data class Favorite(
 
         @PrimaryKey(autoGenerate = true)
@@ -86,21 +90,23 @@ data class Favorite(
         var id: Long,
 
         @ColumnInfo(name = DATABASE_NEWS_ID_COLUMN)
-        @ForeignKey(entity = News::class, childColumns = [DATABASE_NEWS_ID_COLUMN], parentColumns = [DATABASE_NEWS_ID_COLUMN])
+        @ForeignKey(entity = NewsDescription::class, childColumns = [DATABASE_NEWS_ID_COLUMN], parentColumns = [DATABASE_NEWS_ID_COLUMN])
         var newsId: Long,
 
         @ColumnInfo(name = DATABASE_IS_FAV)
         var isFav: Boolean
-)
+) : Parcelable
 
-@Entity(tableName = DATABASE_CONTENT_TABLE_NAME)
+@Entity(tableName = DATABASE_CONTENT_TABLE_NAME,
+        indices = [Index(value = [DATABASE_NEWS_ID_COLUMN], unique = true)])
+
 data class NewsContent(
         @PrimaryKey(autoGenerate = true)
         @ColumnInfo(name = DATABASE_ID_CONTENT_COLUMN)
         var id: Long?,
 
         @ColumnInfo(name = DATABASE_NEWS_ID_COLUMN)
-        @ForeignKey(entity = News::class, childColumns = [DATABASE_NEWS_ID_COLUMN], parentColumns = [DATABASE_NEWS_ID_COLUMN])
+        @ForeignKey(entity = NewsDescription::class, childColumns = [DATABASE_NEWS_ID_COLUMN], parentColumns = [DATABASE_NEWS_ID_COLUMN])
         var newsId: Long?,
 
         @ColumnInfo(name = DATABASE_CONTENT_COLUMN)
@@ -109,10 +115,10 @@ data class NewsContent(
 
 
 data class NewsAndContent(
-       @Embedded
-       var newsInfo:News,
+        @Embedded
+       var newsInfo:NewsDescription,
 
         @Relation(parentColumn = DATABASE_NEWS_ID_COLUMN,entity = NewsContent::class,entityColumn = DATABASE_NEWS_ID_COLUMN)
-        var newsContent:List<NewsContent>
+        var newsContent:NewsContent
 )
 
