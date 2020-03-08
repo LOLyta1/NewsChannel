@@ -1,12 +1,9 @@
 package com.hfad.news.tsivileva.newschannel.repository.remote;
 
-import androidx.lifecycle.LiveData;
-
-import com.hfad.news.tsivileva.newschannel.model.habr.Habr;
-import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent;
-import com.hfad.news.tsivileva.newschannel.model.proger.Proger;
-import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent;
-import com.hfad.news.tsivileva.newschannel.repository.local.NewsContent;
+import com.hfad.news.tsivileva.newschannel.model.remote.habr.Habr;
+import com.hfad.news.tsivileva.newschannel.model.remote.habr.HabrContent;
+import com.hfad.news.tsivileva.newschannel.model.remote.proger.Proger;
+import com.hfad.news.tsivileva.newschannel.model.remote.proger.ProgerContent;
 
 import io.reactivex.Observable;
 import io.reactivex.Single;

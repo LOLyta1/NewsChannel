@@ -1,7 +1,6 @@
-package com.hfad.news.tsivileva.newschannel.model.habr
+package com.hfad.news.tsivileva.newschannel.model.remote.habr
 
 
-import com.hfad.news.tsivileva.newschannel.model.IModel
 import com.hfad.news.tsivileva.newschannel.toNonNullString
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
@@ -11,7 +10,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Root(name = "rss", strict = false)
-class Habr : IModel {
+class Habr {
 
 
     @field:ElementList(name = "item", inline = true)

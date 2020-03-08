@@ -1,14 +1,11 @@
-package com.hfad.news.tsivileva.newschannel.model.proger
+package com.hfad.news.tsivileva.newschannel.model.remote.proger
 
-import android.util.Log
-import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
-import com.hfad.news.tsivileva.newschannel.model.IModel
 import org.simpleframework.xml.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Root(name = "rss", strict = false)
-class Proger : IModel {
+class Proger {
     @field:Element
     var channel: Channel? = null
     @field:Element(required = false)

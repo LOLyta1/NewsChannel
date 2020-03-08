@@ -3,7 +3,6 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -12,17 +11,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hfad.news.tsivileva.newschannel.*
-import com.hfad.news.tsivileva.newschannel.repository.local.NewsDescription
-import com.hfad.news.tsivileva.newschannel.adapter.NewsListAdapter
-import com.hfad.news.tsivileva.newschannel.adapter.NewsListDecorator
-
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingSuccessful
-
+import com.hfad.news.tsivileva.newschannel.view.adapter.NewsListAdapter
+import com.hfad.news.tsivileva.newschannel.view.adapter.NewsListDecorator
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSortFeeds
 import com.hfad.news.tsivileva.newschannel.view_model.FeedViewModel
-import com.hfad.news.tsivileva.newschannel.view_model.Sort
 import kotlinx.android.synthetic.main.fragment_feed.view.*
 
 class FragmentFeeds() :
@@ -32,14 +25,13 @@ class FragmentFeeds() :
         DialogSortFeeds.IDialogSortFeedsClickListener {
 
     private lateinit var viewModel: FeedViewModel
-    private var feeds = listOf<NewsDescription>()
     private var recyclerAdapter: NewsListAdapter = NewsListAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-   }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_feed, container, false)
@@ -61,13 +53,12 @@ class FragmentFeeds() :
         viewModel.downloading.observe(viewLifecycleOwner, Observer {
             when (it) {
                 is DownloadingSuccessful -> {
-
-                        recyclerAdapter.list = it.data
-                        view.feeds_error_container.visibility = View.GONE
-                        view.swipe_container?.isRefreshing = false
+                    recyclerAdapter.list = it.data
+                    view.feeds_error_container.visibility = View.GONE
+                    view.swipe_container?.isRefreshing = false
                 }
                 is DownloadingError -> {
-                    //view.feeds_error_container.visibility = View.VISIBLE
+                   view.feeds_error_container.visibility = View.VISIBLE
                     DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
                     view.swipe_container?.isRefreshing = true
                     recyclerAdapter.list = it.cachedData
@@ -82,7 +73,6 @@ class FragmentFeeds() :
         }
 
         view.swipe_container?.setOnRefreshListener {
-            viewModel.cleareCache()
             viewModel.downloadFeeds()
         }
 
@@ -101,7 +91,6 @@ class FragmentFeeds() :
         when (item.itemId) {
             R.id.reload_feeds_item_menu -> {
                 view?.swipe_container?.isRefreshing = true
-                viewModel.cleareCache()
                 viewModel.downloadFeeds()
             }
             R.id.sort_feeds_item_menu -> {
@@ -115,7 +104,7 @@ class FragmentFeeds() :
                     override fun afterTextChanged(s: Editable?) {}
                     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                         viewModel.searchByTitle(s.toString())
+                        viewModel.searchByTitle(s.toString())
                     }
                 })
             }
@@ -127,17 +116,14 @@ class FragmentFeeds() :
     override fun onNewsClick(position: Int) {
         val detailsFragment = FragmentFeedContent()
         val bundle = Bundle()
-val list=recyclerAdapter.list.get(position)
-                bundle.putParcelable("news_description",list)
-              // bundle.putLong("id", feeds.get(position).id)
-               // bundle.putString("url",feeds.get(position).link)
-
-                detailsFragment.arguments = bundle
-                parentFragmentManager
-                        .beginTransaction()
-                        .replace(R.id.container, detailsFragment, FEED_CONTENT)
-                        .addToBackStack(FEED_CONTENT)
-                        .commit()
+        val list = recyclerAdapter.list.get(position)
+        bundle.putParcelable("news_description", list)
+        detailsFragment.arguments = bundle
+        parentFragmentManager
+                .beginTransaction()
+                .replace(R.id.container, detailsFragment, FEED_CONTENT)
+                .addToBackStack(FEED_CONTENT)
+                .commit()
 
 
     }
@@ -154,8 +140,8 @@ val list=recyclerAdapter.list.get(position)
     }
 
 
-    override fun onDialogSortClick( sortKind: Sort, source:FeedsSource) {
-        viewModel.sortNews(sortKind, source)
+    override fun onDialogSortClick(sortTypeKind: SortType, source: FeedsSource) {
+        viewModel.sortNews(sortTypeKind, source)
 //        var tempList = viewModel.filterNews(filter)
 //        tempList = viewModel.sortNews(sortKind, tempList.toMutableList())
 //        recyclerAdapter.list = tempList

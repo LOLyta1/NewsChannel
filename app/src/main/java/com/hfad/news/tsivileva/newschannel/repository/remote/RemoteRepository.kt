@@ -1,17 +1,12 @@
 package com.hfad.news.tsivileva.newschannel.repository.remote
 
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
-import com.hfad.news.tsivileva.newschannel.*
-import com.hfad.news.tsivileva.newschannel.repository.local.NewsDescription
-import com.hfad.news.tsivileva.newschannel.model.habr.Habr
-import com.hfad.news.tsivileva.newschannel.model.proger.Proger
-import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
-import com.hfad.news.tsivileva.newschannel.repository.local.LocalDatabase
-import com.hfad.news.tsivileva.newschannel.repository.local.NewsAndContent
-import com.hfad.news.tsivileva.newschannel.repository.local.NewsContent
+import com.hfad.news.tsivileva.newschannel.FeedsSource
+import com.hfad.news.tsivileva.newschannel.model.ModelConverter
+import com.hfad.news.tsivileva.newschannel.model.local.NewsContent
+import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
+import com.hfad.news.tsivileva.newschannel.model.remote.habr.Habr
+import com.hfad.news.tsivileva.newschannel.model.remote.proger.Proger
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -26,8 +21,6 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 
 
 class RemoteRepository {
-
-
     companion object Factory {
 
         fun getFeedsObservable(): Observable<List<NewsDescription>> {
@@ -46,21 +39,20 @@ class RemoteRepository {
             return Observable.zip(habr, proger,
                     BiFunction<Habr, Proger, List<List<Any>?>> { h, p ->
                         listOf(h.items, p.channel?.items)
-                    }).flatMap(::parseFeed)
+                    }).flatMap(ModelConverter()::toNewsDesciption)
         }
-
 
         fun getProgerContentObservable(url: String): Single<NewsContent> {
             return createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java)
                     .loadProgDetails()
-                    .map(::parseProgerFeedsContent)
+                    .map(ModelConverter()::toNewsContent)
         }
 
 
         fun getHabrContentObservable(url: String): Single<NewsContent> {
             return createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java)
                     .loadHabrContent()
-                    .map(::parseHabrFeedsContent)
+                    .map(ModelConverter()::toNewsContent)
         }
 
         private fun <T> createService(baseUrl: String, converterFactory: Converter.Factory, _class: Class<T>): T {

@@ -1,13 +1,12 @@
-package com.hfad.news.tsivileva.newschannel.model.habr;
+package com.hfad.news.tsivileva.newschannel.model.remote.habr;
 
 import com.hfad.news.tsivileva.newschannel.getIdInLink
-import com.hfad.news.tsivileva.newschannel.model.IModel
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.annotation.Selector
 import java.text.SimpleDateFormat
 import java.util.*
 
-class HabrContent : IModel {
+class HabrContent {
     val id: Long
         get() = getIdInLink(link)
 
@@ -18,12 +17,12 @@ class HabrContent : IModel {
     var title: String = ""
 
     @Selector(value = ".post__time", attr = "data-time_published")
-    var dateString: String=""
+    var dateString: String = ""
 
     val date: Date?
         get() {
-                val from = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US)
-                return from.parse(dateString)
+            val from = SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'", Locale.US)
+            return from.parse(dateString)
         }
 
 
@@ -35,10 +34,10 @@ class HabrContent : IModel {
         get() = findImage(htmlElement)
 
     private fun findImage(el: Element?): String {
-        var image=""
+        var image = ""
         el?.getElementsByTag("div")?.forEach {
             it.getElementsByClass("post__text post__text-html").forEach {
-               image=it.getElementsByTag("img").attr("src")
+                image = it.getElementsByTag("img").attr("src")
             }
         }
         return image

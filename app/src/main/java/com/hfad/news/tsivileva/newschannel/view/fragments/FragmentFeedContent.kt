@@ -9,11 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.hfad.news.tsivileva.newschannel.*
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingError
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingState
-import com.hfad.news.tsivileva.newschannel.repository.DownloadingSuccessful
-import com.hfad.news.tsivileva.newschannel.repository.local.NewsContent
-import com.hfad.news.tsivileva.newschannel.repository.local.NewsDescription
+import com.hfad.news.tsivileva.newschannel.model.local.NewsContent
+import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
 import com.squareup.picasso.Picasso
@@ -24,8 +21,7 @@ class FragmentFeedContent :
         DialogNetworkError.IDialogListener {
 
     private var newsDescription: NewsDescription? = NewsDescription()
-    var viewModel: FeedContentViewModel?=null
-
+    var viewModel: FeedContentViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,56 +29,45 @@ class FragmentFeedContent :
         actionBar?.setHomeAsUpIndicator(R.drawable.back_icon)
         actionBar?.setDisplayHomeAsUpEnabled(true)
         setHasOptionsMenu(true)
-
-        newsDescription=arguments?.getParcelable("news_description")
     }
-
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         viewModel = ViewModelProviders.of(this).get(FeedContentViewModel::class.java)
         return inflater.inflate(R.layout.fragment_feed_details, container, false)
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        newsDescription = arguments?.getParcelable("news_description")
 
-        view.news_content_progress_bar?.visibility = View.VISIBLE
-        loadContent()
+        viewModel?.downloadContent(newsDescription?.link, newsDescription?.id)
 
-        view.news_details_link_text_view.setOnClickListener {
-
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(newsDescription?.link))
-            val choosenIntent = Intent.createChooser(intent, "Choose application")
-            startActivity(choosenIntent)
-        }
-        view.error_reload_button.setOnClickListener {
-           loadContent()
-        }
-          viewModel?.news?.observe(viewLifecycleOwner, Observer { contentDownlodingResult: DownloadingState<NewsContent>? ->
+        viewModel?.newsLiveData?.observe(viewLifecycleOwner, Observer { contentDownlodingResult: DownloadingState<NewsContent>? ->
             when (contentDownlodingResult) {
                 is DownloadingSuccessful -> {
                     view.news_content_progress_bar?.visibility = View.GONE
                     view.feeds_details_error_container?.visibility = View.GONE
-                    view.feed_content_container?.visibility=View.VISIBLE
-                    showNews(contentDownlodingResult.data,newsDescription)
+                    view.feed_content_container?.visibility = View.VISIBLE
+                    showNews(contentDownlodingResult.data, newsDescription)
                 }
                 is DownloadingError -> {
-                   view.news_content_progress_bar?.visibility = View.GONE
-                   view.feeds_details_error_container?.visibility = View.VISIBLE
-                    view.feed_content_container?.visibility=View.VISIBLE
-                    showNews(contentDownlodingResult.cachedData,newsDescription)
+                    view.news_content_progress_bar?.visibility = View.GONE
+                    view.feeds_details_error_container?.visibility = View.VISIBLE
+                    view.feed_content_container?.visibility = View.VISIBLE
+                    showNews(contentDownlodingResult.cachedData, newsDescription)
                 }
             }
         })
 
-        //newsDescription?.let {  viewModel.downloadingFromInternet(it) }
+        view.news_details_link_text_view.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(newsDescription?.link))
+            val choosenIntent = Intent.createChooser(intent, "Choose application")
+            startActivity(choosenIntent)
+        }
 
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        // viewModel.refreshData()
+        view.error_reload_button.setOnClickListener {
+            viewModel?.downloadContent(newsDescription?.link, newsDescription?.id)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -91,11 +76,8 @@ class FragmentFeedContent :
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
         when (item.itemId) {
-            android.R.id.home -> {
-                parentFragmentManager.popBackStackImmediate()
-            }
+            android.R.id.home -> parentFragmentManager.popBackStackImmediate()
             R.id.feed_content_add_to_favorites_menu_button -> {
                 //TODO() сделать сохранение в базу
             }
@@ -112,8 +94,8 @@ class FragmentFeedContent :
         return super.onOptionsItemSelected(item)
     }
 
-    private fun showNews(newsContent:NewsContent,description: NewsDescription?) {
-         view?.news_details_text_view?.text = newsContent.content
+    private fun showNews(newsContent: NewsContent, description: NewsDescription?) {
+        view?.news_details_text_view?.text = newsContent.content
         view?.news_details_date_text_view?.text = description?.dateToString()
         view?.news_details_title_text_view?.text = description?.title
         view?.news_details_link_text_view?.text = description?.link
@@ -132,8 +114,6 @@ class FragmentFeedContent :
     override fun onDialogErrorReloadClick(dialogNetwork: DialogNetworkError) {
         view?.news_content_progress_bar?.visibility = View.VISIBLE
         dialogNetwork.dismiss()
-        //  newsDescription?.let {  viewModel.downloadingFromInternet(it) }
-
     }
 
     override fun onDialogErrorCancelClick(dialogNetwork: DialogNetworkError) {
