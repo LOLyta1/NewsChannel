@@ -4,6 +4,7 @@ import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.hfad.news.tsivileva.newschannel.FeedsSource
 import com.hfad.news.tsivileva.newschannel.model.local.*
+import io.reactivex.Single
 
 
 @Dao
@@ -57,13 +58,13 @@ interface ILocaApi {
     fun cleareFav()
 
     /*выбор контента и избранного - при фильтрации только избранного (INNER JOIN)*/
-    @Query("SELECT * FROM Description  JOIN  Favorite ON Description.id_desc=Favorite.fav_id_desc")
-    fun selectDescriptionAndFaw(): List<NewsAndFav>
+    @Query("SELECT * FROM Description  JOIN  Favorite ON Description.id_desc=Favorite.fav_id_desc WHERE Favorite.isFav==1")
+    fun selectDescriptionAndFaw(): Single<List<NewsAndFav>>
 
     @Query("SELECT * FROM Description  LEFT JOIN  Favorite ON Description.id_desc=Favorite.fav_id_desc")
-    fun selectAllDescriptionAndFav():List<NewsAndFav?>
+    fun selectAllDescriptionAndFav():List<NewsAndFav>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertIntoFav(fav: Favorite) :Long
+    fun insertIntoFav(fav: Favorite): Single<Long>
 
 }

@@ -3,9 +3,11 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuItemImpl
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -49,19 +51,22 @@ class FragmentFeeds() :
         recyclerAdapter.listener = this
 
         viewModel.downloadFeeds()
-
         viewModel.downloading.observe(viewLifecycleOwner, Observer {
             when (it) {
                 is DownloadingSuccessful -> {
-                    recyclerAdapter.list = it.data
+                    if (it.data != null) {
+                        recyclerAdapter.list = it.data
+                    }
                     view.feeds_error_container.visibility = View.GONE
                     view.swipe_container?.isRefreshing = false
                 }
                 is DownloadingError -> {
-                   view.feeds_error_container.visibility = View.VISIBLE
+                    view.feeds_error_container.visibility = View.VISIBLE
                     DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
                     view.swipe_container?.isRefreshing = true
-                    recyclerAdapter.list = it.cachedData
+                    if (it.cachedData != null) {
+                        recyclerAdapter.list = it.cachedData
+                    }
                 }
             }
         })
@@ -80,7 +85,6 @@ class FragmentFeeds() :
             viewModel.downloadFeeds()
         }
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_feed_fragment, menu)
@@ -108,24 +112,46 @@ class FragmentFeeds() :
                     }
                 })
             }
+
+            R.id.show_fav_menu_item->{
+                if(recyclerAdapter.list.all { it.newsFav?.isFav==true}){
+                    item.setIcon(R.drawable.watch_fav)
+                    viewModel.downloadFeeds()
+                }else{
+                    viewModel.showFav()
+                    item.setIcon(R.drawable.watch_fav_add)
+                }
+            }
         }
         return super.onOptionsItemSelected(item)
     }
 
 
-    override fun onNewsClick(position: Int) {
-        val detailsFragment = FragmentFeedContent()
-        val bundle = Bundle()
-        val list = recyclerAdapter.list.get(position)
-        bundle.putParcelable("news_description", list)
-        detailsFragment.arguments = bundle
-        parentFragmentManager
-                .beginTransaction()
-                .replace(R.id.container, detailsFragment, FEED_CONTENT)
-                .addToBackStack(FEED_CONTENT)
-                .commit()
-
-
+    override fun onNewsClick(position: Int, view: View) {
+        when (view.id) {
+            R.id.news_image_view -> {
+                val detailsFragment = FragmentFeedContent()
+                val bundle = Bundle()
+                val list = recyclerAdapter.list.get(position)
+                bundle.putParcelable("news_description", list)
+                detailsFragment.arguments = bundle
+                parentFragmentManager
+                        .beginTransaction()
+                        .replace(R.id.container, detailsFragment, FEED_CONTENT)
+                        .addToBackStack(FEED_CONTENT)
+                        .commit()
+            }
+            R.id.fav_image_view -> {
+                Log.d(DEBUG_LOG,"нажали на картинку")
+                val isFav=recyclerAdapter.list.get(position).newsFav?.isFav
+                Log.d(DEBUG_LOG," позиция в списке изюранных? ${recyclerAdapter.list.get(position).newsFav?.isFav}")
+               if(isFav==null || isFav==false){
+                   recyclerAdapter.list.get(position).newsInfo?.id?.let { it1 -> viewModel.addToFavorite(it1) }
+               }else{
+                   recyclerAdapter.list.get(position).newsInfo?.id?.let { it1 -> viewModel.removeFromFavorite(it1) }
+               }
+            }
+        }
     }
 
     override fun onDialogErrorReloadClick(dialogNetwork: DialogNetworkError) {

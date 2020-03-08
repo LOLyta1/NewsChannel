@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
         android:id="@+id/app_bar_search"
         android:icon="@drawable/ic_search_black_24dp"
         android:title="@string/feed_details_search_view"
         app:actionViewClass="android.widget.EditText"
         app:showAsAction="ifRoom|collapseActionView" />
-
     <item
+        android:id="@+id/show_fav_menu_item"
+        android:icon="@drawable/watch_fav"
+        android:title="@string/watch_fav_text"
+        app:showAsAction="ifRoom">
+
+    </item>
+    <item
+
         android:id="@+id/reload_feeds_item_menu"
-        android:title="@string/reload_text" />
+        android:title="@string/reload_text"
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/sort_feeds_item_menu"
         android:icon="@drawable/sorting_asc"
