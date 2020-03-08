@@ -1,53 +1,63 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.hfad.news.tsivileva.newschannel.FeedsContentSource
-import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.getIdInLink
-import com.hfad.news.tsivileva.newschannel.repository.*
+import com.hfad.news.tsivileva.newschannel.*
+import com.hfad.news.tsivileva.newschannel.model.local.NewsContent
+import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
-class FeedContentViewModel : ViewModel() {
+class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
+    private var serverSubscription: Disposable? = null
+    private var newsDescriptionId: Long? = null
 
-    val downloading = MutableLiveData<DownloadingState>()
-    private val newsList = mutableListOf<NewsItem>()
-    private var newsItem = NewsItem()
-    private var disposable:Disposable?=null
+    var newsLiveData = MutableLiveData<DownloadingState<NewsContent>>()
 
-    fun download(url: String, source: FeedsContentSource) {
-        val _newsItem = newsList.find { it.link == url || it.id == getIdInLink(url) }
-        if (_newsItem == null){
-            when(source){
-                FeedsContentSource.HABR -> {disposable=RemoteRepository.getHabrContentObservable(url).subscribe(::_onNext,::_onError,::_onComplete)}
-                FeedsContentSource.PROGER -> {disposable=RemoteRepository.getProgerContentObservable(url).subscribe(::_onNext,::_onError,::_onComplete)}
-            }
-        }else{
-            downloading.postValue(DownloadedFeed(_newsItem))
+    fun downloadContent(url: String?, newsDescriptionId: Long?) {
+        if (newsDescriptionId != null && url != null) {
+            this.newsDescriptionId = newsDescriptionId
+
+            if (getSourceByLink(url) == FeedsSource.PROGER) {
+                serverSubscription = RemoteRepository
+                        .getProgerContentObservable(url)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(::_onSuccess, ::_onError)
+            } else
+                if (getSourceByLink(url) == FeedsSource.HABR) {
+                    serverSubscription = RemoteRepository
+                            .getHabrContentObservable(url)
+                            .subscribeOn(Schedulers.io())
+                            .subscribe(::_onSuccess, ::_onError)
+                }
         }
-  }
- fun _onNext(t: NewsItem) {
-        newsItem=t
-        newsList.add(t)
-        downloading.postValue(DownloadingProgress(""))
     }
 
-    fun _onError(e: Throwable) {
-        downloading.postValue(DownloadingError(e))
+    private fun _onSuccess(t: NewsContent) {
+        val _news = NewsContent(
+                newsId = newsDescriptionId,
+                content = t.content,
+                id = null
+        )
+        NewsDatabase.instance(getApplication())?.getApi()?.insertContent(_news)
+        newsLiveData.postValue(DownloadingSuccessful(t))
     }
 
-    fun _onComplete() {
-        downloading.postValue(DownloadedFeed(newsItem))
-        disposable?.dispose()
+    private fun _onError(e: Throwable) {
+        if (newsDescriptionId != null) {
+            NewsDatabase.instance(getApplication())?.getApi()?.selectContentByDescriptionId(newsDescriptionId!!)
+                    ?.let {
+                        val cachedContent = NewsContent(id = null, newsId = newsDescriptionId, content = it)
+                        newsLiveData.postValue(DownloadingError(e, cachedContent))
+                    }
+        }
     }
 
     override fun onCleared() {
+        serverSubscription?.dispose()
+        NewsDatabase.destroyInstance()
         super.onCleared()
-        disposable?.dispose()
-    }
-
-    fun refreshData() {
-        downloading.postValue(DownloadedFeed(NewsItem()))
     }
 }

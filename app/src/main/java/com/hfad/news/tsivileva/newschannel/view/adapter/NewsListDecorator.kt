@@ -1,4 +1,4 @@
-package com.hfad.news.tsivileva.newschannel.adapter
+package com.hfad.news.tsivileva.newschannel.view.adapter
 
 import android.content.res.Resources
 import android.graphics.Rect

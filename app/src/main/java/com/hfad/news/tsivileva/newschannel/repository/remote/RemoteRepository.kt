@@ -2,15 +2,13 @@ package com.hfad.news.tsivileva.newschannel.repository.remote
 
 
 import com.hfad.news.tsivileva.newschannel.FeedsSource
-import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.model.habr.Habr
-import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent
-import com.hfad.news.tsivileva.newschannel.model.proger.Proger
-import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent
-import com.hfad.news.tsivileva.newschannel.parseFeed
-import com.hfad.news.tsivileva.newschannel.parseHabrFeedsContent
-import com.hfad.news.tsivileva.newschannel.parseProgerFeedsContent
+import com.hfad.news.tsivileva.newschannel.model.ModelConverter
+import com.hfad.news.tsivileva.newschannel.model.local.NewsContent
+import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
+import com.hfad.news.tsivileva.newschannel.model.remote.habr.Habr
+import com.hfad.news.tsivileva.newschannel.model.remote.proger.Proger
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
@@ -22,40 +20,39 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 
 
-class RemoteRepository private constructor() {
-
+class RemoteRepository {
     companion object Factory {
 
-        fun getFeedsObservable(): Observable<MutableList<NewsItem>> {
+        fun getFeedsObservable(): Observable<List<NewsDescription>> {
             var service = createService(FeedsSource.PROGER.link, SimpleXmlConverterFactory.create(), IRemoteApi::class.java)
             val proger = service
                     .loadProger()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(Schedulers.io())
 
             service = createService(FeedsSource.HABR.link, SimpleXmlConverterFactory.create(), IRemoteApi::class.java)
             val habr = service
                     .loadHabr()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .observeOn(Schedulers.io())
 
             return Observable.zip(habr, proger,
-                    BiFunction<Habr, Proger, MutableList<List<Any>?>> { h, p ->
-                        mutableListOf(h.items, p.channel?.items)
-                    }).map(::parseFeed)
+                    BiFunction<Habr, Proger, List<List<Any>?>> { h, p ->
+                        listOf(h.items, p.channel?.items)
+                    }).flatMap(ModelConverter()::toNewsDesciption)
         }
 
-
-        fun getProgerContentObservable(url: String): Observable<NewsItem> {
+        fun getProgerContentObservable(url: String): Single<NewsContent> {
             return createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java)
                     .loadProgDetails()
-                    .map(::parseProgerFeedsContent)
+                    .map(ModelConverter()::toNewsContent)
         }
 
-        fun getHabrContentObservable(url: String): Observable<NewsItem> {
+
+        fun getHabrContentObservable(url: String): Single<NewsContent> {
             return createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java)
                     .loadHabrContent()
-                    .map(::parseHabrFeedsContent)
+                    .map(ModelConverter()::toNewsContent)
         }
 
         private fun <T> createService(baseUrl: String, converterFactory: Converter.Factory, _class: Class<T>): T {

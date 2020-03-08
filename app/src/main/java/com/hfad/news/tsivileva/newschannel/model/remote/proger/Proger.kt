@@ -1,14 +1,11 @@
-package com.hfad.news.tsivileva.newschannel.model.proger
+package com.hfad.news.tsivileva.newschannel.model.remote.proger
 
-import android.util.Log
-import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
-import com.hfad.news.tsivileva.newschannel.model.IModel
 import org.simpleframework.xml.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Root(name = "rss", strict = false)
-class Proger : IModel {
+class Proger {
     @field:Element
     var channel: Channel? = null
     @field:Element(required = false)
@@ -77,7 +74,6 @@ class Proger : IModel {
             var date: Date? = null
                 get() {
                     pubDate?.let {
-                        Log.d(DEBUG_LOG, "Proger() сериализация , dateString=$pubDate")
                         val from = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US)
                         return from.parse(pubDate!!)
                     }

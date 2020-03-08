@@ -1,82 +1,76 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.hfad.news.tsivileva.newschannel.FeedsSource
-import com.hfad.news.tsivileva.newschannel.adapter.NewsItem
-import com.hfad.news.tsivileva.newschannel.repository.*
+import com.hfad.news.tsivileva.newschannel.*
+import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
+import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 
 
-class FeedViewModel : ViewModel() {
+class FeedViewModel(val app: Application) : AndroidViewModel(app) {
+
     private var subscription: Disposable? = null
-    private var newsList = mutableListOf<NewsItem>()
 
-    var downloading = MutableLiveData<DownloadingState>()
+    var downloading = MutableLiveData<DownloadingState<List<NewsDescription>>>()
 
     fun downloadFeeds() {
-        if (newsList.isEmpty()) {
-            subscription = RemoteRepository
-                    .getFeedsObservable()
-                    .subscribe(::onNext, ::onError, ::onComplete)
-        } else {
-            downloading.value = DownloadedFeeds(newsList)
-        }
-    }
-
-    fun cleareCache() {
-        newsList = mutableListOf()
+        subscription = RemoteRepository
+                .getFeedsObservable()
+                .subscribe(::onNext, ::onError, ::onComplete)
     }
 
     private fun onComplete() {
-        newsList=sortNews(Sort.BY_ABC_ASC,newsList)
-        downloading.postValue(DownloadedFeeds(newsList))
-        subscription?.dispose()
+        val list = NewsDatabase.instance(getApplication())?.getApi()?.selectAllDescriptions()
+        if (list != null) {
+            downloading.postValue(DownloadingSuccessful(list))
+        }
     }
 
     private fun onError(e: Throwable) {
-        downloading.postValue(DownloadingError(e))
+        NewsDatabase.instance(getApplication())?.getApi()
+                ?.selectAllDescriptions()
+                ?.let { cachedList: List<NewsDescription> ->
+                    downloading.postValue(DownloadingError(e, cachedList))
+                }
     }
 
-    private fun onNext(item: List<NewsItem>) {
-        if (!newsList.containsAll(item)) {
-            newsList.addAll(item)
+    private fun onNext(item: List<NewsDescription>) {
+        NewsDatabase.instance(getApplication())?.getApi()?.insertIntoDescription(item)
+    }
+
+    fun sortNews(sortTypeKind: SortType, source: FeedsSource) {
+        var list :List<NewsDescription>?= listOf<NewsDescription>()
+        when (source) {
+            FeedsSource.HABR, FeedsSource.PROGER -> {
+                when (sortTypeKind) {
+                    SortType.ASC -> list=NewsDatabase.instance(getApplication())?.getApi()?.selectSortedByDateAsc(source)
+                    SortType.DESC ->list=NewsDatabase.instance(getApplication())?.getApi()?.selectDescriptionByDateDesc(source)
+                }
+            }
+            FeedsSource.BOTH -> {
+                when (sortTypeKind) {
+                    SortType.ASC ->list=NewsDatabase.instance(getApplication())?.getApi()?.selectAllSortedByDateAsc()
+                    SortType.DESC ->list=NewsDatabase.instance(getApplication())?.getApi()?.selectDescriptionSortedByDateDesc()
+                }
+            }
         }
-        downloading.postValue(DownloadingProgress(""))
+        if(list!=null)  downloading.postValue(DownloadingSuccessful(list) )
     }
 
-
-    fun sortNews(sortKind: Sort,list: MutableList<NewsItem> ) : MutableList<NewsItem> {
-        val _list= list
-        when (sortKind) {
-            Sort.BY_ABC_ASC -> {
-               _list.sortBy { it.title }
-            }
-            Sort.BY_ABC_DESC -> {
-                _list.sortByDescending { it.title }
-            }
-            Sort.BY_DATE_ASC -> {
-               _list.sortBy { it.date }
-            }
-            Sort.BY_DATE_DESC -> {
-                _list.sortByDescending { it.date }
-            }
-        }
-        return _list
+    override fun onCleared() {
+        NewsDatabase.destroyInstance()
+        subscription?.dispose()
+        super.onCleared()
     }
 
-    fun filterNews(sourceKind: FeedsSource): List<NewsItem> {
-        val _tempList: List<NewsItem>
-
-        if(sourceKind== FeedsSource.BOTH){
-            _tempList= newsList.filter { it.sourceKind==FeedsSource.HABR || it.sourceKind==FeedsSource.PROGER }
-        }else{
-            _tempList=newsList.filter { it.sourceKind == sourceKind }
-        }
-
-        return _tempList
+    fun searchByTitle(title: String) {
+      val list= NewsDatabase.instance(getApplication())?.getApi()?.selectDescriptionByTitle("%$title%")
+        if(list!=null)  downloading.postValue(DownloadingSuccessful(list) )
     }
-
-    fun searchByTitle(title: String) = newsList.filter {it.title.contains(title) }
 }

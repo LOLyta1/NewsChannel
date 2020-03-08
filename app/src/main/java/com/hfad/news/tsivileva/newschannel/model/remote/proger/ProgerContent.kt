@@ -1,24 +1,23 @@
-package com.hfad.news.tsivileva.newschannel.model.proger;
+package com.hfad.news.tsivileva.newschannel.model.remote.proger;
 
 import android.util.Log
 import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import com.hfad.news.tsivileva.newschannel.getIdInLink
-import com.hfad.news.tsivileva.newschannel.model.IModel
 import org.jsoup.nodes.Element
 import pl.droidsonroids.jspoon.annotation.Selector
 import java.text.SimpleDateFormat
 import java.util.*
 
-class ProgerContent : IModel {
+class ProgerContent {
 
     @Selector(value = "head")
     var linkElement: Element? = null
 
     val link: String
         get() {
-            var attr=""
+            var attr = ""
             linkElement?.getElementsByAttributeValue("rel", "canonical")?.forEach {
-                attr= it.attr("href")
+                attr = it.attr("href")
             }
             return attr
         }

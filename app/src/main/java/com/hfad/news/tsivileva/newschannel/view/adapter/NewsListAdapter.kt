@@ -1,33 +1,32 @@
-package com.hfad.news.tsivileva.newschannel.adapter
+package com.hfad.news.tsivileva.newschannel.view.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Filter
-import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.hfad.news.tsivileva.newschannel.R
+import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 
 /*
  * Адаптер для RecyclerView
  */
-class NewsListAdapter :
-        RecyclerView.Adapter<NewsListAdapter.ViewHolder>(){
+class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
 
     interface INewsItemClickListener {
-        fun onNewsClick(position: Int?)
+        fun onNewsClick(position: Int)
     }
 
-    var list = listOf<NewsItem>()
+    var listener: INewsItemClickListener? = null
+    var list = listOf<NewsDescription>()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
-    var listener: INewsItemClickListener? = null
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val cv = LayoutInflater.from(parent.context).inflate(R.layout.item_list, parent, false)
@@ -54,7 +53,7 @@ class NewsListAdapter :
         holder.linkView.text = list[position].link
         holder.dateView.text = list[position].dateToString()
 
-        if (list[position].picture != null) {
+        if (list[position].picture != "") {
             Picasso.get().load(list[position].picture)
                     .placeholder(R.drawable.no_photo)
                     .memoryPolicy(MemoryPolicy.NO_STORE)
@@ -68,5 +67,6 @@ class NewsListAdapter :
                     .into(holder.imageView)
         }
     }
+
     override fun getItemCount(): Int = list.count()
 }

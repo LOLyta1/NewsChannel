@@ -1,11 +1,12 @@
 package com.hfad.news.tsivileva.newschannel.repository.remote;
 
-import com.hfad.news.tsivileva.newschannel.model.habr.Habr;
-import com.hfad.news.tsivileva.newschannel.model.habr.HabrContent;
-import com.hfad.news.tsivileva.newschannel.model.proger.Proger;
-import com.hfad.news.tsivileva.newschannel.model.proger.ProgerContent;
+import com.hfad.news.tsivileva.newschannel.model.remote.habr.Habr;
+import com.hfad.news.tsivileva.newschannel.model.remote.habr.HabrContent;
+import com.hfad.news.tsivileva.newschannel.model.remote.proger.Proger;
+import com.hfad.news.tsivileva.newschannel.model.remote.proger.ProgerContent;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import retrofit2.http.GET;
 
 
@@ -20,9 +21,8 @@ public interface IRemoteApi {
     Observable<Proger> loadProger();
 
     @GET(".")
-    Observable<HabrContent> loadHabrContent();
+    Single<HabrContent> loadHabrContent();
 
     @GET(".")
-    Observable<ProgerContent> loadProgDetails();
-
+    Single<ProgerContent> loadProgDetails();
 }
