@@ -1,5 +1,7 @@
 package com.hfad.news.tsivileva.newschannel
 
+import androidx.room.Entity
+
 sealed class DownloadingState<T>
 class DownloadingSuccessful<T>(val data: T) : DownloadingState<T>()
 class DownloadingError<T>(val e: Throwable, val cachedData: T) : DownloadingState<T>()
@@ -14,3 +16,10 @@ enum class FeedsSource(val link: String) {
     PROGER("https://tproger.ru/feed/"),
     BOTH("")
 }
+
+@Entity
+data class Preference (
+        var sortType: SortType=SortType.ASC,
+        var showOnlyFav: Boolean=false,
+        var source: FeedsSource=FeedsSource.BOTH
+)

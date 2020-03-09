@@ -3,16 +3,16 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.menu.MenuItemImpl
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hfad.news.tsivileva.newschannel.*
+import com.hfad.news.tsivileva.newschannel.model.local.NewsAndFav
 import com.hfad.news.tsivileva.newschannel.view.adapter.NewsListAdapter
 import com.hfad.news.tsivileva.newschannel.view.adapter.NewsListDecorator
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
@@ -28,6 +28,7 @@ class FragmentFeeds() :
 
     private lateinit var viewModel: FeedViewModel
     private var recyclerAdapter: NewsListAdapter = NewsListAdapter()
+    private lateinit var newsList: List<NewsAndFav>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,22 +53,10 @@ class FragmentFeeds() :
 
         viewModel.downloadFeeds()
         viewModel.downloading.observe(viewLifecycleOwner, Observer {
-            when (it) {
-                is DownloadingSuccessful -> {
-                    if (it.data != null) {
-                        recyclerAdapter.list = it.data
-                    }
-                    view.feeds_error_container.visibility = View.GONE
-                    view.swipe_container?.isRefreshing = false
-                }
-                is DownloadingError -> {
-                    view.feeds_error_container.visibility = View.VISIBLE
-                    DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
-                    view.swipe_container?.isRefreshing = true
-                    if (it.cachedData != null) {
-                        recyclerAdapter.list = it.cachedData
-                    }
-                }
+            if (it != null) {
+                newsList = it
+                recyclerAdapter.list = it
+                view.swipe_container.isRefreshing = false
             }
         })
 
@@ -92,7 +81,7 @@ class FragmentFeeds() :
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+         when (item.itemId) {
             R.id.reload_feeds_item_menu -> {
                 view?.swipe_container?.isRefreshing = true
                 viewModel.downloadFeeds()
@@ -101,25 +90,23 @@ class FragmentFeeds() :
                 DialogSortFeeds().show(childFragmentManager, DIALOG_WITH_SORT)
             }
             R.id.app_bar_search -> {
-                val searchField = (item.actionView as EditText).apply {
+                (item.actionView as EditText).apply {
                     setHint(R.string.search_text)
+                    addTextChangedListener(object : TextWatcher {
+                        override fun afterTextChanged(s: Editable?) {}
+                        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                           recyclerAdapter.list = recyclerAdapter.searchByTitle(newsList,s.toString())
+                        }
+                    })
                 }
-                searchField.addTextChangedListener(object : TextWatcher {
-                    override fun afterTextChanged(s: Editable?) {}
-                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                        viewModel.searchByTitle(s.toString())
-                    }
-                })
             }
 
-            R.id.show_fav_menu_item->{
-                if(recyclerAdapter.list.all { it.newsFav?.isFav==true}){
-                    item.setIcon(R.drawable.watch_fav)
-                    viewModel.downloadFeeds()
-                }else{
-                    viewModel.showFav()
-                    item.setIcon(R.drawable.watch_fav_add)
+            R.id.show_fav_menu_item -> {
+                if (recyclerAdapter.list.all { it.newsFav?.isFav == true }) {
+                   recyclerAdapter.showFavorites(newsList, null)
+                } else {
+                    recyclerAdapter.showFavorites(recyclerAdapter.list, true)
                 }
             }
         }
@@ -132,8 +119,9 @@ class FragmentFeeds() :
             R.id.news_image_view -> {
                 val detailsFragment = FragmentFeedContent()
                 val bundle = Bundle()
-                val list = recyclerAdapter.list.get(position)
-                bundle.putParcelable("news_description", list)
+                val newsDescription = recyclerAdapter.list.get(position)
+                bundle.putParcelable("news_description", newsDescription)
+
                 detailsFragment.arguments = bundle
                 parentFragmentManager
                         .beginTransaction()
@@ -141,15 +129,13 @@ class FragmentFeeds() :
                         .addToBackStack(FEED_CONTENT)
                         .commit()
             }
-            R.id.fav_image_view -> {
-                Log.d(DEBUG_LOG,"нажали на картинку")
-                val isFav=recyclerAdapter.list.get(position).newsFav?.isFav
-                Log.d(DEBUG_LOG," позиция в списке изюранных? ${recyclerAdapter.list.get(position).newsFav?.isFav}")
-               if(isFav==null || isFav==false){
-                   recyclerAdapter.list.get(position).newsInfo?.id?.let { it1 -> viewModel.addToFavorite(it1) }
-               }else{
-                   recyclerAdapter.list.get(position).newsInfo?.id?.let { it1 -> viewModel.removeFromFavorite(it1) }
-               }
+            R.id.add_to_fav_image_view -> {
+                val isFav = recyclerAdapter.list.get(position).newsFav?.isFav
+                if (isFav == null || isFav == false) {
+                  viewModel.addToFavorite( recyclerAdapter.list.get(position).newsInfo?.id)
+                } else {
+                   viewModel.removeFromFavorite(recyclerAdapter.list.get(position).newsInfo?.id)
+                }
             }
         }
     }
@@ -167,10 +153,8 @@ class FragmentFeeds() :
 
 
     override fun onDialogSortClick(sortTypeKind: SortType, source: FeedsSource) {
-        viewModel.sortNews(sortTypeKind, source)
-//        var tempList = viewModel.filterNews(filter)
-//        tempList = viewModel.sortNews(sortKind, tempList.toMutableList())
-//        recyclerAdapter.list = tempList
+        recyclerAdapter.sortList(newsList, sortTypeKind, source)
+        Toast.makeText(context, "Отсортировано", Toast.LENGTH_LONG).show()
     }
 }
 

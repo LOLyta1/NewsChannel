@@ -40,9 +40,7 @@ class FragmentFeedContent :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         newsDescription = arguments?.getParcelable("news_description")
-
         viewModel?.downloadContent(newsDescription?.newsInfo?.link, newsDescription?.newsInfo?.id)
-
         viewModel?.newsLiveData?.observe(viewLifecycleOwner, Observer { contentDownlodingResult: DownloadingState<NewsContent>? ->
             when (contentDownlodingResult) {
                 is DownloadingSuccessful -> {

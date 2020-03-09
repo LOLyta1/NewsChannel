@@ -42,7 +42,7 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:id="@+id/fav_image_view"
+                    android:id="@+id/add_to_fav_image_view"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
                     android:layout_gravity="end"
