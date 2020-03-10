@@ -4,10 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.hfad.news.tsivileva.newschannel.model.local.Favorite
-import com.hfad.news.tsivileva.newschannel.model.local.NewsAndContent
-import com.hfad.news.tsivileva.newschannel.model.local.NewsContent
-import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
+import com.hfad.news.tsivileva.newschannel.model.local.*
 import com.hfad.news.tsivileva.newschannel.repository.local.ILocaApi
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
 import org.junit.After
@@ -91,17 +88,16 @@ class DatabaseTest {
     fun selectDescriptionAndFawTest() {
         var description = NewsDescription(id = 125165, date = Date(1581447890000), picture = "https://tproger.ru/apple-touch-icon.png", sourceKind = FeedsSource.PROGER, link = "https://tproger.ru/events/gtp-indie-cup-winter-2020/", title = "15 января – 2 апреля, онлайн: конкурс Indie Cup")
         var fav = Favorite(null, 125165, true)
-
         api.insertIntoDescription(description)
         api.insertIntoFav(fav)
+
+        var newsAndFav = api.selectDescriptionAndFaw()
+        printNewsAndFav(newsAndFav)
 
         description = NewsDescription(id = 491362, date = Date(1583504198000), picture = "https://habrastorage.org/webt/fb/i8/iy/fbi8iyxcyyzik7-ou5-txjc7s8a.jpeg", sourceKind = FeedsSource.HABR, link = "https://habr.com/ru/post/491362/", title = "Java-дайджест за 6 марта")
         api.insertIntoDescription(description)
 
-        description = NewsDescription(id = 491000, date = Date(1583504198000), picture = "https://habrastorage.org/webt/fb/i8/iy/fbi8iyxcyyzik7-ou5-txjc7s8a.jpeg", sourceKind = FeedsSource.HABR, link = "https://habr.com/ru/post/491362/", title = "Java-дайджест за 6 марта")
-        api.insertIntoDescription(description)
-
-        val newsAndFav = api.selectDescriptionAndFaw()
+       newsAndFav = api.selectDescriptionAndFaw()
         printNewsAndFav(newsAndFav)
 
         Assert.assertEquals(newsAndFav.count(), 1)

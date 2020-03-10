@@ -6,8 +6,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.hfad.news.tsivileva.newschannel.FeedsSource
 import com.hfad.news.tsivileva.newschannel.R
-import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
+import com.hfad.news.tsivileva.newschannel.SortType
+import com.hfad.news.tsivileva.newschannel.model.local.NewsAndFav
 import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 
@@ -17,11 +19,16 @@ import com.squareup.picasso.Picasso
 class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
 
     interface INewsItemClickListener {
-        fun onNewsClick(position: Int)
+        fun onNewsClick(position: Int, view: View)
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        recyclerView
     }
 
     var listener: INewsItemClickListener? = null
-    var list = listOf<NewsDescription>()
+    var list = listOf<NewsAndFav>()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -33,28 +40,34 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
         return ViewHolder(cv, listener)
     }
 
-    class ViewHolder(card: View, val clickListener: INewsItemClickListener?) : RecyclerView.ViewHolder(card), View.OnClickListener {
+    class ViewHolder(card: View, val clickListener: INewsItemClickListener?) :
+            RecyclerView.ViewHolder(card),
+            View.OnClickListener {
         val titleTextView = card.findViewById<TextView>(R.id.news_title_text_view)
         val imageView = card.findViewById<ImageView>(R.id.news_image_view)
         val linkView = card.findViewById<TextView>(R.id.news_link_text_view)
         val dateView = card.findViewById<TextView>(R.id.news_pub_date_text_view)
+        val favImageView = card.findViewById<ImageView>(R.id.add_to_fav_image_view)
 
         init {
-            card.setOnClickListener(this)
+            imageView.setOnClickListener(this)
+            favImageView.setOnClickListener(this)
         }
 
         override fun onClick(view: View) {
-            clickListener!!.onNewsClick(adapterPosition)
+            clickListener!!.onNewsClick(adapterPosition, view)
         }
+
+
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.titleTextView.text = list[position].title
-        holder.linkView.text = list[position].link
-        holder.dateView.text = list[position].dateToString()
+        holder.titleTextView.text = list[position].newsInfo?.title
+        holder.linkView.text = list[position].newsInfo?.link
+        holder.dateView.text = list[position].newsInfo?.dateToString()
 
-        if (list[position].picture != "") {
-            Picasso.get().load(list[position].picture)
+        if (list[position].newsInfo?.picture != "") {
+            Picasso.get().load(list[position].newsInfo?.picture)
                     .placeholder(R.drawable.no_photo)
                     .memoryPolicy(MemoryPolicy.NO_STORE)
                     .error(R.drawable.no_photo)
@@ -66,7 +79,51 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
                     .error(R.drawable.no_photo)
                     .into(holder.imageView)
         }
+        list[position].newsFav?.isFav?.let {
+            if (it == true) {
+                holder.favImageView.setImageResource(R.drawable.heart_icon_full)
+            } else {
+                holder.favImageView.setImageResource(R.drawable.hear_empty_icon)
+            }
+        }
     }
 
+    override fun onViewRecycled(holder: ViewHolder) {
+        super.onViewRecycled(holder)
+        holder.favImageView.setImageResource(R.drawable.hear_empty_icon)
+    }
+
+
     override fun getItemCount(): Int = list.count()
+
+    fun sortList(list: List<NewsAndFav>, sortTypeKind: SortType, source: FeedsSource) {//: List<NewsAndFav> {
+        var templist = list
+        when (source) {
+            FeedsSource.HABR, FeedsSource.PROGER -> templist = templist.filter { it.newsInfo?.sourceKind == source }
+            FeedsSource.BOTH -> templist = templist.filter { it.newsInfo?.sourceKind == FeedsSource.PROGER || it.newsInfo?.sourceKind == FeedsSource.HABR }
+        }
+
+        when (sortTypeKind) {
+            SortType.ASC -> templist = templist.sortedBy { it.newsInfo?.date }
+            SortType.DESC -> templist = templist.sortedByDescending { it.newsInfo?.date }
+        }
+        this.list = templist
+    }
+
+    fun showFavorites(_list: List<NewsAndFav>, _isFav: Boolean?) {
+        if (_isFav != null) {
+            this.list = _list.filter { it.newsFav?.isFav == _isFav }
+        } else this.list = _list
+    }
+
+    fun searchByTitle(list: List<NewsAndFav>,title: String): MutableList<NewsAndFav> {
+        val tempList = mutableListOf<NewsAndFav>()
+        list.forEach {
+            if (it.newsInfo?.title != null && it.newsInfo?.title!!.contains(title)) {
+                tempList.add(it)
+            }
+        }
+        return tempList
+    }
+
 }

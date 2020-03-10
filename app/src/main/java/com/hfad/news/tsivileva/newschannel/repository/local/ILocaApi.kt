@@ -1,5 +1,6 @@
 package com.hfad.news.tsivileva.newschannel.repository.local
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.hfad.news.tsivileva.newschannel.FeedsSource
@@ -11,22 +12,22 @@ interface ILocaApi {
 
     //News
     @Query(value = "SELECT * FROM Description ORDER BY date DESC")
-    fun selectAllDescriptions(): List<NewsDescription>
+    fun selectAllDescriptions(): List<NewsAndFav>
 
-    @Query(value = "SELECT * FROM Description ORDER BY  date ASC ")
-    fun selectAllSortedByDateAsc(): List<NewsDescription>
+    @Query(value = "SELECT * FROM Description  LEFT JOIN  Favorite ON Description.id_desc=Favorite.fav_id_desc ORDER BY  Description.date ASC ")
+    fun selectAllSortedByDateAsc(): LiveData<List<NewsAndFav>>
 
-    @Query(value = "SELECT * FROM Description ORDER BY date DESC ")
-    fun selectDescriptionSortedByDateDesc(): List<NewsDescription>
+    @Query(value = "SELECT * FROM Description  LEFT JOIN  Favorite ON Description.id_desc=Favorite.fav_id_desc ORDER BY  Description.date DESC ")
+    fun selectDescriptionSortedByDateDesc(): LiveData<List<NewsAndFav>>
 
-    @Query(value = "SELECT * FROM Description WHERE sourceKind=:source ORDER BY  date   ASC")
-    fun selectSortedByDateAsc(source: FeedsSource): List<NewsDescription>
+    @Query(value = "SELECT * FROM Description LEFT JOIN  Favorite ON Description.id_desc=Favorite.fav_id_desc WHERE sourceKind=:source ORDER BY  date   ASC")
+    fun selectSortedByDateAsc(source: FeedsSource): LiveData<List<NewsAndFav>>
 
-    @Query(value = "SELECT * FROM Description WHERE sourceKind =:source ORDER BY  date  DESC")
-    fun selectDescriptionByDateDesc(source: FeedsSource): List<NewsDescription>
+    @Query(value = "SELECT * FROM Description LEFT JOIN  Favorite ON Description.id_desc=Favorite.fav_id_desc WHERE sourceKind =:source ORDER BY  date  DESC")
+    fun selectDescriptionByDateDesc(source: FeedsSource): LiveData<List<NewsAndFav>>
 
-    @Query(value = "SELECT * FROM Description WHERE title LIKE :title ")
-    fun selectDescriptionByTitle(title: String): List<NewsDescription>
+    @Query(value = "SELECT * FROM Description LEFT JOIN  Favorite ON Description.id_desc=Favorite.fav_id_desc WHERE Description.title LIKE :title ")
+    fun selectDescriptionByTitle(title: String): List<NewsAndFav>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertIntoDescription(newsDescription: NewsDescription): Long
@@ -57,13 +58,13 @@ interface ILocaApi {
     fun cleareFav()
 
     /*выбор контента и избранного - при фильтрации только избранного (INNER JOIN)*/
-    @Query("SELECT * FROM Description  JOIN  Favorite ON Description.id_desc=Favorite.fav_id_desc")
-    fun selectDescriptionAndFaw(): List<NewsAndFav>
+    @Query("SELECT * FROM Description  JOIN  Favorite ON Description.id_desc=Favorite.fav_id_desc WHERE Favorite.isFav==1")
+    fun selectDescriptionAndFaw():  List<NewsAndFav>
 
     @Query("SELECT * FROM Description  LEFT JOIN  Favorite ON Description.id_desc=Favorite.fav_id_desc")
-    fun selectAllDescriptionAndFav():List<NewsAndFav?>
+    fun selectAllDescriptionAndFav():  List<NewsAndFav>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertIntoFav(fav: Favorite) :Long
+    fun insertIntoFav(fav: Favorite): Long
 
 }

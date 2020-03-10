@@ -21,15 +21,39 @@
         app:cardCornerRadius="30dp"
         app:cardElevation="5dp">
 
-        <ImageView
-            android:id="@+id/news_image_view"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/imageWidth"
-            android:contentDescription="@string/news_image_descriprion_text"
-            android:minWidth="@dimen/imageMinWidth"
-            android:scaleType="centerCrop"
-            app:tintMode="add"
-            tools:srcCompat="@tools:sample/avatars" />
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/news_image_view"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/imageWidth"
+                android:contentDescription="@string/news_image_descriprion_text"
+                android:minWidth="@dimen/imageMinWidth"
+                android:scaleType="centerCrop"
+                app:tintMode="add"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:drawable/divider_horizontal_textfield"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/add_to_fav_image_view"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="10dp"
+                    android:contentDescription="@string/add_to_favorites_text"
+                    app:srcCompat="@drawable/hear_empty_icon" />
+            </LinearLayout>
+
+        </FrameLayout>
+
     </androidx.cardview.widget.CardView>
 
     <LinearLayout

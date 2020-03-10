@@ -26,6 +26,7 @@
     <string name="add_to_favorites_text">Добавить в избранное</string>
     <string name="back_text">Назад</string>
     <string name="share_text">Поделиться</string>
+    <string name="watch_fav_text">Отобразить избранное</string>
 
 
 </resources>

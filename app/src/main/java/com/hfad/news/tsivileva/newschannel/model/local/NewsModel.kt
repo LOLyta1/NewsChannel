@@ -71,14 +71,14 @@ data class NewsAndContent(
                 entityColumn = "id_desc")
         var newsContent: NewsContent
 )
-
+@Parcelize
 data class NewsAndFav(
         @Embedded
         var newsInfo: NewsDescription,
 
         @Embedded
-        var newsFav: Favorite?
-)
+        var newsFav: Favorite?=null
+) : Parcelable
 
 class DateConverter() {
     @TypeConverter
