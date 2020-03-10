@@ -1,6 +1,8 @@
 package com.hfad.news.tsivileva.newschannel
 
+import android.os.Parcelable
 import androidx.room.Entity
+import kotlinx.android.parcel.Parcelize
 
 sealed class DownloadingState<T>
 class DownloadingSuccessful<T>(val data: T) : DownloadingState<T>()
@@ -17,12 +19,12 @@ enum class FeedsSource(val link: String) {
     BOTH("")
 }
 
-
+@Parcelize
 data class PreferenceValues (
         var sortType: SortType=SortType.ASC,
         var showOnlyFav: Boolean=false,
         var source: FeedsSource=FeedsSource.BOTH
-)
+) : Parcelable
 
 
 

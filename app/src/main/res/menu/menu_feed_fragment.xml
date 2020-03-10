@@ -10,7 +10,7 @@
         app:showAsAction="ifRoom|collapseActionView" />
     <item
         android:id="@+id/show_fav_menu_item"
-        android:icon="@drawable/watch_fav"
+        android:icon="@drawable/hear_empty_icon"
         android:title="@string/watch_fav_text"
         app:showAsAction="ifRoom">
 
