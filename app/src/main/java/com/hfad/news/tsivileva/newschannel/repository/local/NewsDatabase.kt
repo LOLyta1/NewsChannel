@@ -7,7 +7,6 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 import com.hfad.news.tsivileva.newschannel.DATABASE_NAME
-import com.hfad.news.tsivileva.newschannel.Preference
 import com.hfad.news.tsivileva.newschannel.model.local.*
 
 

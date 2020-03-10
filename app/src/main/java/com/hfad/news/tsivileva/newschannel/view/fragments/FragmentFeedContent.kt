@@ -1,6 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
@@ -21,8 +22,9 @@ class FragmentFeedContent :
         Fragment(),
         DialogNetworkError.IDialogListener {
 
-    private var newsDescription: NewsAndFav? = NewsAndFav()
+    private var newsDescription: NewsAndFav? = NewsAndFav(NewsDescription())
     var viewModel: FeedContentViewModel? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +42,7 @@ class FragmentFeedContent :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         newsDescription = arguments?.getParcelable("news_description")
+
         viewModel?.downloadContent(newsDescription?.newsInfo?.link, newsDescription?.newsInfo?.id)
         viewModel?.newsLiveData?.observe(viewLifecycleOwner, Observer { contentDownlodingResult: DownloadingState<NewsContent>? ->
             when (contentDownlodingResult) {

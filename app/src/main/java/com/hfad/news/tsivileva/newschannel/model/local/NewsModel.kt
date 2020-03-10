@@ -74,7 +74,7 @@ data class NewsAndContent(
 @Parcelize
 data class NewsAndFav(
         @Embedded
-        var newsInfo: NewsDescription?=null,
+        var newsInfo: NewsDescription,
 
         @Embedded
         var newsFav: Favorite?=null

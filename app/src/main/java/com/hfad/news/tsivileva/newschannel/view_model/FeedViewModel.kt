@@ -1,14 +1,9 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
-import com.hfad.news.tsivileva.newschannel.FeedsSource
-import com.hfad.news.tsivileva.newschannel.Preference
-import com.hfad.news.tsivileva.newschannel.SortType
+import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.model.local.Favorite
 import com.hfad.news.tsivileva.newschannel.model.local.NewsAndFav
 import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
@@ -22,9 +17,11 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
 
     private var subscription: Disposable? = null
     var downloading = MutableLiveData<List<NewsAndFav>>()
+    var preferenceValues:PreferenceValues?=PreferenceValues()
 
 
-    fun downloadFeeds() {
+    fun downloadFeeds(preferenceValues: PreferenceValues?) {
+        this.preferenceValues=preferenceValues
         subscription = RemoteRepository
                 .getFeedsObservable()
                 .subscribeOn(Schedulers.io())
@@ -32,19 +29,20 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
                 .subscribe(::onNext, ::onError, ::onComplete)
     }
 
+
     private fun onComplete() {
-        val api = NewsDatabase.instance(getApplication())?.getApi()
-        downloading.postValue(api?.selectAllDescriptionAndFav())
+        load()
     }
 
     private fun onError(e: Throwable) {
-        val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
-        downloading.postValue(databaseApi?.selectAllDescriptionAndFav())
+        load()
     }
 
     private fun onNext(item: List<NewsDescription>) {
         NewsDatabase.instance(getApplication())?.getApi()?.insertIntoDescription(item)
     }
+
+
 
     override fun onCleared() {
         NewsDatabase.destroyInstance()
@@ -52,24 +50,47 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
         super.onCleared()
     }
 
-    fun removeFromFavorite(id: Long?) {
+    fun removeFromFavorite(id: Long?,preferenceValues: PreferenceValues?) {
+        this.preferenceValues=preferenceValues
         if(id!=null){
             Thread(Runnable {
-                val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
-                databaseApi?.insertIntoFav(fav = Favorite(null, id, false))
-                downloading.postValue(databaseApi?.selectAllDescriptionAndFav())
+               val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
+               databaseApi?.insertIntoFav(fav = Favorite(null, id, false))
+               load()
             }).start()
         }
 
     }
 
-    fun addToFavorite(id: Long?) {
+    fun addToFavorite(id: Long?, preferenceValues: PreferenceValues?) {
+        this.preferenceValues=preferenceValues
         if(id!=null){
             Thread(Runnable {
                 val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
                 databaseApi?.insertIntoFav(fav = Favorite(null, id, true))
-                downloading.postValue(databaseApi?.selectAllDescriptionAndFav())
+                load()
             }).start()
+        }
+    }
+
+    private fun load(){
+        preferenceValues?.let { _preference ->
+            val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
+            var list=databaseApi?.selectAllDescriptionAndFav()
+
+            if(_preference.showOnlyFav){
+                list=list?.filter { it.newsFav?.isFav==true }
+            }
+            when(_preference.source){
+                FeedsSource.HABR ->  list=list?.filter { it.newsInfo.sourceKind==FeedsSource.HABR }
+                FeedsSource.PROGER -> list=list?.filter { it.newsInfo.sourceKind==FeedsSource.PROGER }
+                FeedsSource.BOTH ->  list=list?.filter {it.newsInfo.sourceKind==FeedsSource.HABR ||  it.newsInfo.sourceKind==FeedsSource.PROGER}
+            }
+            when(_preference.sortType){
+                SortType.ASC -> list=list?.sortedBy { it.newsInfo.date }
+                SortType.DESC -> list=list?.sortedByDescending { it.newsInfo.date }
+            }
+            downloading.postValue(list)
         }
     }
 

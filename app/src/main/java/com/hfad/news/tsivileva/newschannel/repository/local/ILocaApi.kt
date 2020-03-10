@@ -4,9 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.hfad.news.tsivileva.newschannel.FeedsSource
-import com.hfad.news.tsivileva.newschannel.Preference
 import com.hfad.news.tsivileva.newschannel.model.local.*
-import io.reactivex.Single
 
 
 @Dao
@@ -68,4 +66,5 @@ interface ILocaApi {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertIntoFav(fav: Favorite): Long
+
 }

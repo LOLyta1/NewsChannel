@@ -17,9 +17,14 @@ enum class FeedsSource(val link: String) {
     BOTH("")
 }
 
-@Entity
-data class Preference (
+
+data class PreferenceValues (
         var sortType: SortType=SortType.ASC,
         var showOnlyFav: Boolean=false,
         var source: FeedsSource=FeedsSource.BOTH
 )
+
+
+
+
+
