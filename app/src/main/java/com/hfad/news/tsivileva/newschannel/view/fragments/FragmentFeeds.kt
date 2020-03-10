@@ -43,6 +43,7 @@ class FragmentFeeds() :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         preferenceValues = NewsPreferenceSaver().getPreference(context)
+
         viewModel = ViewModelProviders.of(activity!!).get(FeedViewModel::class.java)
 
         val actionBar = (activity as AppCompatActivity).supportActionBar
@@ -70,6 +71,16 @@ class FragmentFeeds() :
         view.error_reload_button.setOnClickListener {
             viewModel.downloadFeeds(preferenceValues)
         }
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        preferenceValues?.let {
+            when (it.showOnlyFav) {
+                true -> menu.findItem(R.id.show_fav_menu_item).setIcon(R.drawable.heart_icon_full)
+                false -> menu.findItem(R.id.show_fav_menu_item).setIcon(R.drawable.hear_empty_icon)
+            }
+        }
+        super.onPrepareOptionsMenu(menu)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -103,10 +114,10 @@ class FragmentFeeds() :
             R.id.show_fav_menu_item -> {
                 preferenceValues?.let {
                     if (it.showOnlyFav) {
-                        item.setIcon(R.drawable.watch_fav)
+                        item.setIcon(R.drawable.hear_empty_icon)
                         it.showOnlyFav = false
                     } else {
-                        item.setIcon(R.drawable.watch_fav_add)
+                        item.setIcon(R.drawable.heart_icon_full)
                         it.showOnlyFav = true
                     }
                     viewModel.downloadFeeds(it)
@@ -135,9 +146,9 @@ class FragmentFeeds() :
             R.id.add_to_fav_image_view -> {
                 val isFav = recyclerAdapter.list.get(position).newsFav?.isFav
                 if (isFav == null || isFav == false) {
-                    viewModel.addToFavorite(recyclerAdapter.list.get(position).newsInfo?.id,preferenceValues)
+                    viewModel.addToFavorite(recyclerAdapter.list.get(position).newsInfo?.id, preferenceValues)
                 } else {
-                    viewModel.removeFromFavorite(recyclerAdapter.list.get(position).newsInfo?.id,preferenceValues)
+                    viewModel.removeFromFavorite(recyclerAdapter.list.get(position).newsInfo?.id, preferenceValues)
                 }
             }
         }
