@@ -66,7 +66,6 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
                     .placeholder(R.drawable.no_photo)
                     .error(R.drawable.no_photo)
                     .fallback(R.drawable.no_photo)
-                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .into(holder.imageView)
 
         }

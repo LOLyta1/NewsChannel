@@ -33,9 +33,5 @@ class DialogNetworkError() : DialogFragment() {
         view.cancel_button.setOnClickListener { parent.onDialogErrorCancelClick(this) }
     }
 
-    override fun show(manager: FragmentManager, tag: String?) {
-        if (manager.findFragmentByTag(tag) == null) {
-            super.show(manager, tag)
-        }
-    }
+
 }

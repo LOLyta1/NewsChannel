@@ -44,18 +44,18 @@ class FragmentFeedContent :
 
         viewModel?.downloadContent(newsDescription?.newsInfo?.link, newsDescription?.newsInfo?.id)
         viewModel?.newsLiveData?.observe(viewLifecycleOwner, Observer { contentDownlodingResult: DownloadingState<NewsContent>? ->
+            view.news_content_progress_bar?.visibility = View.GONE
             when (contentDownlodingResult) {
                 is DownloadingSuccessful -> {
-                    view.news_content_progress_bar?.visibility = View.GONE
                     view.feeds_details_error_container?.visibility = View.GONE
                     view.feed_content_container?.visibility = View.VISIBLE
                     showNews(contentDownlodingResult.data, newsDescription)
                 }
                 is DownloadingError -> {
-                    view.news_content_progress_bar?.visibility = View.GONE
                     view.feeds_details_error_container?.visibility = View.VISIBLE
                     view.feed_content_container?.visibility = View.VISIBLE
                     showNews(contentDownlodingResult.cachedData, newsDescription)
+                    DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
                 }
             }
         })
@@ -67,6 +67,7 @@ class FragmentFeedContent :
         }
 
         view.error_reload_button.setOnClickListener {
+            view.news_content_progress_bar?.visibility = View.VISIBLE
             viewModel?.downloadContent(newsDescription?.newsInfo?.link, newsDescription?.newsInfo?.id)
         }
     }
@@ -76,11 +77,15 @@ class FragmentFeedContent :
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+       // this.menu=menu
+        super.onPrepareOptionsMenu(menu)
+    }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> parentFragmentManager.popBackStackImmediate()
             R.id.feed_content_add_to_favorites_menu_button -> {
-                //TODO() сделать сохранение в базу
+
             }
             R.id.feed_content_share_menu_button -> {
                 val intent = Intent().apply {
@@ -113,6 +118,7 @@ class FragmentFeedContent :
     }
 
     override fun onDialogErrorReloadClick(dialogNetwork: DialogNetworkError) {
+        viewModel?.downloadContent(newsDescription?.newsInfo?.link, newsDescription?.newsInfo?.id)
         view?.news_content_progress_bar?.visibility = View.VISIBLE
         dialogNetwork.dismiss()
     }

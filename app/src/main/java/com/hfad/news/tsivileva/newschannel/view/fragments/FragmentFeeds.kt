@@ -65,6 +65,7 @@ class FragmentFeeds() :
                 view.feeds_error_container.visibility=View.VISIBLE
             }
         })
+
         view.news_resycler_view?.apply {
             adapter = recyclerAdapter
             layoutManager = LinearLayoutManager(context)

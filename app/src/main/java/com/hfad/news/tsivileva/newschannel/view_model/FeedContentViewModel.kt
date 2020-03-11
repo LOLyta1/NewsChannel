@@ -23,12 +23,14 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
             if (getSourceByLink(url) == FeedsSource.PROGER) {
                 serverSubscription = RemoteRepository
                         .getProgerContentObservable(url)
+                        .doFinally { serverSubscription?.dispose() }
                         .subscribeOn(Schedulers.io())
                         .subscribe(::_onSuccess, ::_onError)
             } else
                 if (getSourceByLink(url) == FeedsSource.HABR) {
                     serverSubscription = RemoteRepository
                             .getHabrContentObservable(url)
+                            .doFinally { serverSubscription?.dispose() }
                             .subscribeOn(Schedulers.io())
                             .subscribe(::_onSuccess, ::_onError)
                 }
