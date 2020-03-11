@@ -1,6 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
 import android.app.Application
+
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.*
@@ -9,8 +10,11 @@ import com.hfad.news.tsivileva.newschannel.model.local.NewsAndFav
 import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
+import com.squareup.picasso.Picasso
+import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+
 
 
 class FeedViewModel(val app: Application) : AndroidViewModel(app) {
@@ -53,11 +57,12 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
     fun removeFromFavorite(id: Long?,preferenceValues: PreferenceValues?) {
         this.preferenceValues=preferenceValues
         if(id!=null){
-            Thread(Runnable {
-               val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
-               databaseApi?.insertIntoFav(fav = Favorite(null, id, false))
-               load()
-            }).start()
+            val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
+            databaseApi
+                    ?.insertIntoFav(fav = Favorite(null, id, false))
+                    ?.subscribeOn(Schedulers.io())
+                    ?.doOnSuccess { load() }
+                    ?.subscribe()
         }
 
     }
@@ -65,11 +70,12 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
     fun addToFavorite(id: Long?, preferenceValues: PreferenceValues?) {
         this.preferenceValues=preferenceValues
         if(id!=null){
-            Thread(Runnable {
                 val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
-                databaseApi?.insertIntoFav(fav = Favorite(null, id, true))
-                load()
-            }).start()
+                databaseApi
+                        ?.insertIntoFav(fav = Favorite(null, id, true))
+                        ?.subscribeOn(Schedulers.io())
+                        ?.doOnSuccess {load()}
+                        ?.subscribe()
         }
     }
 

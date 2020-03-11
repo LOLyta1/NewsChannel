@@ -1,7 +1,6 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
@@ -102,7 +101,7 @@ class FragmentFeedContent :
         view?.news_details_title_text_view?.text = description?.newsInfo?.title
         view?.news_details_link_text_view?.text = description?.newsInfo?.link
 
-        val path = description?.newsInfo?.picture
+        val path = description?.newsInfo?.pictureSrc
         if (path != null && path.isNotEmpty()) {
             view?.new_details_car_view?.visibility = View.VISIBLE
             Picasso.get().load(path).placeholder(R.drawable.no_photo)

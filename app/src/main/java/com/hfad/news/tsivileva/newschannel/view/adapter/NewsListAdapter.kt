@@ -6,12 +6,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.hfad.news.tsivileva.newschannel.FeedsSource
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.hfad.news.tsivileva.newschannel.R
-import com.hfad.news.tsivileva.newschannel.SortType
 import com.hfad.news.tsivileva.newschannel.model.local.NewsAndFav
-import com.squareup.picasso.MemoryPolicy
-import com.squareup.picasso.Picasso
 
 /*
  * Адаптер для RecyclerView
@@ -20,11 +18,6 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
 
     interface INewsItemClickListener {
         fun onNewsClick(position: Int, view: View)
-    }
-
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        super.onDetachedFromRecyclerView(recyclerView)
-        recyclerView
     }
 
     var listener: INewsItemClickListener? = null
@@ -62,25 +55,23 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.titleTextView.text = list[position].newsInfo?.title
-        holder.linkView.text = list[position].newsInfo?.link
-        holder.dateView.text = list[position].newsInfo?.dateToString()
+        holder.titleTextView.text = list[position].newsInfo.title
+        holder.linkView.text = list[position].newsInfo.link
+        holder.dateView.text = list[position].newsInfo.dateToString()
 
-        if (list[position].newsInfo?.picture != "") {
-            Picasso.get().load(list[position].newsInfo?.picture)
+        if (list[position].newsInfo.pictureSrc != "") {
+            Glide.with(holder.imageView)
+                    .load(list[position].newsInfo.pictureSrc)
+                    .centerCrop()
                     .placeholder(R.drawable.no_photo)
-                    .memoryPolicy(MemoryPolicy.NO_STORE)
                     .error(R.drawable.no_photo)
+                    .fallback(R.drawable.no_photo)
+                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .into(holder.imageView)
-        } else {
-            Picasso.get().load("https://images.app.goo.gl/njSMVbDb6qBv71rD6")
-                    .placeholder(R.drawable.no_photo)
-                    .memoryPolicy(MemoryPolicy.NO_STORE)
-                    .error(R.drawable.no_photo)
-                    .into(holder.imageView)
+
         }
         list[position].newsFav?.isFav?.let {
-            if (it == true) {
+            if (it) {
                 holder.favImageView.setImageResource(R.drawable.heart_icon_full)
             } else {
                 holder.favImageView.setImageResource(R.drawable.hear_empty_icon)
@@ -93,37 +84,6 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
         holder.favImageView.setImageResource(R.drawable.hear_empty_icon)
     }
 
-
     override fun getItemCount(): Int = list.count()
-
-    fun sortList(list: List<NewsAndFav>, sortTypeKind: SortType, source: FeedsSource) {//: List<NewsAndFav> {
-        var templist = list
-        when (source) {
-            FeedsSource.HABR, FeedsSource.PROGER -> templist = templist.filter { it.newsInfo?.sourceKind == source }
-            FeedsSource.BOTH -> templist = templist.filter { it.newsInfo?.sourceKind == FeedsSource.PROGER || it.newsInfo?.sourceKind == FeedsSource.HABR }
-        }
-
-        when (sortTypeKind) {
-            SortType.ASC -> templist = templist.sortedBy { it.newsInfo?.date }
-            SortType.DESC -> templist = templist.sortedByDescending { it.newsInfo?.date }
-        }
-        this.list = templist
-    }
-
-    fun showFavorites(_list: List<NewsAndFav>, _isFav: Boolean?) {
-        if (_isFav != null) {
-            this.list = _list.filter { it.newsFav?.isFav == _isFav }
-        } else this.list = _list
-    }
-
-    fun searchByTitle(list: List<NewsAndFav>,title: String): MutableList<NewsAndFav> {
-        val tempList = mutableListOf<NewsAndFav>()
-        list.forEach {
-            if (it.newsInfo?.title != null && it.newsInfo?.title!!.contains(title)) {
-                tempList.add(it)
-            }
-        }
-        return tempList
-    }
 
 }

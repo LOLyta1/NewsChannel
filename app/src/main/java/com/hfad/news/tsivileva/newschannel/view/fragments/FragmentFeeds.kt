@@ -31,6 +31,8 @@ class FragmentFeeds() :
     private lateinit var newsList: List<NewsAndFav>
     private var preferenceValues: PreferenceValues? = null
 
+    private var menu:Menu?=null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -54,10 +56,13 @@ class FragmentFeeds() :
 
         viewModel.downloadFeeds(preferenceValues)
         viewModel.downloading.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
+            view.swipe_container.isRefreshing = false
                 newsList = it
                 recyclerAdapter.list = it
-                view.swipe_container.isRefreshing = false
+            if (it.isNotEmpty()) {
+                view.feeds_error_container.visibility=View.GONE
+            }else{
+                view.feeds_error_container.visibility=View.VISIBLE
             }
         })
         view.news_resycler_view?.apply {
@@ -69,11 +74,15 @@ class FragmentFeeds() :
             viewModel.downloadFeeds(preferenceValues)
         }
         view.error_reload_button.setOnClickListener {
+            view.swipe_container.isRefreshing=true
+            preferenceValues?.showOnlyFav=false
+            menu?.findItem(R.id.show_fav_menu_item)?.setIcon(R.drawable.hear_empty_icon)
             viewModel.downloadFeeds(preferenceValues)
         }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
+        this.menu=menu
         preferenceValues?.let {
             when (it.showOnlyFav) {
                 true -> menu.findItem(R.id.show_fav_menu_item).setIcon(R.drawable.heart_icon_full)
@@ -112,6 +121,7 @@ class FragmentFeeds() :
             }
 
             R.id.show_fav_menu_item -> {
+                view?.swipe_container?.isRefreshing=true
                 preferenceValues?.let {
                     if (it.showOnlyFav) {
                         item.setIcon(R.drawable.hear_empty_icon)
@@ -146,9 +156,9 @@ class FragmentFeeds() :
             R.id.add_to_fav_image_view -> {
                 val isFav = recyclerAdapter.list.get(position).newsFav?.isFav
                 if (isFav == null || isFav == false) {
-                    viewModel.addToFavorite(recyclerAdapter.list.get(position).newsInfo?.id, preferenceValues)
+                    viewModel.addToFavorite(recyclerAdapter.list.get(position).newsInfo.id, preferenceValues)
                 } else {
-                    viewModel.removeFromFavorite(recyclerAdapter.list.get(position).newsInfo?.id, preferenceValues)
+                    viewModel.removeFromFavorite(recyclerAdapter.list.get(position).newsInfo.id, preferenceValues)
                 }
             }
         }
@@ -158,7 +168,6 @@ class FragmentFeeds() :
         dialogNetwork.dismiss()
 
         viewModel.downloadFeeds(preferenceValues)
-
     }
 
     override fun onDialogErrorCancelClick(dialogNetwork: DialogNetworkError) {

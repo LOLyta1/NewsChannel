@@ -1,5 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.model.local
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Parcelable
 import androidx.room.*
 import com.hfad.news.tsivileva.newschannel.FeedsSource
@@ -12,9 +14,9 @@ import java.util.*
 data class NewsDescription(
         @PrimaryKey(autoGenerate = false)
         @ColumnInfo(name = "id_desc")
-        var id: Long=0L,
+        var id: Long = 0L,
         var date: Date? = Date(0L),
-        var picture: String = "",
+        var pictureSrc: String = "",
         var sourceKind: FeedsSource = FeedsSource.BOTH,
         var link: String = "",
         var title: String = ""
@@ -71,13 +73,14 @@ data class NewsAndContent(
                 entityColumn = "id_desc")
         var newsContent: NewsContent
 )
+
 @Parcelize
 data class NewsAndFav(
         @Embedded
         var newsInfo: NewsDescription,
 
         @Embedded
-        var newsFav: Favorite?=null
+        var newsFav: Favorite? = null
 ) : Parcelable
 
 class DateConverter() {
@@ -112,3 +115,13 @@ class SourceKindConverter() {
         }
     }
 }
+/*
+
+class BitmapConverter {
+    @TypeConverter
+    fun toBitmap(bitmapString: String) = BitmapFactory.decodeByteArray(bitmapString.toByteArray(), 0, bitmapString.length)
+    @TypeConverter
+    fun fromBitmap(bitmap: Bitmap) = bitmap.toString()
+}
+*/
+

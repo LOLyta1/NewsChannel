@@ -19,7 +19,7 @@ fun printNewsDescriptionList(list: List<NewsDescription>) {
                 "\ntitle=${it.title.substring(10)}" +
                 "\n date=${it.date}" +
                 "\n link=${it.link}" +
-                "\n picture=${it.picture}" +
+                "\n picture=${it.pictureSrc}" +
                 "\n sourceKind=${it.sourceKind}"+
                 "\n================================"
         )
@@ -34,7 +34,7 @@ fun printNewsAndContentList(list: MutableList<NewsAndContent?>) {
                 "\ntitle=${getTenSymbols(description?.title)}" +
                 "\n date=${description?.date}" +
                 "\n link=${description?.link}" +
-                "\n picture=${description?.picture}" +
+                "\n picture=${description?.pictureSrc}" +
                 "\n sourceKind=${description?.sourceKind}")
         val info = it?.newsContent
         Log.d(DEBUG_LOG, "\nid=${info?.id};" +
@@ -52,7 +52,7 @@ fun printNewsAndContentList(list: MutableList<NewsAndContent?>) {
                  "\ntitle=${getTenSymbols(description?.title)}" +
                  "\n date=${description?.date}" +
                  "\n link=${description?.link}" +
-                 "\n picture=${description?.picture}" +
+                 "\n picture=${description?.pictureSrc}" +
                  "\n sourceKind=${description?.sourceKind}")
          val info = it?.newsFav
          Log.d(DEBUG_LOG, "\nid=${info?.id};" +
