@@ -21,6 +21,7 @@ class FragmentFeedContent :
         Fragment(),
         DialogNetworkError.IDialogListener {
 
+    private var menu: Menu? = null
     private var newsDescription: NewsAndFav? = NewsAndFav(NewsDescription())
     var viewModel: FeedContentViewModel? = null
 
@@ -41,6 +42,11 @@ class FragmentFeedContent :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         newsDescription = arguments?.getParcelable("news_description")
+        if (newsDescription?.newsFav?.isFav != null && newsDescription?.newsFav?.isFav == true) {
+            menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.heart_icon_full)
+        } else {
+            menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.hear_empty_icon)
+        }
 
         viewModel?.downloadContent(newsDescription?.newsInfo?.link, newsDescription?.newsInfo?.id)
         viewModel?.newsLiveData?.observe(viewLifecycleOwner, Observer { contentDownlodingResult: DownloadingState<NewsContent>? ->
@@ -78,14 +84,22 @@ class FragmentFeedContent :
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-       // this.menu=menu
+        this.menu = menu
         super.onPrepareOptionsMenu(menu)
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> parentFragmentManager.popBackStackImmediate()
-            R.id.feed_content_add_to_favorites_menu_button -> {
 
+            R.id.feed_content_add_to_favorites_menu_button -> {
+                if (newsDescription?.newsFav?.isFav != null && newsDescription?.newsFav?.isFav == true) {
+                  viewModel?.addToFavorite(newsDescription?.newsInfo?.id)
+                    menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.heart_icon_full)
+                } else {
+                   viewModel?.removeFromFavorite(newsDescription?.newsInfo?.id)
+                    menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.hear_empty_icon)
+                }
             }
             R.id.feed_content_share_menu_button -> {
                 val intent = Intent().apply {

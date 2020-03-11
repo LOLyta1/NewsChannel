@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.*
+import com.hfad.news.tsivileva.newschannel.model.local.Favorite
 import com.hfad.news.tsivileva.newschannel.model.local.NewsContent
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
@@ -61,5 +62,27 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
         serverSubscription?.dispose()
         NewsDatabase.destroyInstance()
         super.onCleared()
+    }
+
+
+
+    fun removeFromFavorite(id: Long?) {
+        if(id!=null){
+            val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
+            databaseApi
+                    ?.insertIntoFav(fav = Favorite(null, id, false))
+                    ?.subscribeOn(Schedulers.io())
+                    ?.subscribe()
+        }
+    }
+
+    fun addToFavorite(id: Long?) {
+        if(id!=null){
+            val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
+            databaseApi
+                    ?.insertIntoFav(fav = Favorite(null, id, true))
+                    ?.subscribeOn(Schedulers.io())
+                    ?.subscribe()
+        }
     }
 }
