@@ -42,8 +42,14 @@ class FragmentFeeds() :
         return inflater.inflate(R.layout.fragment_feed, container, false)
     }
 
+    override fun onResume() {
+        super.onResume()
+        view?.swipe_container?.isRefreshing = true
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         preferenceValues = NewsPreferenceSaver().getPreference(context)
 
         viewModel = ViewModelProviders.of(activity!!).get(FeedViewModel::class.java)
@@ -51,7 +57,7 @@ class FragmentFeeds() :
         val actionBar = (activity as AppCompatActivity).supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(false)
 
-        view.swipe_container?.isRefreshing = true
+
         recyclerAdapter.listener = this
 
         viewModel.downloadFeeds(preferenceValues)

@@ -42,13 +42,14 @@ class FragmentFeedContent :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         newsDescription = arguments?.getParcelable("news_description")
-        if (newsDescription?.newsFav?.isFav != null && newsDescription?.newsFav?.isFav == true) {
-            menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.heart_icon_full)
-        } else {
+        if (newsDescription?.newsFav?.isFav == null || newsDescription?.newsFav?.isFav ==false) {
             menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.hear_empty_icon)
+        } else {
+            menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.heart_icon_full)
         }
 
         viewModel?.downloadContent(newsDescription?.newsInfo?.link, newsDescription?.newsInfo?.id)
+
         viewModel?.newsLiveData?.observe(viewLifecycleOwner, Observer { contentDownlodingResult: DownloadingState<NewsContent>? ->
             view.news_content_progress_bar?.visibility = View.GONE
             when (contentDownlodingResult) {
@@ -91,10 +92,9 @@ class FragmentFeedContent :
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> parentFragmentManager.popBackStackImmediate()
-
             R.id.feed_content_add_to_favorites_menu_button -> {
-                if (newsDescription?.newsFav?.isFav != null && newsDescription?.newsFav?.isFav == true) {
-                  viewModel?.addToFavorite(newsDescription?.newsInfo?.id)
+                if (newsDescription?.newsFav?.isFav == null || newsDescription?.newsFav?.isFav == false) {
+                   viewModel?.addToFavorite(newsDescription?.newsInfo?.id)
                     menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.heart_icon_full)
                 } else {
                    viewModel?.removeFromFavorite(newsDescription?.newsInfo?.id)

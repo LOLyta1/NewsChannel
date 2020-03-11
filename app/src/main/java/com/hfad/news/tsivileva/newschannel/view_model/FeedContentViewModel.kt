@@ -1,6 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.*
@@ -24,14 +25,14 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
             if (getSourceByLink(url) == FeedsSource.PROGER) {
                 serverSubscription = RemoteRepository
                         .getProgerContentObservable(url)
-                        .doFinally { serverSubscription?.dispose() }
+
                         .subscribeOn(Schedulers.io())
                         .subscribe(::_onSuccess, ::_onError)
             } else
                 if (getSourceByLink(url) == FeedsSource.HABR) {
                     serverSubscription = RemoteRepository
                             .getHabrContentObservable(url)
-                            .doFinally { serverSubscription?.dispose() }
+
                             .subscribeOn(Schedulers.io())
                             .subscribe(::_onSuccess, ::_onError)
                 }
@@ -50,11 +51,13 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
 
     private fun _onError(e: Throwable) {
         if (newsDescriptionId != null) {
-            NewsDatabase.instance(getApplication())?.getApi()?.selectContentByDescriptionId(newsDescriptionId!!)
+            val cachedContent = NewsContent(id = null, newsId = newsDescriptionId, content = "")
+                    NewsDatabase.instance(getApplication())?.getApi()?.selectContentByDescriptionId(newsDescriptionId!!)
                     ?.let {
-                        val cachedContent = NewsContent(id = null, newsId = newsDescriptionId, content = it)
-                        newsLiveData.postValue(DownloadingError(e, cachedContent))
+                        NewsContent(id = null, newsId = newsDescriptionId, content = it)
                     }
+            newsLiveData.postValue(DownloadingError(e, cachedContent))
+            Log.d(DEBUG_LOG,"FeedContentViewModel._onError -content:${cachedContent.content}")
         }
     }
 
