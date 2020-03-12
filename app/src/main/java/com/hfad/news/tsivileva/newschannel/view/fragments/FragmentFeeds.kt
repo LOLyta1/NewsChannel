@@ -1,13 +1,15 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
+import android.app.Activity
 import android.content.Intent
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -46,7 +48,7 @@ class FragmentFeeds() :
         super.onViewCreated(view, savedInstanceState)
         val actionBar = (activity as AppCompatActivity).supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(false)
-        view?.swipe_container?.isRefreshing = true
+       /* view.swipe_container?.isRefreshing = true*/
 
         recyclerAdapter.listener = this
         filters = NewsPreferenceSaver().getPreference(context)
@@ -59,6 +61,7 @@ class FragmentFeeds() :
             if (it.isNotEmpty()) {
                 view.feeds_error_container.visibility = View.GONE
             } else {
+                //   TODO("скрыть клаву, если открыта,почистить и скрыть поисковик")
                 view.feeds_error_container.visibility = View.VISIBLE
             }
         })
@@ -71,10 +74,18 @@ class FragmentFeeds() :
         view.swipe_container?.setOnRefreshListener {
             viewModel.downloadFeeds(filters)
         }
+
         view.error_reload_button.setOnClickListener {
-            view.swipe_container.isRefreshing = true
-            filters?.showOnlyFav = false
+            (context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager).apply {
+                hideSoftInputFromWindow(view.rootView.windowToken, 0)
+            }
             menu?.findItem(R.id.show_fav_menu_item)?.setIcon(R.drawable.hear_empty_icon)
+            menu?.findItem(R.id.app_bar_search).apply {
+                this?.collapseActionView()
+                (this?.actionView as EditText).setText("")
+            }
+
+            filters?.showOnlyFav = false
             viewModel.downloadFeeds(filters)
         }
     }
@@ -87,6 +98,12 @@ class FragmentFeeds() :
                 false -> menu.findItem(R.id.show_fav_menu_item).setIcon(R.drawable.hear_empty_icon)
             }
         }
+       (menu.findItem(R.id.app_bar_search).actionView as EditText).apply{
+        //    this.textCursorDrawable=null
+         //   this.setTextColor(resources.getColor(R.color.searcher_color))
+        }
+
+
         super.onPrepareOptionsMenu(menu)
     }
 
@@ -111,11 +128,11 @@ class FragmentFeeds() :
                         override fun afterTextChanged(s: Editable?) {}
                         override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                         override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                          if(this@apply.text.toString().isNotEmpty())
-                              viewModel.searchByTitle("%${s.toString()}%")
-                            else{
-                              viewModel.downloadFeeds(this@FragmentFeeds.filters)
-                          }
+                            if (this@apply.text.toString().isNotEmpty())
+                                viewModel.searchByTitle("%${s.toString()}%")
+                            else {
+                                viewModel.downloadFeeds(this@FragmentFeeds.filters)
+                            }
                         }
                     })
                 }
@@ -123,7 +140,6 @@ class FragmentFeeds() :
             }
 
             R.id.show_fav_menu_item -> {
-                view?.swipe_container?.isRefreshing = true
                 filters?.let {
                     if (it.showOnlyFav) {
                         item.setIcon(R.drawable.hear_empty_icon)
@@ -142,7 +158,7 @@ class FragmentFeeds() :
 
     override fun onNewsClick(position: Int, view: View) {
         when (view.id) {
-            R.id.news_image_view,R.id.news_title_text_view-> {
+            R.id.news_image_view, R.id.news_title_text_view -> {
                 val detailsFragment = FragmentFeedContent()
                 val bundle = Bundle()
                 val newsDescription = recyclerAdapter.list.get(position)
@@ -163,7 +179,7 @@ class FragmentFeeds() :
                     viewModel.removeFromFavorite(recyclerAdapter.list[position].description.id, filters)
                 }
             }
-            R.id.news_link_text_view->{
+            R.id.news_link_text_view -> {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(recyclerAdapter.list[position].description.link))
                 val choosenIntent = Intent.createChooser(intent, "Choose application")
                 startActivity(choosenIntent)

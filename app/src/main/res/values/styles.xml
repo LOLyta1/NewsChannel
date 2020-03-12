@@ -2,6 +2,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <item name="textInputStyle">@color/searcher_color</item>
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -15,12 +16,12 @@
 
     <style name="CheckBoxStyle" parent="android:Widget.CompoundButton.CheckBox">
         <item name="checkedIcon" color="#FFFFFF">@android:id/checkbox</item>
-        <item name="colorAccent">@color/background_color</item>
+        <item name="colorAccent">@color/searcher_color</item>
     </style>
 
     <style name="RadioButtonStyle" parent="android:Widget.CompoundButton.RadioButton">
         <item name="android:textSize">@dimen/content_text_size</item>
         <item name="checkedIcon"  >@android:id/checkbox</item>
-        <item name="colorAccent">@color/background_color</item>
+        <item name="colorAccent">@color/searcher_color</item>
     </style>
 </resources>
