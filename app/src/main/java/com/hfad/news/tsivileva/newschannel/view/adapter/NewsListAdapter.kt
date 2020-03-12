@@ -7,9 +7,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.hfad.news.tsivileva.newschannel.R
-import com.hfad.news.tsivileva.newschannel.model.local.NewsAndFav
+import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
 
 /*
  * Адаптер для RecyclerView
@@ -21,7 +20,7 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
     }
 
     var listener: INewsItemClickListener? = null
-    var list = listOf<NewsAndFav>()
+    var list = listOf<DescriptionAndFav>()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -55,13 +54,13 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.titleTextView.text = list[position].newsInfo.title
-        holder.linkView.text = list[position].newsInfo.link
-        holder.dateView.text = list[position].newsInfo.dateToString()
+        holder.titleTextView.text = list[position].description.title
+        holder.linkView.text = list[position].description.link
+        holder.dateView.text = list[position].description.dateToString()
 
-        if (list[position].newsInfo.pictureSrc != "") {
+        if (list[position].description.pictureSrc != "") {
             Glide.with(holder.imageView)
-                    .load(list[position].newsInfo.pictureSrc)
+                    .load(list[position].description.pictureSrc)
                     .centerCrop()
                     .placeholder(R.drawable.no_photo)
                     .error(R.drawable.no_photo)
@@ -69,7 +68,7 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
                     .into(holder.imageView)
 
         }
-        list[position].newsFav?.isFav?.let {
+        list[position].favorite?.isFav?.let {
             if (it) {
                 holder.favImageView.setImageResource(R.drawable.heart_icon_full)
             } else {

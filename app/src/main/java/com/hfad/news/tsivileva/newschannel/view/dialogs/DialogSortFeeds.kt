@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.dialog_sort_feeds.view.*
 class DialogSortFeeds : DialogFragment() {
 
     interface IDialogSortFeedsClickListener {
-        fun onDialogSortClick(sortTypeKind: SortType, source: FeedsSource)
+        fun onDialogSortClick(sort: SortType, source: FeedsSource)
     }
 
     private var listener: IDialogSortFeedsClickListener? = null
@@ -30,7 +30,7 @@ class DialogSortFeeds : DialogFragment() {
         dialog?.setTitle(R.string.dialog_title)
         preference = NewsPreferenceSaver().getPreference(context)
         preference?.let{
-            when (it.sortType) {
+            when (it.sort) {
                 SortType.ASC -> {
                     view.sort_feeds_by_date_asc_radio_button.isChecked = true
                     view.sort_feeds_by_date_desc_radio_button.isChecked = false
@@ -98,7 +98,7 @@ class DialogSortFeeds : DialogFragment() {
         super.onDetach()
         Log.d(DEBUG_LOG,"dialog - onDetach")
         preference?.source = source
-        preference?.sortType = sortType
+        preference?.sort = sortType
         preference?.let { it1 -> NewsPreferenceSaver().setPreference(it1, context)
 
     }

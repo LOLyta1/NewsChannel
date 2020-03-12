@@ -3,8 +3,8 @@ package com.hfad.news.tsivileva.newschannel.repository.remote
 
 import com.hfad.news.tsivileva.newschannel.FeedsSource
 import com.hfad.news.tsivileva.newschannel.model.ModelConverter
-import com.hfad.news.tsivileva.newschannel.model.local.NewsContent
-import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
+import com.hfad.news.tsivileva.newschannel.model.local.Content
+import com.hfad.news.tsivileva.newschannel.model.local.Description
 import com.hfad.news.tsivileva.newschannel.model.remote.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.remote.proger.Proger
 import io.reactivex.Observable
@@ -23,7 +23,7 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 class RemoteRepository {
     companion object Factory {
 
-        fun getFeedsObservable(): Observable<List<NewsDescription>> {
+        fun getFeedsObservable(): Observable<List<Description>> {
             var service = createService(FeedsSource.PROGER.link, SimpleXmlConverterFactory.create(), IRemoteApi::class.java)
             val proger = service
                     .loadProger()
@@ -42,14 +42,14 @@ class RemoteRepository {
                     }).flatMap(ModelConverter()::toNewsDesciption)
         }
 
-        fun getProgerContentObservable(url: String): Single<NewsContent> {
+        fun getProgerContentObservable(url: String): Single<Content> {
             return createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java)
                     .loadProgDetails()
                     .map(ModelConverter()::toNewsContent)
         }
 
 
-        fun getHabrContentObservable(url: String): Single<NewsContent> {
+        fun getHabrContentObservable(url: String): Single<Content> {
             return createService(url, JspoonConverterFactory.create(), IRemoteApi::class.java)
                     .loadHabrContent()
                     .map(ModelConverter()::toNewsContent)

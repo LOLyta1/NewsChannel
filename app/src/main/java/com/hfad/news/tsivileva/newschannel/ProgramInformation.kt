@@ -21,7 +21,7 @@ enum class FeedsSource(val link: String) {
 
 @Parcelize
 data class Filters (
-        var sortType: SortType=SortType.ASC,
+        var sort: SortType=SortType.ASC,
         var showOnlyFav: Boolean=false,
         var source: FeedsSource=FeedsSource.BOTH
 ) : Parcelable

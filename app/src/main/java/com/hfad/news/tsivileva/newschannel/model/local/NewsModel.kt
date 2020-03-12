@@ -1,7 +1,5 @@
 package com.hfad.news.tsivileva.newschannel.model.local
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Parcelable
 import androidx.room.*
 import com.hfad.news.tsivileva.newschannel.FeedsSource
@@ -11,7 +9,7 @@ import java.util.*
 
 @Parcelize
 @Entity(tableName = "Description")
-data class NewsDescription(
+data class Description(
         @PrimaryKey(autoGenerate = false)
         @ColumnInfo(name = "id_desc")
         var id: Long = 0L,
@@ -27,6 +25,25 @@ data class NewsDescription(
     }
 }
 
+@Entity(tableName = "Content",
+        indices = [Index(value = ["id_desc"], unique = true)])
+data class Content(
+        @PrimaryKey(autoGenerate = true)
+        @ColumnInfo(name = "id_content")
+        var id: Long?,
+
+        @ColumnInfo(name = "id_desc")
+        @ForeignKey(entity = Description::class,
+                childColumns = ["id_desc"],
+                parentColumns = ["id_desc"],
+                onDelete = ForeignKey.CASCADE)
+        var descriptionId: Long?,
+
+        @ColumnInfo(name = "content")
+        var contentText: String
+)
+
+
 @Parcelize
 @Entity(tableName = "Favorite",
         indices = [Index(value = ["fav_id_desc"], unique = true)])
@@ -36,7 +53,7 @@ data class Favorite(
         var id: Long?,
 
         @ColumnInfo(name = "fav_id_desc")
-        @ForeignKey(entity = NewsDescription::class,
+        @ForeignKey(entity = Description::class,
                 childColumns = ["id_desc"],
                 parentColumns = ["fav_id_desc"],
                 onDelete = ForeignKey.CASCADE)
@@ -46,41 +63,23 @@ data class Favorite(
 ) : Parcelable
 
 
-@Entity(tableName = "Content",
-        indices = [Index(value = ["id_desc"], unique = true)])
-data class NewsContent(
-        @PrimaryKey(autoGenerate = true)
-        @ColumnInfo(name = "id_content")
-        var id: Long?,
-
-        @ColumnInfo(name = "id_desc")
-        @ForeignKey(entity = NewsDescription::class,
-                childColumns = ["id_desc"],
-                parentColumns = ["id_desc"],
-                onDelete = ForeignKey.CASCADE)
-        var newsId: Long?,
-
-        @ColumnInfo(name = "content")
-        var content: String
-)
-
-data class NewsAndContent(
+data class DescriptionAndContent(
         @Embedded
-        var newsInfo: NewsDescription,
+        var description: Description,
 
-        @Relation(entity = NewsContent::class,
+        @Relation(entity = Content::class,
                 parentColumn = "id_desc",
                 entityColumn = "id_desc")
-        var newsContent: NewsContent
+        var content: Content
 )
 
 @Parcelize
-data class NewsAndFav(
+data class DescriptionAndFav(
         @Embedded
-        var newsInfo: NewsDescription,
+        var description: Description,
 
         @Embedded
-        var newsFav: Favorite? = null
+        var favorite: Favorite? = null
 ) : Parcelable
 
 class DateConverter() {
@@ -115,13 +114,4 @@ class SourceKindConverter() {
         }
     }
 }
-/*
-
-class BitmapConverter {
-    @TypeConverter
-    fun toBitmap(bitmapString: String) = BitmapFactory.decodeByteArray(bitmapString.toByteArray(), 0, bitmapString.length)
-    @TypeConverter
-    fun fromBitmap(bitmap: Bitmap) = bitmap.toString()
-}
-*/
 

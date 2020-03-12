@@ -2,8 +2,8 @@ package com.hfad.news.tsivileva.newschannel.model
 
 import com.hfad.news.tsivileva.newschannel.FeedsSource
 import com.hfad.news.tsivileva.newschannel.getIdInLink
-import com.hfad.news.tsivileva.newschannel.model.local.NewsContent
-import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
+import com.hfad.news.tsivileva.newschannel.model.local.Content
+import com.hfad.news.tsivileva.newschannel.model.local.Description
 import com.hfad.news.tsivileva.newschannel.model.remote.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.remote.habr.HabrContent
 import com.hfad.news.tsivileva.newschannel.model.remote.proger.Proger
@@ -14,10 +14,10 @@ import io.reactivex.schedulers.Schedulers
 
 class ModelConverter {
 
-    fun toNewsDescription(habr: Habr): List<NewsDescription> {
-        val list = mutableListOf<NewsDescription>()
+    fun toNewsDescription(habr: Habr): List<Description> {
+        val list = mutableListOf<Description>()
         habr.items?.forEach {
-            val newsItem = NewsDescription()
+            val newsItem = Description()
             newsItem.sourceKind = FeedsSource.HABR
             newsItem.id = getIdInLink(it.link)
             newsItem.link = it.link
@@ -29,10 +29,10 @@ class ModelConverter {
         return list
     }
 
-    fun toNewsDescription(proger: Proger): MutableList<NewsDescription> {
-        val list = mutableListOf<NewsDescription>()
+    fun toNewsDescription(proger: Proger): MutableList<Description> {
+        val list = mutableListOf<Description>()
         proger.channel?.items?.forEach {
-            val newsItem = NewsDescription()
+            val newsItem = Description()
             newsItem.sourceKind = FeedsSource.PROGER
             newsItem.id = getIdInLink(it.guid)
             newsItem.link = it.link
@@ -44,13 +44,13 @@ class ModelConverter {
         return list
     }
 
-    fun toNewsDesciption(feed: List<List<Any>?>): Observable<MutableList<NewsDescription>> {
-        val list = mutableListOf<NewsDescription>()
+    fun toNewsDesciption(feed: List<List<Any>?>): Observable<MutableList<Description>> {
+        val list = mutableListOf<Description>()
         feed.forEach {
             it?.forEach {
                 when (it) {
                     is Habr.HabrlItems -> {
-                        val newsItem = NewsDescription()
+                        val newsItem = Description()
                         newsItem.sourceKind = FeedsSource.HABR
                         newsItem.id = getIdInLink(it.link)
                         newsItem.link = it.link
@@ -60,7 +60,7 @@ class ModelConverter {
                         list.add(newsItem)
                     }
                     is Proger.Channel.Item -> {
-                        val newsItem = NewsDescription()
+                        val newsItem = Description()
                         newsItem.sourceKind = FeedsSource.PROGER
                         newsItem.id = getIdInLink(it.guid)
                         newsItem.link = it.link
@@ -76,19 +76,19 @@ class ModelConverter {
         return Observable.fromArray(list).observeOn(Schedulers.io()).subscribeOn(AndroidSchedulers.mainThread())
     }
 
-    fun toNewsContent(hc: HabrContent): NewsContent {
-        return NewsContent(
+    fun toNewsContent(hc: HabrContent): Content {
+        return Content(
                 id = null,
-                newsId = null,
-                content = hc.content
+                descriptionId = null,
+                contentText = hc.content
         )
     }
 
-    fun toNewsContent(pc: ProgerContent): NewsContent {
-        return NewsContent(
+    fun toNewsContent(pc: ProgerContent): Content {
+        return Content(
                 id = null,
-                newsId = pc.id,
-                content = pc.content)
+                descriptionId = pc.id,
+                contentText = pc.content)
     }
 
 }

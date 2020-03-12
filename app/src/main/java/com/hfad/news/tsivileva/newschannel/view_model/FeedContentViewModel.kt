@@ -6,7 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.model.local.Favorite
-import com.hfad.news.tsivileva.newschannel.model.local.NewsContent
+import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import io.reactivex.disposables.Disposable
@@ -16,7 +16,7 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     private var serverSubscription: Disposable? = null
     private var newsDescriptionId: Long? = null
 
-    var newsLiveData = MutableLiveData<DownloadingState<NewsContent>>()
+    var newsLiveData = MutableLiveData<DownloadingState<Content>>()
 
     fun downloadContent(url: String?, newsDescriptionId: Long?) {
         if (newsDescriptionId != null && url != null) {
@@ -39,10 +39,10 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private fun _onSuccess(t: NewsContent) {
-        val _news = NewsContent(
-                newsId = newsDescriptionId,
-                content = t.content,
+    private fun _onSuccess(t: Content) {
+        val _news = Content(
+                descriptionId = newsDescriptionId,
+                contentText = t.contentText,
                 id = null
         )
         NewsDatabase.instance(getApplication())?.getApi()?.insertContent(_news)
@@ -51,13 +51,13 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
 
     private fun _onError(e: Throwable) {
         if (newsDescriptionId != null) {
-            val cachedContent = NewsContent(id = null, newsId = newsDescriptionId, content = "")
+            val cachedContent = Content(id = null, descriptionId = newsDescriptionId, contentText = "")
                     NewsDatabase.instance(getApplication())?.getApi()?.selectContentByDescriptionId(newsDescriptionId!!)
                     ?.let {
-                        NewsContent(id = null, newsId = newsDescriptionId, content = it)
+                        Content(id = null, descriptionId = newsDescriptionId, contentText = it)
                     }
             newsLiveData.postValue(DownloadingError(e, cachedContent))
-            Log.d(DEBUG_LOG,"FeedContentViewModel._onError -content:${cachedContent.content}")
+            Log.d(DEBUG_LOG,"FeedContentViewModel._onError -content:${cachedContent.contentText}")
         }
     }
 

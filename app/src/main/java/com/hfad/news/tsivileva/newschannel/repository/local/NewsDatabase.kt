@@ -10,7 +10,7 @@ import com.hfad.news.tsivileva.newschannel.DATABASE_NAME
 import com.hfad.news.tsivileva.newschannel.model.local.*
 
 
-@Database(entities = [NewsDescription::class, NewsContent::class, Favorite::class], version = 1)
+@Database(entities = [Description::class, Content::class, Favorite::class], version = 1)
 @TypeConverters(DateConverter::class, SourceKindConverter::class)
 abstract class NewsDatabase : RoomDatabase() {
     abstract fun getApi(): ILocaApi
