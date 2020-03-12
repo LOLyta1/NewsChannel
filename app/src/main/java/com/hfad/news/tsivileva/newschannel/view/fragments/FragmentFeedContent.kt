@@ -177,7 +177,7 @@ class FragmentFeedContent :
             if(grantResults[index]==PackageManager.PERMISSION_GRANTED){
 
                 Log.d(DEBUG_LOG, "пришло разрешение ! ")
-                //скачать- с инета (не использовать DownloadManager, Rx) - написать свой downloader - принимает ссылку /коллбэк
+                //скачать- с инета (не использовать DownloadManager) - написать свой downloader - принимает ссылку /коллбэк
                 //загрузка должно быть в ViewModel
                         //на формат файла не привязываться
                 val name = descriptionAndFav?.description?.link
