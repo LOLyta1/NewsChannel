@@ -16,7 +16,7 @@ class NewsPreferenceSaver {
             prefObj
         }else{
             Log.d(DEBUG_LOG,"FragmentFeeds.getPreference(), обьект настроек пустой. сделали по умолчанию")
-            Filters(sortType = SortType.ASC,showOnlyFav = false,source = FeedsSource.BOTH)
+            Filters(sort = SortType.ASC,showOnlyFav = false,source = FeedsSource.BOTH)
         }
     }
 

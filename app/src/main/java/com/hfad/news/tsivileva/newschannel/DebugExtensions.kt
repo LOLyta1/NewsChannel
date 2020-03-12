@@ -4,16 +4,16 @@ import android.util.Log
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.hfad.news.tsivileva.newschannel.model.local.NewsAndContent
-import com.hfad.news.tsivileva.newschannel.model.local.NewsAndFav
-import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
+import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndContent
+import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
+import com.hfad.news.tsivileva.newschannel.model.local.Description
 
 val DEBUG_LOG = "mylog"
 val CACHE_LOG = "cache_log"
 val FEED_VIEW_MODEL_LOG = "feed_view_model_log"
 val REMOTE_LOG = "remote_log"
 
-fun printNewsDescriptionList(list: List<NewsDescription>) {
+fun printNewsDescriptionList(list: List<Description>) {
     list.forEach {
         Log.d(DEBUG_LOG, " id=${it.id};" +
                 "\ntitle=${it.title.substring(10)}" +
@@ -26,9 +26,9 @@ fun printNewsDescriptionList(list: List<NewsDescription>) {
     }
 }
 
-fun printNewsAndContentList(list: MutableList<NewsAndContent?>) {
+fun printNewsAndContentList(list: MutableList<DescriptionAndContent?>) {
     list.forEach {
-        val description = it?.newsInfo
+        val description = it?.description
         Log.d(DEBUG_LOG, "================================")
         Log.d(DEBUG_LOG, " id=${description?.id};" +
                 "\ntitle=${getTenSymbols(description?.title)}" +
@@ -36,17 +36,17 @@ fun printNewsAndContentList(list: MutableList<NewsAndContent?>) {
                 "\n link=${description?.link}" +
                 "\n picture=${description?.pictureSrc}" +
                 "\n sourceKind=${description?.sourceKind}")
-        val info = it?.newsContent
+        val info = it?.content
         Log.d(DEBUG_LOG, "\nid=${info?.id};" +
-                "\nnewsId=${info?.newsId}" +
-                "\n content=${getTenSymbols(info?.content)}")
+                "\nnewsId=${info?.descriptionId}" +
+                "\n content=${getTenSymbols(info?.contentText)}")
 
     }
 }
 
- fun printNewsAndFav(newsAndFav: List<NewsAndFav?>?) {
-     newsAndFav?.forEach {
-         val description = it?.newsInfo
+ fun printNewsAndFav(descriptionAndFav: List<DescriptionAndFav?>?) {
+     descriptionAndFav?.forEach {
+         val description = it?.description
          Log.d(DEBUG_LOG, "================================")
          Log.d(DEBUG_LOG, " id=${description?.id};" +
                  "\ntitle=${getTenSymbols(description?.title)}" +
@@ -54,7 +54,7 @@ fun printNewsAndContentList(list: MutableList<NewsAndContent?>) {
                  "\n link=${description?.link}" +
                  "\n picture=${description?.pictureSrc}" +
                  "\n sourceKind=${description?.sourceKind}")
-         val info = it?.newsFav
+         val info = it?.favorite
          Log.d(DEBUG_LOG, "\nid=${info?.id};" +
                  "\nnewsId=${info?.newsId}" +
                  "\nis fav=${info?.isFav}")
@@ -70,7 +70,7 @@ fun getTenSymbols(string: String?): String {
 
 fun printCachedLiveData(className: String,
                         methodName: String,
-                        cached: MutableLiveData<MutableList<NewsDescription>>
+                        cached: MutableLiveData<MutableList<Description>>
 ) {
     Log.d(DEBUG_LOG, "$className.$methodName Данные по кэшу ")
     Log.d(DEBUG_LOG, "$className.$methodName Содержимое кэша: ")
@@ -83,7 +83,7 @@ fun printCachedLiveData(className: String,
 
 fun printCachedMutableList(className: String,
                            methodName: String,
-                           cached: MutableList<NewsDescription>
+                           cached: MutableList<Description>
 ) {
     Log.d(DEBUG_LOG, "$className.$methodName Содержимое списка  ")
     cached.forEach {
@@ -112,7 +112,7 @@ fun logIt(className: String?, methodName: String?, info: String, tag: String? = 
     Log.d(tag, "$className.$methodName(): $info")
 }
 
-fun printId(list: MutableList<NewsDescription>) {
+fun printId(list: MutableList<Description>) {
     list.forEach {
         Log.d(DEBUG_LOG, "в списке ID-${it.id}")
     }

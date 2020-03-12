@@ -13,16 +13,16 @@
         android:icon="@drawable/hear_empty_icon"
         android:title="@string/watch_fav_text"
         app:showAsAction="ifRoom">
-
     </item>
-    <item
-
-        android:id="@+id/reload_feeds_item_menu"
-        android:title="@string/reload_text"
-        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/sort_feeds_item_menu"
         android:icon="@drawable/sorting_asc"
         android:title="@string/sort_by_date_text"
-        app:showAsAction="withText" />
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/reload_feeds_item_menu"
+        android:icon="@drawable/reload_icon"
+        android:title="@string/reload_text"
+        app:showAsAction="ifRoom" />
+
 </menu>
