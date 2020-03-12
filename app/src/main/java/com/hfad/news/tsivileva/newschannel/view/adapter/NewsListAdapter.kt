@@ -44,6 +44,8 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
         init {
             imageView.setOnClickListener(this)
             favImageView.setOnClickListener(this)
+            linkView.setOnClickListener (this)
+            titleTextView.setOnClickListener (this)
         }
 
         override fun onClick(view: View) {

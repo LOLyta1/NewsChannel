@@ -1,5 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -44,6 +46,8 @@ class FragmentFeeds() :
         super.onViewCreated(view, savedInstanceState)
         val actionBar = (activity as AppCompatActivity).supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(false)
+        view?.swipe_container?.isRefreshing = true
+
         recyclerAdapter.listener = this
         filters = NewsPreferenceSaver().getPreference(context)
 
@@ -73,11 +77,6 @@ class FragmentFeeds() :
             menu?.findItem(R.id.show_fav_menu_item)?.setIcon(R.drawable.hear_empty_icon)
             viewModel.downloadFeeds(filters)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        view?.swipe_container?.isRefreshing = true
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -143,7 +142,7 @@ class FragmentFeeds() :
 
     override fun onNewsClick(position: Int, view: View) {
         when (view.id) {
-            R.id.news_image_view -> {
+            R.id.news_image_view,R.id.news_title_text_view-> {
                 val detailsFragment = FragmentFeedContent()
                 val bundle = Bundle()
                 val newsDescription = recyclerAdapter.list.get(position)
@@ -163,6 +162,11 @@ class FragmentFeeds() :
                 } else {
                     viewModel.removeFromFavorite(recyclerAdapter.list[position].description.id, filters)
                 }
+            }
+            R.id.news_link_text_view->{
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(recyclerAdapter.list[position].description.link))
+                val choosenIntent = Intent.createChooser(intent, "Choose application")
+                startActivity(choosenIntent)
             }
         }
     }
