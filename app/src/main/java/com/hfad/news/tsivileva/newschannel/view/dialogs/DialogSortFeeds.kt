@@ -17,7 +17,7 @@ class DialogSortFeeds : DialogFragment() {
     }
 
     private var listener: IDialogSortFeedsClickListener? = null
-    private var preference: PreferenceValues? = null
+    private var preference: Filters? = null
     var source: FeedsSource = FeedsSource.BOTH
     var sortType: SortType = SortType.ASC
 

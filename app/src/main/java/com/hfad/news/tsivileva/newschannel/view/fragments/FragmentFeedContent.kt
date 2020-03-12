@@ -3,18 +3,19 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.bumptech.glide.Glide
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.model.local.NewsAndFav
 import com.hfad.news.tsivileva.newschannel.model.local.NewsContent
 import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
 class FragmentFeedContent :
@@ -42,11 +43,6 @@ class FragmentFeedContent :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         newsDescription = arguments?.getParcelable("news_description")
-        if (newsDescription?.newsFav?.isFav == null || newsDescription?.newsFav?.isFav ==false) {
-            menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.hear_empty_icon)
-        } else {
-            menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.heart_icon_full)
-        }
 
         viewModel?.downloadContent(newsDescription?.newsInfo?.link, newsDescription?.newsInfo?.id)
 
@@ -81,24 +77,31 @@ class FragmentFeedContent :
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_feed_content_fragment, menu)
+        this.menu = menu
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        this.menu = menu
         super.onPrepareOptionsMenu(menu)
+        if (newsDescription?.newsFav?.isFav == true) {
+            Log.d(DEBUG_LOG, "isFav=true")
+            menu.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.heart_icon_full)
+        } else {
+            Log.d(DEBUG_LOG, "isFav=false")
+            menu.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.hear_empty_icon)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> parentFragmentManager.popBackStackImmediate()
             R.id.feed_content_add_to_favorites_menu_button -> {
-                if (newsDescription?.newsFav?.isFav == null || newsDescription?.newsFav?.isFav == false) {
-                   viewModel?.addToFavorite(newsDescription?.newsInfo?.id)
-                    menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.heart_icon_full)
-                } else {
-                   viewModel?.removeFromFavorite(newsDescription?.newsInfo?.id)
+                if (newsDescription?.newsFav?.isFav == true) {
+                    viewModel?.removeFromFavorite(newsDescription?.newsInfo?.id)
                     menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.hear_empty_icon)
+                } else {
+                    viewModel?.addToFavorite(newsDescription?.newsInfo?.id)
+                    menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.heart_icon_full)
                 }
             }
             R.id.feed_content_share_menu_button -> {
@@ -121,13 +124,16 @@ class FragmentFeedContent :
         view?.news_details_link_text_view?.text = description?.newsInfo?.link
 
         val path = description?.newsInfo?.pictureSrc
-        if (path != null && path.isNotEmpty()) {
-            view?.new_details_car_view?.visibility = View.VISIBLE
-            Picasso.get().load(path).placeholder(R.drawable.no_photo)
+        if (path != null && path != "null" &&view!=null ) {
+            view?.news_icon_card_view?.visibility = View.VISIBLE
+            Glide.with(this)
+                    .load(path)
+                    .placeholder(R.drawable.no_photo)
                     .error(R.drawable.no_photo)
-                    .into(view?.news_details_image_view);
+                    .fallback(R.drawable.no_photo)
+                    .into(view!!.news_details_image_view)
         } else {
-            view?.new_details_car_view?.visibility = View.GONE
+            view?.news_icon_card_view?.visibility = View.GONE
         }
     }
 

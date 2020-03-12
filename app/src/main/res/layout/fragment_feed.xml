@@ -19,9 +19,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@color/colorPrimaryDark"
+            android:gravity="center"
+            android:orientation="horizontal"
             android:padding="5dp"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
             android:visibility="gone">
 
             <TextView

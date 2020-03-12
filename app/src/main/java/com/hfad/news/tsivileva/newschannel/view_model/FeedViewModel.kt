@@ -10,22 +10,20 @@ import com.hfad.news.tsivileva.newschannel.model.local.NewsAndFav
 import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
-import com.squareup.picasso.Picasso
-import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 
 
 class FeedViewModel(val app: Application) : AndroidViewModel(app) {
-
+    private var filters:Filters?=Filters()
     private var subscription: Disposable? = null
     var downloading = MutableLiveData<List<NewsAndFav>>()
-    var preferenceValues:PreferenceValues?=PreferenceValues()
 
 
-    fun downloadFeeds(preferenceValues: PreferenceValues?) {
-        this.preferenceValues=preferenceValues
+
+    fun downloadFeeds(filters: Filters?) {
+        this.filters=filters
         subscription = RemoteRepository
                 .getFeedsObservable()
                 .subscribeOn(Schedulers.io())
@@ -54,8 +52,8 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
         super.onCleared()
     }
 
-    fun removeFromFavorite(id: Long?,preferenceValues: PreferenceValues?) {
-        this.preferenceValues=preferenceValues
+    fun removeFromFavorite(id: Long?, filters: Filters?) {
+        this.filters=filters
         if(id!=null){
             val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
             databaseApi
@@ -67,8 +65,8 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
 
     }
 
-    fun addToFavorite(id: Long?, preferenceValues: PreferenceValues?) {
-        this.preferenceValues=preferenceValues
+    fun addToFavorite(id: Long?, filters: Filters?) {
+        this.filters=filters
         if(id!=null){
                 val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
                 databaseApi
@@ -80,7 +78,7 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
     private fun load(){
-        preferenceValues?.let { _preference ->
+        filters?.let { _preference ->
             val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
             var list=databaseApi?.selectAllDescriptionAndFav()
 

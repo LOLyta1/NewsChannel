@@ -29,7 +29,7 @@ class FragmentFeeds() :
     private lateinit var viewModel: FeedViewModel
     private var recyclerAdapter: NewsListAdapter = NewsListAdapter()
     private lateinit var newsList: List<NewsAndFav>
-    private var preferenceValues: PreferenceValues? = null
+    private var filters: Filters? = null
 
     private var menu:Menu?=null
 
@@ -49,18 +49,13 @@ class FragmentFeeds() :
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        preferenceValues = NewsPreferenceSaver().getPreference(context)
-
-        viewModel = ViewModelProviders.of(activity!!).get(FeedViewModel::class.java)
-
         val actionBar = (activity as AppCompatActivity).supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(false)
-
-
         recyclerAdapter.listener = this
+        filters = NewsPreferenceSaver().getPreference(context)
 
-        viewModel.downloadFeeds(preferenceValues)
+        viewModel = ViewModelProviders.of(activity!!).get(FeedViewModel::class.java)
+        viewModel.downloadFeeds(filters)
         viewModel.downloading.observe(viewLifecycleOwner, Observer {
             view.swipe_container.isRefreshing = false
                 newsList = it
@@ -78,19 +73,19 @@ class FragmentFeeds() :
             addItemDecoration(NewsListDecorator())
         }
         view.swipe_container?.setOnRefreshListener {
-            viewModel.downloadFeeds(preferenceValues)
+            viewModel.downloadFeeds(filters)
         }
         view.error_reload_button.setOnClickListener {
             view.swipe_container.isRefreshing=true
-            preferenceValues?.showOnlyFav=false
+            filters?.showOnlyFav=false
             menu?.findItem(R.id.show_fav_menu_item)?.setIcon(R.drawable.hear_empty_icon)
-            viewModel.downloadFeeds(preferenceValues)
+            viewModel.downloadFeeds(filters)
         }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         this.menu=menu
-        preferenceValues?.let {
+        filters?.let {
             when (it.showOnlyFav) {
                 true -> menu.findItem(R.id.show_fav_menu_item).setIcon(R.drawable.heart_icon_full)
                 false -> menu.findItem(R.id.show_fav_menu_item).setIcon(R.drawable.hear_empty_icon)
@@ -108,7 +103,7 @@ class FragmentFeeds() :
         when (item.itemId) {
             R.id.reload_feeds_item_menu -> {
                 view?.swipe_container?.isRefreshing = true
-                viewModel.downloadFeeds(preferenceValues)
+                viewModel.downloadFeeds(filters)
             }
             R.id.sort_feeds_item_menu -> {
                 DialogSortFeeds().show(childFragmentManager, DIALOG_WITH_SORT)
@@ -129,7 +124,7 @@ class FragmentFeeds() :
 
             R.id.show_fav_menu_item -> {
                 view?.swipe_container?.isRefreshing=true
-                preferenceValues?.let {
+                filters?.let {
                     if (it.showOnlyFav) {
                         item.setIcon(R.drawable.hear_empty_icon)
                         it.showOnlyFav = false
@@ -163,9 +158,9 @@ class FragmentFeeds() :
             R.id.add_to_fav_image_view -> {
                 val isFav = recyclerAdapter.list.get(position).newsFav?.isFav
                 if (isFav == null || isFav == false) {
-                    viewModel.addToFavorite(recyclerAdapter.list.get(position).newsInfo.id, preferenceValues)
+                    viewModel.addToFavorite(recyclerAdapter.list.get(position).newsInfo.id, filters)
                 } else {
-                    viewModel.removeFromFavorite(recyclerAdapter.list.get(position).newsInfo.id, preferenceValues)
+                    viewModel.removeFromFavorite(recyclerAdapter.list.get(position).newsInfo.id, filters)
                 }
             }
         }
@@ -174,7 +169,7 @@ class FragmentFeeds() :
     override fun onDialogErrorReloadClick(dialogNetwork: DialogNetworkError) {
         dialogNetwork.dismiss()
 
-        viewModel.downloadFeeds(preferenceValues)
+        viewModel.downloadFeeds(filters)
     }
 
     override fun onDialogErrorCancelClick(dialogNetwork: DialogNetworkError) {
@@ -185,15 +180,15 @@ class FragmentFeeds() :
 
 
     override fun onDialogSortClick(sortTypeKind: SortType, source: FeedsSource) {
-        preferenceValues?.sortType = sortTypeKind
-        preferenceValues?.source = source
-        viewModel.downloadFeeds(preferenceValues)
+        filters?.sortType = sortTypeKind
+        filters?.source = source
+        viewModel.downloadFeeds(filters)
         Toast.makeText(context, "Отсортировано", Toast.LENGTH_LONG).show()
     }
 
 
     override fun onDestroyView() {
-        preferenceValues?.let {
+        filters?.let {
             NewsPreferenceSaver().setPreference(it, context)
         }
         super.onDestroyView()
