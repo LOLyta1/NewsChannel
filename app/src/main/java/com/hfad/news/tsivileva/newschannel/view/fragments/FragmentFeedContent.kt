@@ -1,27 +1,28 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.bumptech.glide.Glide
 import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.model.local.NewsAndFav
 import com.hfad.news.tsivileva.newschannel.model.local.NewsContent
 import com.hfad.news.tsivileva.newschannel.model.local.NewsDescription
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
-import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
 class FragmentFeedContent :
         Fragment(),
         DialogNetworkError.IDialogListener {
 
+    private var menu: Menu? = null
     private var newsDescription: NewsAndFav? = NewsAndFav(NewsDescription())
     var viewModel: FeedContentViewModel? = null
 
@@ -44,19 +45,20 @@ class FragmentFeedContent :
         newsDescription = arguments?.getParcelable("news_description")
 
         viewModel?.downloadContent(newsDescription?.newsInfo?.link, newsDescription?.newsInfo?.id)
+
         viewModel?.newsLiveData?.observe(viewLifecycleOwner, Observer { contentDownlodingResult: DownloadingState<NewsContent>? ->
+            view.news_content_progress_bar?.visibility = View.GONE
             when (contentDownlodingResult) {
                 is DownloadingSuccessful -> {
-                    view.news_content_progress_bar?.visibility = View.GONE
                     view.feeds_details_error_container?.visibility = View.GONE
                     view.feed_content_container?.visibility = View.VISIBLE
                     showNews(contentDownlodingResult.data, newsDescription)
                 }
                 is DownloadingError -> {
-                    view.news_content_progress_bar?.visibility = View.GONE
                     view.feeds_details_error_container?.visibility = View.VISIBLE
                     view.feed_content_container?.visibility = View.VISIBLE
                     showNews(contentDownlodingResult.cachedData, newsDescription)
+                    DialogNetworkError().show(childFragmentManager, DIALOG_WITH_ERROR)
                 }
             }
         })
@@ -68,20 +70,39 @@ class FragmentFeedContent :
         }
 
         view.error_reload_button.setOnClickListener {
+            view.news_content_progress_bar?.visibility = View.VISIBLE
             viewModel?.downloadContent(newsDescription?.newsInfo?.link, newsDescription?.newsInfo?.id)
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_feed_content_fragment, menu)
+        this.menu = menu
         super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        if (newsDescription?.newsFav?.isFav == true) {
+            Log.d(DEBUG_LOG, "isFav=true")
+            menu.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.heart_icon_full)
+        } else {
+            Log.d(DEBUG_LOG, "isFav=false")
+            menu.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.hear_empty_icon)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> parentFragmentManager.popBackStackImmediate()
             R.id.feed_content_add_to_favorites_menu_button -> {
-                //TODO() сделать сохранение в базу
+                if (newsDescription?.newsFav?.isFav == true) {
+                    viewModel?.removeFromFavorite(newsDescription?.newsInfo?.id)
+                    menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.hear_empty_icon)
+                } else {
+                    viewModel?.addToFavorite(newsDescription?.newsInfo?.id)
+                    menu?.findItem(R.id.feed_content_add_to_favorites_menu_button)?.setIcon(R.drawable.heart_icon_full)
+                }
             }
             R.id.feed_content_share_menu_button -> {
                 val intent = Intent().apply {
@@ -102,18 +123,22 @@ class FragmentFeedContent :
         view?.news_details_title_text_view?.text = description?.newsInfo?.title
         view?.news_details_link_text_view?.text = description?.newsInfo?.link
 
-        val path = description?.newsInfo?.picture
-        if (path != null && path.isNotEmpty()) {
-            view?.new_details_car_view?.visibility = View.VISIBLE
-            Picasso.get().load(path).placeholder(R.drawable.no_photo)
+        val path = description?.newsInfo?.pictureSrc
+        if (path != null && path != "null" &&view!=null ) {
+            view?.news_icon_card_view?.visibility = View.VISIBLE
+            Glide.with(this)
+                    .load(path)
+                    .placeholder(R.drawable.no_photo)
                     .error(R.drawable.no_photo)
-                    .into(view?.news_details_image_view);
+                    .fallback(R.drawable.no_photo)
+                    .into(view!!.news_details_image_view)
         } else {
-            view?.new_details_car_view?.visibility = View.GONE
+            view?.news_icon_card_view?.visibility = View.GONE
         }
     }
 
     override fun onDialogErrorReloadClick(dialogNetwork: DialogNetworkError) {
+        viewModel?.downloadContent(newsDescription?.newsInfo?.link, newsDescription?.newsInfo?.id)
         view?.news_content_progress_bar?.visibility = View.VISIBLE
         dialogNetwork.dismiss()
     }

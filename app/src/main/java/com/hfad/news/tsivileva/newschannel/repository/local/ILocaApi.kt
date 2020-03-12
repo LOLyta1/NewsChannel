@@ -5,6 +5,7 @@ import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.hfad.news.tsivileva.newschannel.FeedsSource
 import com.hfad.news.tsivileva.newschannel.model.local.*
+import io.reactivex.Single
 
 
 @Dao
@@ -65,6 +66,6 @@ interface ILocaApi {
     fun selectAllDescriptionAndFav():  List<NewsAndFav>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertIntoFav(fav: Favorite): Long
+    fun insertIntoFav(fav: Favorite): Single<Long>
 
 }

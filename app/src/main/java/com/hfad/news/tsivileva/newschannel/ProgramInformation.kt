@@ -20,7 +20,7 @@ enum class FeedsSource(val link: String) {
 }
 
 @Parcelize
-data class PreferenceValues (
+data class Filters (
         var sortType: SortType=SortType.ASC,
         var showOnlyFav: Boolean=false,
         var source: FeedsSource=FeedsSource.BOTH

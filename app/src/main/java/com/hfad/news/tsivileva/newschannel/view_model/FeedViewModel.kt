@@ -1,6 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
 import android.app.Application
+
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.*
@@ -13,15 +14,16 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 
-class FeedViewModel(val app: Application) : AndroidViewModel(app) {
 
+class FeedViewModel(val app: Application) : AndroidViewModel(app) {
+    private var filters:Filters?=Filters()
     private var subscription: Disposable? = null
     var downloading = MutableLiveData<List<NewsAndFav>>()
-    var preferenceValues:PreferenceValues?=PreferenceValues()
 
 
-    fun downloadFeeds(preferenceValues: PreferenceValues?) {
-        this.preferenceValues=preferenceValues
+
+    fun downloadFeeds(filters: Filters?) {
+        this.filters=filters
         subscription = RemoteRepository
                 .getFeedsObservable()
                 .subscribeOn(Schedulers.io())
@@ -50,31 +52,33 @@ class FeedViewModel(val app: Application) : AndroidViewModel(app) {
         super.onCleared()
     }
 
-    fun removeFromFavorite(id: Long?,preferenceValues: PreferenceValues?) {
-        this.preferenceValues=preferenceValues
+    fun removeFromFavorite(id: Long?, filters: Filters?) {
+        this.filters=filters
         if(id!=null){
-            Thread(Runnable {
-               val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
-               databaseApi?.insertIntoFav(fav = Favorite(null, id, false))
-               load()
-            }).start()
+            val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
+            databaseApi
+                    ?.insertIntoFav(fav = Favorite(null, id, false))
+                    ?.subscribeOn(Schedulers.io())
+                    ?.doOnSuccess { load() }
+                    ?.subscribe()
         }
 
     }
 
-    fun addToFavorite(id: Long?, preferenceValues: PreferenceValues?) {
-        this.preferenceValues=preferenceValues
+    fun addToFavorite(id: Long?, filters: Filters?) {
+        this.filters=filters
         if(id!=null){
-            Thread(Runnable {
                 val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
-                databaseApi?.insertIntoFav(fav = Favorite(null, id, true))
-                load()
-            }).start()
+                databaseApi
+                        ?.insertIntoFav(fav = Favorite(null, id, true))
+                        ?.subscribeOn(Schedulers.io())
+                        ?.doOnSuccess {load()}
+                        ?.subscribe()
         }
     }
 
     private fun load(){
-        preferenceValues?.let { _preference ->
+        filters?.let { _preference ->
             val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
             var list=databaseApi?.selectAllDescriptionAndFav()
 
