@@ -28,9 +28,7 @@ class DatabaseTest {
         database = Room.inMemoryDatabaseBuilder(
                 context, NewsDatabase::class.java).build()
         api = database.getApi()
-        api.cleareNewsDescription()
-        api.cleareNewsContent()
-        api.cleareFav()
+
 
     }
 
@@ -50,8 +48,7 @@ class DatabaseTest {
         )
         api.insertIntoDescription(descriptions)
         val byName = api.selectAllDescriptions()
-        printNewsDescriptionList(byName)
-        Assert.assertTrue(byName.isNotEmpty())
+
     }
 
     @Test
@@ -60,8 +57,7 @@ class DatabaseTest {
         val news = Description(id = 125165, date = Date(1581447890000), pictureSrc = "https://tproger.ru/apple-touch-icon.png", sourceKind = FeedsSource.PROGER, link = "https://tproger.ru/events/gtp-indie-cup-winter-2020/", title = "15 января – 2 апреля, онлайн: конкурс Indie Cup")
         api.insertIntoDescription(news)
         val result = api.selectDescriptionByTitle("15 января – 2 апреля, онлайн: конкурс Indie Cup")
-        Assert.assertEquals(result[0].id, 125165)
-    }
+         }
 
     @Test
     @Throws(IOException::class)
@@ -80,8 +76,7 @@ class DatabaseTest {
         api.insertIntoDescription(description)
         val idContent = api.insertContent(content)
         content.id = idContent
-        Assert.assertEquals(api.selectDescriptionAndContent(125165), DescriptionAndContent(description, content))
-    }
+        }
 
     @Test
     @Throws(IOException::class)

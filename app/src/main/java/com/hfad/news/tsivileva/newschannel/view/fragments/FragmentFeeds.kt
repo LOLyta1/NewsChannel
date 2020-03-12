@@ -98,10 +98,10 @@ class FragmentFeeds() :
                 false -> menu.findItem(R.id.show_fav_menu_item).setIcon(R.drawable.hear_empty_icon)
             }
         }
-       (menu.findItem(R.id.app_bar_search).actionView as EditText).apply{
+       //(menu.findItem(R.id.app_bar_search).actionView as EditText).apply{
         //    this.textCursorDrawable=null
          //   this.setTextColor(resources.getColor(R.color.searcher_color))
-        }
+       // }
 
 
         super.onPrepareOptionsMenu(menu)
@@ -171,6 +171,7 @@ class FragmentFeeds() :
                         .addToBackStack(FEED_CONTENT)
                         .commit()
             }
+
             R.id.add_to_fav_image_view -> {
                 val isFav = recyclerAdapter.list[position].favorite?.isFav
                 if (isFav == null || isFav == false) {

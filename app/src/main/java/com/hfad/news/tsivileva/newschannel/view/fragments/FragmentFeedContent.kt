@@ -1,25 +1,35 @@
 package com.hfad.news.tsivileva.newschannel.view.fragments
 
+import android.Manifest
+import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
 import com.hfad.news.tsivileva.newschannel.*
-import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
+import com.hfad.news.tsivileva.newschannel.activity.IPermissionListener
 import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.model.local.Description
+import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
+
 class FragmentFeedContent :
         Fragment(),
-        DialogNetworkError.IDialogListener {
+        DialogNetworkError.IDialogListener, IPermissionListener {
 
     private var menu: Menu? = null
     private var descriptionAndFav: DescriptionAndFav? = DescriptionAndFav(Description())
@@ -73,6 +83,11 @@ class FragmentFeedContent :
         view.error_reload_button.setOnClickListener {
             view.news_content_progress_bar?.visibility = View.VISIBLE
             viewModel?.downloadContent(descriptionAndFav?.description?.link, descriptionAndFav?.description?.id)
+        }
+
+        view.download_image_button.setOnClickListener {
+            val _activity = activity as Activity
+            ActivityCompat.requestPermissions(_activity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
         }
     }
 
@@ -154,6 +169,30 @@ class FragmentFeedContent :
         dialogNetwork.dismiss()
         view?.news_content_progress_bar?.visibility = View.GONE
         view?.feeds_details_error_container?.visibility = View.VISIBLE
+    }
+
+    override fun getPermissions(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == 1) {
+            val index = permissions.indexOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            if(grantResults[index]==PackageManager.PERMISSION_GRANTED){
+
+                Log.d(DEBUG_LOG, "пришло разрешение ! ")
+                //скачать- с инета (не использовать DownloadManager, Rx) - написать свой downloader - принимает ссылку /коллбэк
+                //загрузка должно быть в ViewModel
+                        //на формат файла не привязываться
+                val name = descriptionAndFav?.description?.link
+                view?.news_details_image_view?.drawable?.let {
+                            val path = MediaStore.Images.Media.insertImage(context?.contentResolver, it.toBitmap(it.intrinsicWidth, it.intrinsicHeight), name, name)
+                            Toast.makeText(context, "Файл сохранен в $path", Toast.LENGTH_LONG).show()
+                }
+            }else
+               if(grantResults[index]==PackageManager.PERMISSION_DENIED)
+            {
+                Toast.makeText(context, "Отказано в доступе! Разрешите доступ в настройках приложения", Toast.LENGTH_LONG).show()
+            }
+        }
+
+
     }
 }
 
