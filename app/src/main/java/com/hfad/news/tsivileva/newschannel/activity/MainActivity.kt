@@ -12,14 +12,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-
+        /*(menu.findItem(R.id.app_bar_search).actionView as EditText).apply{
+            this.textCursorDrawable=null
+            this.setTextColor(resources.getColor(R.color.searcher_color))
+        }*/
         if (supportFragmentManager.findFragmentByTag(FEED) == null) {
             supportFragmentManager.beginTransaction().add(R.id.container, FragmentFeeds(), FEED).commit()
         }
-      //  val Toolbar=Toolbar(this).apply{
-       //     setMenu(MenuBuilder(this@MainActivity).add)
-     //   }
-       // setSupportActionBar(Toolbar(this))
+
         supportActionBar?.title=""
     }
 }
