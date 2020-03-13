@@ -1,18 +1,16 @@
 package com.hfad.news.tsivileva.newschannel.repository.remote
 
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
+import android.content.Context
 import android.content.Intent
-import android.os.IBinder
-import android.os.Message
-import android.os.Messenger
+import android.graphics.Color
+import android.net.Uri
+import android.os.*
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
 import com.hfad.news.tsivileva.newschannel.R
-import com.hfad.news.tsivileva.newschannel.activity.MainActivity
-import com.hfad.news.tsivileva.newschannel.printHeadersAndContent
 import okhttp3.*
 import java.io.File
 import java.io.IOException
@@ -25,39 +23,71 @@ class ImageDownloadService() : Service() {
         val DOWNLOAD_COMMAND = 1
     }
 
-    private var _builder: NotificationCompat.Builder? = null
+    inner class ServiceBinder: Binder() {
+        fun getService()=this@ImageDownloadService
+    }
+
+    var builder: NotificationCompat.Builder? = null
+    var file: File? = null
+
+
+    private fun showNotification() {
+        createNotificationChannel()
+        builder = getNotificationBuilder()
+        startForeground(NOTIFICATION_ID, builder?.build())
+    }
+
+    private fun createNotificationChannel(): String {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            var channel = NotificationChannel(CHANNEL_ID, "My Background Service", NotificationManager.IMPORTANCE_NONE).apply {
+                lightColor = Color.BLUE
+                lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+            }
+            val service = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            service.createNotificationChannel(channel)
+            CHANNEL_ID
+        } else {
+            ""
+        }
+    }
+
+    private fun getNotificationBuilder(): NotificationCompat.Builder? {
+        return NotificationCompat.Builder(this@ImageDownloadService, CHANNEL_ID)
+                .setContentTitle("Загрузка файла")
+                .setSmallIcon(R.drawable.download_icon)
+        // .setContentIntent(PendingIntent.getActivities(this@ImageDownloadService, 0, arrayOf(Intent(this@ImageDownloadService, MainActivity::class.java)), PendingIntent.FLAG_UPDATE_CURRENT))
+        //.addAction(NotificationCompat)
+    }
+
 
     override fun onBind(intent: Intent?): IBinder? {
         var url = intent?.getStringExtra("url")
         val messenger = intent?.getParcelableExtra<Messenger>("messenger")
         val fileName = intent?.getStringExtra("filename")
-
         try {
-
-            val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("Загрузка файла")
-                    .setSmallIcon(R.drawable.download_icon)
-                    .setContentIntent(PendingIntent.getActivities(this, 0, arrayOf(Intent(this, MainActivity::class.java)), PendingIntent.FLAG_UPDATE_CURRENT))
-            _builder = builder
-            startForeground(NOTIFICATION_ID, builder.build())
+            showNotification()
 
             url?.let {
                 val request = Request.Builder().url(url).build()
                 OkHttpClient().newCall(request).enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
-                        var message = Message().apply { this.data.putByteArray("picture", null) }
-                        messenger?.send(message)
+                          var message = Message().apply { this.data.putByteArray("picture", null) }
+                         messenger?.send(message)
                         Log.d(DEBUG_LOG, "${this.javaClass.name}.onBind() - ошибка ответа от сервера${e.message}")
+                        stopSelf()
+
                     }
 
                     override fun onResponse(call: Call, response: Response) {
-                        saveIntoFile(fileName, response.body?.bytes())
+                        var bytes = response.body?.bytes()
+                        var path = saveIntoFile(fileName, bytes)
+                        stopSelf()
                         var message = Message().apply {
-                            this.data.putByteArray("picture", response.body?.bytes())
+                            this.data.putString("picture", file?.path)
                         }
                         messenger?.send(message)
-                        Log.d(DEBUG_LOG, "${this.javaClass.name}.onBind() - ответ от сервера ${response.body?.bytes().toString()}")
-                     //printHeadersAndContent(response)
+//                        Log.d(DEBUG_LOG, "${this.javaClass.name}.onBind() - ответ от сервера ${response.body?.bytes().toString()}")
+                        //printHeadersAndContent(response)
                     }
                 })
             }
@@ -66,48 +96,58 @@ class ImageDownloadService() : Service() {
             var message = Message().apply { this.data.putByteArray("picture", null) }
             messenger?.send(message)
         }
-        return null
+        return messenger?.binder
     }
 
 
-    fun saveIntoFile(fileName: String?, byteArray: ByteArray?): String? {
+    fun saveIntoFile(fileName: String?, byteArray: ByteArray?): File? {
         val dir = "${this.externalMediaDirs?.get(0)}/${fileName}"
-        val file = File(dir)
+        file = File(dir)
 
         val notificationManager = NotificationManagerCompat.from(this@ImageDownloadService)
-
         try {
             Log.d(DEBUG_LOG, "saveIntoFile() сохранено в файл -- $dir")
-            if (file.createNewFile()) {
+            if (file!!.createNewFile()) {
                 if (byteArray != null) {
-                    file.appendBytes(byteArray)
-                }}/*
-                byteArray?.forEachIndexed { index, byte ->
+                    var blockLength = byteArray.count() / 10
+                    val lastLenght = byteArray.count() % 10
 
-                    file.outputStream().write(byteArray, index, 1)
-                    byteArray.count().let { it1 ->
-                        notificationManager.apply {
-                            val builder = NotificationCompat.Builder(this@ImageDownloadService, CHANNEL_ID)
-                                    .setContentTitle("Загрузка файла")
-                                    .setSmallIcon(R.drawable.download_icon)
-                                    .setContentIntent(PendingIntent.getActivities(this@ImageDownloadService, 0, arrayOf(Intent(this@ImageDownloadService, MainActivity::class.java)), PendingIntent.FLAG_UPDATE_CURRENT))
-                            builder.setProgress(it1, index, true)
-
-                            builder.build().let { this.notify(NOTIFICATION_ID, builder.build()) }
+                    var start = 0
+                    for (i in 0 until 10) {
+                        start = blockLength * i
+                        if (start + blockLength < byteArray.count()) {
+                            file!!.outputStream().write(byteArray, start, blockLength)
+                        } else {
+                            file!!.outputStream().write(byteArray, start, lastLenght)
                         }
 
+                        notificationManager.apply {
+                            builder?.setProgress(9, i, false)
+                            builder?.build()?.let { this.notify(NOTIFICATION_ID, it) }
+                        }
                     }
-
+                    builder?.setContentIntent(
+                            PendingIntent.getActivities(
+                                    this@ImageDownloadService,
+                                    0,
+                                    arrayOf(Intent(Intent.ACTION_VIEW, Uri.parse(file?.path)).apply {
+                                        this.type="image"
+                                    }),
+                                    PendingIntent.FLAG_UPDATE_CURRENT))
+                    builder?.setContentText("Download complete")?.setProgress(0, 0, false)
+                    builder?.build()?.let { notificationManager.notify(NOTIFICATION_ID, it) }
+                    //file!!.outputStream().close()
                 }
-            }*/
-            //notification?.setContentText("Download complete")?.setProgress(0, 0, false)
-            //notification?.build()?.let { notificationManager.notify(NOTIFICATION_ID, it) }
-            //outputStream.close()
-
+            }
         } catch (e: java.lang.Exception) {
             Log.d(DEBUG_LOG, "saveIntoFile() ошибка ${e.message}")
             e.printStackTrace()
         }
-        return file.path
+        return file
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        Log.d(DEBUG_LOG,"Service - onUnbind()")
+        return super.onUnbind(intent)
     }
 }

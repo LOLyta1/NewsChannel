@@ -7,14 +7,13 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Handler
 import android.os.IBinder
-import android.os.Message
 import android.os.Messenger
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.hfad.news.tsivileva.newschannel.*
-import com.hfad.news.tsivileva.newschannel.model.local.Favorite
 import com.hfad.news.tsivileva.newschannel.model.local.Content
+import com.hfad.news.tsivileva.newschannel.model.local.Favorite
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
 import com.hfad.news.tsivileva.newschannel.repository.remote.ImageDownloadService
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
@@ -61,12 +60,12 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     private fun _onError(e: Throwable) {
         if (newsDescriptionId != null) {
             val cachedContent = Content(id = null, descriptionId = newsDescriptionId, contentText = "")
-                    NewsDatabase.instance(getApplication())?.getApi()?.selectContentByDescriptionId(newsDescriptionId!!)
+            NewsDatabase.instance(getApplication())?.getApi()?.selectContentByDescriptionId(newsDescriptionId!!)
                     ?.let {
                         Content(id = null, descriptionId = newsDescriptionId, contentText = it)
                     }
             newsLiveData.postValue(DownloadingError(e, cachedContent))
-            Log.d(DEBUG_LOG,"FeedContentViewModel._onError -content:${cachedContent.contentText}")
+            Log.d(DEBUG_LOG, "FeedContentViewModel._onError -content:${cachedContent.contentText}")
         }
     }
 
@@ -77,9 +76,8 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
 
-
     fun removeFromFavorite(id: Long?) {
-        if(id!=null){
+        if (id != null) {
             val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
             databaseApi
                     ?.insertIntoFav(fav = Favorite(null, id, false))
@@ -89,7 +87,7 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
     fun addToFavorite(id: Long?) {
-        if(id!=null){
+        if (id != null) {
             val databaseApi = NewsDatabase.instance(getApplication())?.getApi()
             databaseApi
                     ?.insertIntoFav(fav = Favorite(null, id, true))
@@ -98,27 +96,36 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun downloadFile(url:String, fileName:String) {
+    fun downloadFile(url: String, fileName: String) {
         val context = getApplication<Application>()
-        var messenger: Messenger?= Messenger(Handler(context.mainLooper, Handler.Callback {
-            Log.d(DEBUG_LOG,"получен массив байтов ${it.data.getByteArray("picture")}")
-            it.data.getByteArray("picture")?.let { it1 -> ImageFile().saveIntoFile(fileName, it1,context) }
+        var _service :ImageDownloadService?=null
+
+        val connection= object : ServiceConnection {
+            override fun onServiceDisconnected(name: ComponentName?) { //messenger=null
+
+            }
+
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+
+            }
+        }
+        var messenger: Messenger? = Messenger(Handler(context.mainLooper, Handler.Callback {
+            Log.d(DEBUG_LOG, "получен массив байтов ${it.data.getByteArray("picture")}")
+            it.data.getByteArray("picture")?.let { it1 -> ImageFile().saveIntoFile(fileName, it1, context) }
+            context.unbindService(connection)
             true
         }))
 
-       // val message: Message = Message.obtain(null, ImageDownloadService.DOWNLOAD_COMMAND,0,0);
 
-        context.bindService(
+        // val message: Message = Message.obtain(null, ImageDownloadService.DOWNLOAD_COMMAND,0,0);
+
+       context.bindService(
                 Intent(context, ImageDownloadService::class.java).apply {
-                    this.putExtra("url",url)
-                    this.putExtra("filename",fileName)
-                    this.putExtra("messenger",messenger)
+                    this.putExtra("url", url)
+                    this.putExtra("filename", fileName)
+                    this.putExtra("connection",messenger)
                 },
-                object : ServiceConnection {
-                    override fun onServiceDisconnected(name: ComponentName?) { messenger=null }
-                    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                    }
-                },
+               connection,
                 Context.BIND_AUTO_CREATE
         )
     }
