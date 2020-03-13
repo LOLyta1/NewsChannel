@@ -1,6 +1,14 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
 import android.app.Application
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.Handler
+import android.os.IBinder
+import android.os.Message
+import android.os.Messenger
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -8,6 +16,7 @@ import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.model.local.Favorite
 import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
+import com.hfad.news.tsivileva.newschannel.repository.remote.ImageDownloadService
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -87,5 +96,30 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
                     ?.subscribeOn(Schedulers.io())
                     ?.subscribe()
         }
+    }
+
+    fun downloadFile(url:String, fileName:String) {
+        val context = getApplication<Application>()
+        var messenger: Messenger?= Messenger(Handler(context.mainLooper, Handler.Callback {
+            Log.d(DEBUG_LOG,"получен массив байтов ${it.data.getByteArray("picture")}")
+            it.data.getByteArray("picture")?.let { it1 -> ImageFile().saveIntoFile(fileName, it1,context) }
+            true
+        }))
+
+       // val message: Message = Message.obtain(null, ImageDownloadService.DOWNLOAD_COMMAND,0,0);
+
+        context.bindService(
+                Intent(context, ImageDownloadService::class.java).apply {
+                    this.putExtra("url",url)
+                    this.putExtra("filename",fileName)
+                    this.putExtra("messenger",messenger)
+                },
+                object : ServiceConnection {
+                    override fun onServiceDisconnected(name: ComponentName?) { messenger=null }
+                    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                    }
+                },
+                Context.BIND_AUTO_CREATE
+        )
     }
 }

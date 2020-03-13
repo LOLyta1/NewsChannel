@@ -28,6 +28,7 @@
     <string name="back_text">Назад</string>
     <string name="share_text">Поделиться</string>
     <string name="watch_fav_text">Отобразить избранное</string>
+    <string name="save_dialog_title">Сохранение файла</string>
 
 
 </resources>

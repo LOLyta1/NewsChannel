@@ -6,13 +6,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -23,13 +21,16 @@ import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.model.local.Description
 import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
+import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSaveFile
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
 
 class FragmentFeedContent :
         Fragment(),
-        DialogNetworkError.IDialogListener, IPermissionListener {
+        DialogNetworkError.IDialogListener,
+        IPermissionListener,
+        DialogSaveFile.okClickListener {
 
     private var menu: Menu? = null
     private var descriptionAndFav: DescriptionAndFav? = DescriptionAndFav(Description())
@@ -174,26 +175,26 @@ class FragmentFeedContent :
     override fun getPermissions(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == 1) {
             val index = permissions.indexOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            if(grantResults[index]==PackageManager.PERMISSION_GRANTED){
+            if (grantResults[index] == PackageManager.PERMISSION_GRANTED) {
+                DialogSaveFile().show(childFragmentManager, DialogSaveFile::class.java.canonicalName)
 
                 Log.d(DEBUG_LOG, "пришло разрешение ! ")
                 //скачать- с инета (не использовать DownloadManager) - написать свой downloader - принимает ссылку /коллбэк
                 //загрузка должно быть в ViewModel
-                        //на формат файла не привязываться
-                val name = descriptionAndFav?.description?.link
-                view?.news_details_image_view?.drawable?.let {
-                            val path = MediaStore.Images.Media.insertImage(context?.contentResolver, it.toBitmap(it.intrinsicWidth, it.intrinsicHeight), name, name)
-                            Toast.makeText(context, "Файл сохранен в $path", Toast.LENGTH_LONG).show()
+                //на формат файла не привязываться
+
+            } else
+                if (grantResults[index] == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(context, "Отказано в доступе! Разрешите доступ в настройках приложения", Toast.LENGTH_LONG).show()
                 }
-            }else
-               if(grantResults[index]==PackageManager.PERMISSION_DENIED)
-            {
-                Toast.makeText(context, "Отказано в доступе! Разрешите доступ в настройках приложения", Toast.LENGTH_LONG).show()
-            }
         }
-
-
     }
+
+    override fun onOkClick(fileName: String) {
+        super.onOkClick(fileName)
+        descriptionAndFav?.description?.pictureSrc?.let { viewModel?.downloadFile(it,fileName) }
+    }
+
 }
 
 

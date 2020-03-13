@@ -61,7 +61,6 @@ class FragmentFeeds() :
             if (it.isNotEmpty()) {
                 view.feeds_error_container.visibility = View.GONE
             } else {
-                //   TODO("скрыть клаву, если открыта,почистить и скрыть поисковик")
                 view.feeds_error_container.visibility = View.VISIBLE
             }
         })

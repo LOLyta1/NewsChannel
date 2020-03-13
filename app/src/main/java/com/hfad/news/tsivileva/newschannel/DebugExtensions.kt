@@ -7,6 +7,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndContent
 import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
 import com.hfad.news.tsivileva.newschannel.model.local.Description
+import retrofit2.Response
 
 val DEBUG_LOG = "mylog"
 val CACHE_LOG = "cache_log"
@@ -115,5 +116,11 @@ fun logIt(className: String?, methodName: String?, info: String, tag: String? = 
 fun printId(list: MutableList<Description>) {
     list.forEach {
         Log.d(DEBUG_LOG, "в списке ID-${it.id}")
+    }
+}
+
+fun printHeadersAndContent(response:okhttp3.Response){
+    response.headers.forEach {
+        Log.d(DEBUG_LOG,"заголовок - ${it.first},значение -${it.second}")
     }
 }
