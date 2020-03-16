@@ -1,8 +1,13 @@
 package com.hfad.news.tsivileva.newschannel
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
@@ -80,32 +85,24 @@ fun getViewModelFactory(app: Application): ViewModelProvider.NewInstanceFactory 
         }
     }
 }
+fun FragmentFeedContent.createNotification() {
+    context?.let { _context: Context ->
+        this.notification = NotificationCompat.Builder(_context, this.NOTIFICATION_CHANNEL)
+                .setSmallIcon(R.drawable.download_icon)
+                .setContentTitle(resources.getString(R.string.downloading_file))
+                .setProgress(100,0,false)
+                .build()
 
-fun FragmentFeedContent.showErrorUI() {
 
-    // this.view?.feed_content_container?.visibility = View.VISIBLE
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(this.NOTIFICATION_CHANNEL,"com.hfad.news.tsivileva.newschannel.file_download_channel", NotificationManager.IMPORTANCE_DEFAULT)
+            NotificationManagerCompat.from(_context).createNotificationChannel(channel)
+        }
+        this.notification?.let{
+            NotificationManagerCompat.from(_context).notify(this.NOTIFICATION_ID,it)
+        }
+    }
 }
-
-fun FragmentFeedContent.hideErrorUI() {
-
-}
-
-fun forwardText(text: String) {
-
-}
-
-
-
-
-
-/*//сортировка  - 1-сортировать по возрастанить, 2- по убыванию
-val SORT_KEY="sort"
-//ресурс - 1-хабр, 2 - прогер, 3 - оба
-val SOURCE_KEY="source"
-//избранное или нет true/false
-val SHOW_FAV_KEY="fav"*/
-
-
 
 
 

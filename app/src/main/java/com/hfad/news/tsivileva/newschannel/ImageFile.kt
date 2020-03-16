@@ -5,6 +5,10 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.provider.MediaStore
+import android.util.Log
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Exception
 
 class ImageFile {
     companion object{
@@ -27,8 +31,22 @@ class ImageFile {
 
     }
 
-    fun saveImageFile(context: Context?, source:Bitmap, name:String): String? {
-     return MediaStore.Images.Media.insertImage(context?.contentResolver,source,name,"${name}_$source")
-    }
+    fun saveIntoFile(fileName:String,byteArray: ByteArray,context: Context?): String? {
+       val dir="${context?.externalMediaDirs?.get(0)}/${fileName}"
+        var file=File(dir)
 
+        try {
+            Log.d(DEBUG_LOG,"saveIntoFile() сохранено в файл -- $dir")
+            if(file.createNewFile()){
+                file.appendBytes(byteArray)
+            }
+      }catch (e:Exception){
+          Log.d(DEBUG_LOG,"saveIntoFile() ошибка ${e.message}")
+            e.printStackTrace()
+      }
+
+        return file.path
+    }
 }
+
+

@@ -2,17 +2,20 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.Manifest
 import android.app.Activity
+import android.app.Notification
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.graphics.drawable.toBitmap
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -23,17 +26,24 @@ import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.model.local.Description
 import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
+import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSaveFile
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
+import com.hfad.news.tsivileva.newschannel.view_model.ImageDownloading
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
 
 class FragmentFeedContent :
         Fragment(),
-        DialogNetworkError.IDialogListener, IPermissionListener {
+        DialogNetworkError.IDialogListener,
+        IPermissionListener,
+        DialogSaveFile.okClickListener {
+
+    var notification: Notification? = null
+    val NOTIFICATION_CHANNEL = "file_downloading"
+    val NOTIFICATION_ID = 1
 
     private var menu: Menu? = null
     private var descriptionAndFav: DescriptionAndFav? = DescriptionAndFav(Description())
-
     var viewModel: FeedContentViewModel? = null
 
 
@@ -174,26 +184,67 @@ class FragmentFeedContent :
     override fun getPermissions(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == 1) {
             val index = permissions.indexOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            if(grantResults[index]==PackageManager.PERMISSION_GRANTED){
-
+            if (grantResults[index] == PackageManager.PERMISSION_GRANTED) {
+                DialogSaveFile().show(childFragmentManager, DialogSaveFile::class.java.canonicalName)
                 Log.d(DEBUG_LOG, "пришло разрешение ! ")
-                //скачать- с инета (не использовать DownloadManager, Rx) - написать свой downloader - принимает ссылку /коллбэк
-                //загрузка должно быть в ViewModel
-                        //на формат файла не привязываться
-                val name = descriptionAndFav?.description?.link
-                view?.news_details_image_view?.drawable?.let {
-                            val path = MediaStore.Images.Media.insertImage(context?.contentResolver, it.toBitmap(it.intrinsicWidth, it.intrinsicHeight), name, name)
-                            Toast.makeText(context, "Файл сохранен в $path", Toast.LENGTH_LONG).show()
+            } else
+                if (grantResults[index] == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(context, "Отказано в доступе! Разрешите доступ в настройках приложения", Toast.LENGTH_LONG).show()
                 }
-            }else
-               if(grantResults[index]==PackageManager.PERMISSION_DENIED)
-            {
-                Toast.makeText(context, "Отказано в доступе! Разрешите доступ в настройках приложения", Toast.LENGTH_LONG).show()
-            }
         }
+    }
 
+    override fun onSaveFileClick(fileName: String) {
+        super.onSaveFileClick(fileName)
+
+        createNotification()
+
+        descriptionAndFav?.description?.pictureSrc?.let {
+            viewModel?.downloadFile(it, fileName)?.observe(viewLifecycleOwner, Observer { info: ImageDownloading? ->
+                Log.d(DEBUG_LOG, "Пришел прогресс загрузки, путь фаайла - ${info?.path}")
+                context?.let { _context: Context ->
+                    notification?.let { _notification: Notification ->
+                        if (info?.progress != null) {
+                            if (info.progress == 100) {
+                                NotificationManagerCompat.from(_context)
+                                        .notify(NOTIFICATION_ID, createNotificationBuilder(_context, info.progress)
+                                                .setContentTitle(resources.getString(R.string.downloading_file_complete))
+                                                .setContentIntent(PendingIntent.getActivities(_context,0, arrayOf(Intent(Intent.ACTION_VIEW,Uri.parse(info.path))),PendingIntent.FLAG_CANCEL_CURRENT))
+                                                .setStyle(NotificationCompat.BigTextStyle().bigText(resources.getString(R.string.file_save_at)+info.path))
+                                                .build()
+                                        )
+
+                            } else {
+                                NotificationManagerCompat.from(_context)
+                                        .notify(NOTIFICATION_ID, createNotificationBuilder(_context, info.progress).build())
+                            }
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    private fun createNotificationBuilder(context: Context, progress: Int): NotificationCompat.Builder {
+        return NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
+                .setSmallIcon(R.drawable.download_icon)
+                .setContentTitle(resources.getString(R.string.downloading_file))
+                .setContentText("$progress%")
+                .setProgress(100, progress, false)
 
     }
+
+
 }
+
+
+
+
+
+
+
+
+
+
 
 
