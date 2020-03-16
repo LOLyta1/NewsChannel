@@ -27,7 +27,7 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
 
     var newsLiveData = MutableLiveData<DownloadingState<Content>>()
 
-    var downloadingFileLiveData=MutableLiveData<ImageDownloading>()
+    var downloadingFileLiveData=MutableLiveData<DownloadingState<ImageDownloading>>()
 
 
     fun downloadContent(url: String?, newsDescriptionId: Long?) {
@@ -102,24 +102,28 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
 
 
     @SuppressLint("CheckResult")
-    fun downloadFile(url: String, fileName: String): MutableLiveData<ImageDownloading> {
+    fun downloadFile(url: String?, fileName: String): MutableLiveData<DownloadingState<ImageDownloading>> {
+
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             val path = "${getApplication<Application>().externalMediaDirs?.get(0)}/${fileName}"
 
+
             Log.d(DEBUG_LOG, "путь файла - $path")
-            RemoteRepository.getFileDownloadingObservable(filePath = path, url = url)
-                    ?.subscribe(
-                            { progress ->
-                                downloadingFileLiveData.postValue(ImageDownloading(path,progress))
-                                Log.d(DEBUG_LOG, "progress ${progress}")
-                            },
-                            { e ->downloadingFileLiveData.postValue(ImageDownloading(path,-1))
-                                Log.d(DEBUG_LOG, "ошибка ${e.message}")
-                                e.printStackTrace()
-                            },
-                            { Log.d(DEBUG_LOG, "Загрузка завершена") })
+
+            if (url != null) {
+                RemoteRepository.getFileDownloadingObservable(filePath = path, url = url)
+                        ?.subscribe(
+                                { progress ->
+                                    downloadingFileLiveData.postValue(DownloadingSuccessful(ImageDownloading(path,progress)))
+                                    Log.d(DEBUG_LOG, "progress ${progress}")
+                                },
+                                { e ->downloadingFileLiveData.postValue(DownloadingError(e, ImageDownloading(path,-1)))
+                                    Log.d(DEBUG_LOG, "ошибка ${e.message}")
+                                    e.printStackTrace()
+                                },
+                                { Log.d(DEBUG_LOG, "Загрузка завершена") })
+            }
         }
     return downloadingFileLiveData
     }
-
 }

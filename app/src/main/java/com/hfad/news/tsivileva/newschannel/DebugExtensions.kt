@@ -7,7 +7,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndContent
 import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
 import com.hfad.news.tsivileva.newschannel.model.local.Description
-import retrofit2.Response
 
 val DEBUG_LOG = "mylog"
 val CACHE_LOG = "cache_log"
@@ -20,7 +19,7 @@ fun printNewsDescriptionList(list: List<Description>) {
                 "\ntitle=${it.title.substring(10)}" +
                 "\n date=${it.date}" +
                 "\n link=${it.link}" +
-                "\n picture=${it.pictureSrc}" +
+                "\n picture=${it.pictureLink}" +
                 "\n sourceKind=${it.sourceKind}"+
                 "\n================================"
         )
@@ -35,7 +34,7 @@ fun printNewsAndContentList(list: MutableList<DescriptionAndContent?>) {
                 "\ntitle=${getTenSymbols(description?.title)}" +
                 "\n date=${description?.date}" +
                 "\n link=${description?.link}" +
-                "\n picture=${description?.pictureSrc}" +
+                "\n picture=${description?.pictureLink}" +
                 "\n sourceKind=${description?.sourceKind}")
         val info = it?.content
         Log.d(DEBUG_LOG, "\nid=${info?.id};" +
@@ -53,7 +52,7 @@ fun printNewsAndContentList(list: MutableList<DescriptionAndContent?>) {
                  "\ntitle=${getTenSymbols(description?.title)}" +
                  "\n date=${description?.date}" +
                  "\n link=${description?.link}" +
-                 "\n picture=${description?.pictureSrc}" +
+                 "\n picture=${description?.pictureLink}" +
                  "\n sourceKind=${description?.sourceKind}")
          val info = it?.favorite
          Log.d(DEBUG_LOG, "\nid=${info?.id};" +

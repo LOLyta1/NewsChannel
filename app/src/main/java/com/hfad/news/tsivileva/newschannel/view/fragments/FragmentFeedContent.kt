@@ -2,9 +2,6 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.Manifest
 import android.app.Activity
-import android.app.Notification
-import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -14,8 +11,6 @@ import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -25,6 +20,7 @@ import com.hfad.news.tsivileva.newschannel.activity.IPermissionListener
 import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.model.local.Description
 import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
+import com.hfad.news.tsivileva.newschannel.view.DownloadNotification
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSaveFile
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
@@ -38,9 +34,6 @@ class FragmentFeedContent :
         IPermissionListener,
         DialogSaveFile.okClickListener {
 
-    var notification: Notification? = null
-    val NOTIFICATION_CHANNEL = "file_downloading"
-    val NOTIFICATION_ID = 1
 
     private var menu: Menu? = null
     private var descriptionAndFav: DescriptionAndFav? = DescriptionAndFav(Description())
@@ -68,7 +61,9 @@ class FragmentFeedContent :
         viewModel?.downloadContent(descriptionAndFav?.description?.link, descriptionAndFav?.description?.id)
 
         viewModel?.newsLiveData?.observe(viewLifecycleOwner, Observer { contentDownlodingResult: DownloadingState<Content>? ->
+
             view.news_content_progress_bar?.visibility = View.GONE
+
             when (contentDownlodingResult) {
                 is DownloadingSuccessful -> {
                     view.feeds_details_error_container?.visibility = View.GONE
@@ -153,7 +148,7 @@ class FragmentFeedContent :
             _view.news_details_title_text_view?.text = description?.description?.title
             _view.news_details_link_text_view?.text = description?.description?.link
 
-            val path = description?.description?.pictureSrc
+            val path = description?.description?.pictureLink
             if (path != null && path != "null") {
                 _view.news_icon_card_view?.visibility = View.VISIBLE
                 Glide.with(this)
@@ -196,45 +191,23 @@ class FragmentFeedContent :
 
     override fun onSaveFileClick(fileName: String) {
         super.onSaveFileClick(fileName)
-
-        createNotification()
-
-        descriptionAndFav?.description?.pictureSrc?.let {
-            viewModel?.downloadFile(it, fileName)?.observe(viewLifecycleOwner, Observer { info: ImageDownloading? ->
-                Log.d(DEBUG_LOG, "Пришел прогресс загрузки, путь фаайла - ${info?.path}")
-                context?.let { _context: Context ->
-                    notification?.let { _notification: Notification ->
-                        if (info?.progress != null) {
-                            if (info.progress == 100) {
-                                NotificationManagerCompat.from(_context)
-                                        .notify(NOTIFICATION_ID, createNotificationBuilder(_context, info.progress)
-                                                .setContentTitle(resources.getString(R.string.downloading_file_complete))
-                                                .setContentIntent(PendingIntent.getActivities(_context,0, arrayOf(Intent(Intent.ACTION_VIEW,Uri.parse(info.path))),PendingIntent.FLAG_CANCEL_CURRENT))
-                                                .setStyle(NotificationCompat.BigTextStyle().bigText(resources.getString(R.string.file_save_at)+info.path))
-                                                .build()
-                                        )
-
-                            } else {
-                                NotificationManagerCompat.from(_context)
-                                        .notify(NOTIFICATION_ID, createNotificationBuilder(_context, info.progress).build())
-                            }
+        val downloadNotification=DownloadNotification(context)
+         viewModel?.downloadFile(descriptionAndFav?.description?.pictureLink, fileName)?.observe(viewLifecycleOwner, Observer { information: DownloadingState<ImageDownloading>? ->
+                when(information){
+                    is DownloadingSuccessful ->{
+                        if(information.data.progress<100){
+                            downloadNotification.update(information.data.progress,information.data.path)
+                        }else{
+                            downloadNotification.hideProgress(resources.getString(R.string.downloading_file_complete))
                         }
                     }
+                    is DownloadingError->{
+                        DownloadNotification(context).update(0,"Ошибка загрузки!")
+                    }
                 }
-            })
-        }
+
+        })
     }
-
-    private fun createNotificationBuilder(context: Context, progress: Int): NotificationCompat.Builder {
-        return NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
-                .setSmallIcon(R.drawable.download_icon)
-                .setContentTitle(resources.getString(R.string.downloading_file))
-                .setContentText("$progress%")
-                .setProgress(100, progress, false)
-
-    }
-
-
 }
 
 

@@ -24,6 +24,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import kotlin.math.roundToInt
 
 
 class RemoteRepository {
@@ -84,17 +85,18 @@ class RemoteRepository {
 
                         val contentLength = response.body?.contentLength()
                         var offset = 0
-                        var count: Int?=0
+                        var count=0
 
                         source.onNext(0)/*информируем подписчика, что скачалось 0 процентов*/
 
                         while (count!=-1) {
-                            if (count!=null && count!=0 && contentLength != null) {
-                                source.onNext(((offset*100)/contentLength).toInt()+1)
+                            if (count!=0 && contentLength != null) {
+                                source.onNext(calcProgress(offset,contentLength))
+                                //source.onNext(((offset*100)/contentLength).toInt()+1)
                                 offset += count
                                 outputFile?.write(dataBuffer, 0, count)
                             }
-                            count=inputStream?.read(dataBuffer)
+                            count= inputStream?.read(dataBuffer)!!
                         }
                         outputFile?.flush()
                         source.onComplete()
@@ -110,6 +112,15 @@ class RemoteRepository {
                  }
                 }
             }.observeOn(Schedulers.io()).subscribeOn(Schedulers.io())
+        }
+
+        private fun calcProgress(calculatedPart:Int, currentCount:Long? ) : Int{
+            return if(currentCount!=null && currentCount!=0L){
+              var value:Float= calculatedPart.toFloat()*100/currentCount
+              value.roundToInt()
+            }else{
+                -1
+            }
         }
     }
 

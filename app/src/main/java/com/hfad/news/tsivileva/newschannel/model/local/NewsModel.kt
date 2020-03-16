@@ -14,7 +14,7 @@ data class Description(
         @ColumnInfo(name = "id_desc")
         var id: Long = 0L,
         var date: Date? = Date(0L),
-        var pictureSrc: String = "",
+        var pictureLink: String = "",
         var sourceKind: FeedsSource = FeedsSource.BOTH,
         var link: String = "",
         var title: String = ""

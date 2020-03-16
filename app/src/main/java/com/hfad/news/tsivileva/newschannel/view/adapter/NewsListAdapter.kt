@@ -60,9 +60,9 @@ class NewsListAdapter : RecyclerView.Adapter<NewsListAdapter.ViewHolder>() {
         holder.linkView.text = list[position].description.link
         holder.dateView.text = list[position].description.dateToString()
 
-        if (list[position].description.pictureSrc != "") {
+        if (list[position].description.pictureLink != "") {
             Glide.with(holder.imageView)
-                    .load(list[position].description.pictureSrc)
+                    .load(list[position].description.pictureLink)
                     .centerCrop()
                     .placeholder(R.drawable.no_photo)
                     .error(R.drawable.no_photo)

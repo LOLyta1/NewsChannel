@@ -21,7 +21,7 @@ class ModelConverter {
             newsItem.sourceKind = FeedsSource.HABR
             newsItem.id = getIdInLink(it.link)
             newsItem.link = it.link
-            newsItem.pictureSrc = it.image
+            newsItem.pictureLink = it.image
             newsItem.title = it.title
             newsItem.date = it.date
             list.add(newsItem)
@@ -38,7 +38,7 @@ class ModelConverter {
             newsItem.link = it.link
             newsItem.title = it.title
             newsItem.date = it.date
-            newsItem.pictureSrc = "https://tproger.ru/apple-touch-icon.png"
+            newsItem.pictureLink = "https://tproger.ru/apple-touch-icon.png"
             list.add(newsItem)
         }
         return list
@@ -54,7 +54,7 @@ class ModelConverter {
                         newsItem.sourceKind = FeedsSource.HABR
                         newsItem.id = getIdInLink(it.link)
                         newsItem.link = it.link
-                        newsItem.pictureSrc = it.image
+                        newsItem.pictureLink = it.image
                         newsItem.title = it.title
                         newsItem.date = it.date
                         list.add(newsItem)
@@ -66,7 +66,7 @@ class ModelConverter {
                         newsItem.link = it.link
                         newsItem.title = it.title
                         newsItem.date = it.date
-                        newsItem.pictureSrc = "https://tproger.ru/apple-touch-icon.png"
+                        newsItem.pictureLink = "https://tproger.ru/apple-touch-icon.png"
                         list.add(newsItem)
                     }
                 }

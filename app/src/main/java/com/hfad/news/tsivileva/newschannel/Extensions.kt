@@ -85,25 +85,6 @@ fun getViewModelFactory(app: Application): ViewModelProvider.NewInstanceFactory 
         }
     }
 }
-fun FragmentFeedContent.createNotification() {
-    context?.let { _context: Context ->
-        this.notification = NotificationCompat.Builder(_context, this.NOTIFICATION_CHANNEL)
-                .setSmallIcon(R.drawable.download_icon)
-                .setContentTitle(resources.getString(R.string.downloading_file))
-                .setProgress(100,0,false)
-                .build()
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(this.NOTIFICATION_CHANNEL,"com.hfad.news.tsivileva.newschannel.file_download_channel", NotificationManager.IMPORTANCE_DEFAULT)
-            NotificationManagerCompat.from(_context).createNotificationChannel(channel)
-        }
-        this.notification?.let{
-            NotificationManagerCompat.from(_context).notify(this.NOTIFICATION_ID,it)
-        }
-    }
-}
-
 
 
 
