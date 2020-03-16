@@ -10,7 +10,7 @@ import kotlinx.android.synthetic.main.save_dialog.view.*
 
 class DialogSaveFile:DialogFragment(){
   interface okClickListener{
-      fun onOkClick(fileName:String){}
+      fun onSaveFileClick(fileName:String){}
   }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.save_dialog,container,false)
@@ -19,7 +19,7 @@ class DialogSaveFile:DialogFragment(){
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.save_file_button.setOnClickListener {
-            ( parentFragment as? okClickListener)?.onOkClick(view.file_name_edit_text.text.toString())
+            ( parentFragment as? okClickListener)?.onSaveFileClick(view.file_name_edit_text.text.toString())
             dismiss()
         }
         view.file_save_cancel_button.setOnClickListener {

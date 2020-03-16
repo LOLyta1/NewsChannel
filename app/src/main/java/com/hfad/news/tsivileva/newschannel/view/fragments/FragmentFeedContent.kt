@@ -2,6 +2,9 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.Manifest
 import android.app.Activity
+import android.app.Notification
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -11,6 +14,8 @@ import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -32,9 +37,12 @@ class FragmentFeedContent :
         IPermissionListener,
         DialogSaveFile.okClickListener {
 
+    var notification: Notification? = null
+    val NOTIFICATION_CHANNEL = "file_downloading"
+    val NOTIFICATION_ID = 1
+
     private var menu: Menu? = null
     private var descriptionAndFav: DescriptionAndFav? = DescriptionAndFav(Description())
-
     var viewModel: FeedContentViewModel? = null
 
 
@@ -177,12 +185,7 @@ class FragmentFeedContent :
             val index = permissions.indexOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             if (grantResults[index] == PackageManager.PERMISSION_GRANTED) {
                 DialogSaveFile().show(childFragmentManager, DialogSaveFile::class.java.canonicalName)
-
                 Log.d(DEBUG_LOG, "пришло разрешение ! ")
-                //скачать- с инета (не использовать DownloadManager) - написать свой downloader - принимает ссылку /коллбэк
-                //загрузка должно быть в ViewModel
-                //на формат файла не привязываться
-
             } else
                 if (grantResults[index] == PackageManager.PERMISSION_DENIED) {
                     Toast.makeText(context, "Отказано в доступе! Разрешите доступ в настройках приложения", Toast.LENGTH_LONG).show()
@@ -190,11 +193,41 @@ class FragmentFeedContent :
         }
     }
 
-    override fun onOkClick(fileName: String) {
-        super.onOkClick(fileName)
-        descriptionAndFav?.description?.pictureSrc?.let { viewModel?.downloadFile(it,fileName) }
+    override fun onSaveFileClick(fileName: String) {
+        super.onSaveFileClick(fileName)
+
+        createNotification()
+
+        descriptionAndFav?.description?.pictureSrc?.let {
+            viewModel?.downloadFile(it, fileName)?.observe(viewLifecycleOwner, Observer { _progress: Int? ->
+                context?.let { _context: Context ->
+                    notification?.let { _notification: Notification ->
+                        if (_progress != null) {
+                            NotificationManagerCompat.from(_context).notify(NOTIFICATION_ID, NotificationCompat.Builder(_context, NOTIFICATION_CHANNEL)
+                                    .setSmallIcon(R.drawable.download_icon)
+                                    .setContentTitle(resources.getString(R.string.downloading_file))
+                                    .setContentText("$_progress%")
+                                    .setProgress(100, _progress, false)
+                                    .build())
+                        }
+                    }
+                }
+
+            })
+        }
     }
 
+
 }
+
+
+
+
+
+
+
+
+
+
 
 

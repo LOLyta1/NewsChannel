@@ -70,17 +70,17 @@ class RemoteRepository {
             return retrofit.create(_class)
         }
 
-        fun getDownloadingObservable(filePath: String, url: String): Observable<Long>? {
+        fun getFileDownloadingObservable(filePath: String, url: String): Observable<Int>? {
             var inputStream: InputStream?=null
             var outputFile: FileOutputStream?=null
 
-            return  Observable.create { source: ObservableEmitter<Long> ->
+            return  Observable.create { source: ObservableEmitter<Int> ->
                 try {
                     val response = OkHttpClient().newCall(Request.Builder().url(url).build()).execute()
                     if (response.isSuccessful) {
                         inputStream = response.body?.byteStream()
                         outputFile = FileOutputStream(filePath)
-                        val dataBuffer = ByteArray(1024)
+                        val dataBuffer = ByteArray(256)
 
                         val contentLength = response.body?.contentLength()
                         var offset = 0
@@ -89,19 +89,15 @@ class RemoteRepository {
                         source.onNext(0)/*информируем подписчика, что скачалось 0 процентов*/
 
                         while (count!=-1) {
-
-                            //if(count==0) source.onComplete()
                             if (count!=null && count!=0 && contentLength != null) {
+                                source.onNext(((offset*100)/contentLength).toInt()+1)
                                 offset += count
-                                source.onNext( (offset*100)/contentLength)
                                 outputFile?.write(dataBuffer, 0, count)
-                            } else {
-                              //  source.onComplete()
                             }
                             count=inputStream?.read(dataBuffer)
                         }
-                        source.onComplete()
                         outputFile?.flush()
+                        source.onComplete()
                     }
                 } catch (e: Exception) {
                     source.onError(e)
