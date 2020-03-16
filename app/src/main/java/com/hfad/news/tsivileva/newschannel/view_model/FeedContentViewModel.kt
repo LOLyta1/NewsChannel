@@ -1,13 +1,7 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
 import android.app.Application
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
-import android.os.Handler
-import android.os.IBinder
-import android.os.Messenger
+import android.os.Environment
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -15,7 +9,6 @@ import com.hfad.news.tsivileva.newschannel.*
 import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.model.local.Favorite
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
-import com.hfad.news.tsivileva.newschannel.repository.remote.ImageDownloadService
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -97,36 +90,53 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
     fun downloadFile(url: String, fileName: String) {
-        val context = getApplication<Application>()
-        var _service :ImageDownloadService?=null
+        /*  val storages= getApplication<Application>().externalMediaDirs?.forEach {
+              it.
+          }
+          }
 
-        val connection= object : ServiceConnection {
-            override fun onServiceDisconnected(name: ComponentName?) { //messenger=null
-
-            }
-
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-
-            }
+   */ if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            val path = "${getApplication<Application>().externalMediaDirs?.get(0)}/${fileName}"
+            Log.d(DEBUG_LOG,"путь файла - $path")
+            RemoteRepository.getDownloadingObservable(filePath = path, url = url)
+                    ?.subscribe(
+                            { progress -> Log.d(DEBUG_LOG, "progress ${progress}") },
+                            {e->Log.d(DEBUG_LOG,"ошибка ${e.message}")
+                            e.printStackTrace()},
+                            {Log.d(DEBUG_LOG,"Загрузка завершена")})
         }
-        var messenger: Messenger? = Messenger(Handler(context.mainLooper, Handler.Callback {
-            Log.d(DEBUG_LOG, "получен массив байтов ${it.data.getByteArray("picture")}")
-            it.data.getByteArray("picture")?.let { it1 -> ImageFile().saveIntoFile(fileName, it1, context) }
-            context.unbindService(connection)
-            true
-        }))
 
 
-        // val message: Message = Message.obtain(null, ImageDownloadService.DOWNLOAD_COMMAND,0,0);
-
-       context.bindService(
-                Intent(context, ImageDownloadService::class.java).apply {
-                    this.putExtra("url", url)
-                    this.putExtra("filename", fileName)
-                    this.putExtra("connection",messenger)
-                },
-               connection,
-                Context.BIND_AUTO_CREATE
-        )
+//        val context = getApplication<Application>()
+//        var _service :ImageDownloadService?=null
+//
+//        val connection= object : ServiceConnection {
+//            override fun onServiceDisconnected(name: ComponentName?) { //messenger=null
+//
+//            }
+//
+//            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+//
+//            }
+//        }
+//        var messenger: Messenger? = Messenger(Handler(context.mainLooper, Handler.Callback {
+//            Log.d(DEBUG_LOG, "получен массив байтов ${it.data.getByteArray("picture")}")
+//            it.data.getByteArray("picture")?.let { it1 -> ImageFile().saveIntoFile(fileName, it1, context) }
+//            context.unbindService(connection)
+//            true
+//        }))
+//
+//
+//        // val message: Message = Message.obtain(null, ImageDownloadService.DOWNLOAD_COMMAND,0,0);
+//
+//       context.bindService(
+//                Intent(context, ImageDownloadService::class.java).apply {
+//                    this.putExtra("url", url)
+//                    this.putExtra("filename", fileName)
+//                    this.putExtra("connection",messenger)
+//                },
+//               connection,
+//                Context.BIND_AUTO_CREATE
+//        )
     }
 }

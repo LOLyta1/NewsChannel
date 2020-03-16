@@ -23,8 +23,8 @@ class ImageDownloadService() : Service() {
         val DOWNLOAD_COMMAND = 1
     }
 
-    inner class ServiceBinder: Binder() {
-        fun getService()=this@ImageDownloadService
+    inner class ServiceBinder : Binder() {
+        fun getService() = this@ImageDownloadService
     }
 
     var builder: NotificationCompat.Builder? = null
@@ -71,8 +71,8 @@ class ImageDownloadService() : Service() {
                 val request = Request.Builder().url(url).build()
                 OkHttpClient().newCall(request).enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
-                          var message = Message().apply { this.data.putByteArray("picture", null) }
-                         messenger?.send(message)
+                        var message = Message().apply { this.data.putByteArray("picture", null) }
+                        messenger?.send(message)
                         Log.d(DEBUG_LOG, "${this.javaClass.name}.onBind() - ошибка ответа от сервера${e.message}")
                         stopSelf()
 
@@ -131,9 +131,10 @@ class ImageDownloadService() : Service() {
                                     this@ImageDownloadService,
                                     0,
                                     arrayOf(Intent(Intent.ACTION_VIEW, Uri.parse(file?.path)).apply {
-                                        this.type="image"
+                                        this.type = "image"
                                     }),
                                     PendingIntent.FLAG_UPDATE_CURRENT))
+                    builder?.setAutoCancel(true)
                     builder?.setContentText("Download complete")?.setProgress(0, 0, false)
                     builder?.build()?.let { notificationManager.notify(NOTIFICATION_ID, it) }
                     //file!!.outputStream().close()
@@ -147,7 +148,7 @@ class ImageDownloadService() : Service() {
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
-        Log.d(DEBUG_LOG,"Service - onUnbind()")
+        Log.d(DEBUG_LOG, "Service - onUnbind()")
         return super.onUnbind(intent)
     }
 }
