@@ -13,14 +13,21 @@ import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.security.cert.CertPath
 
+data class ImageDownloading(
+        var path: String,
+        var progress:Int
+){
+
+}
 class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     private var contentSubscription: Disposable? = null
     private var newsDescriptionId: Long? = null
 
     var newsLiveData = MutableLiveData<DownloadingState<Content>>()
 
-    var downloadingFileLiveData=MutableLiveData<Int>()
+    var downloadingFileLiveData=MutableLiveData<ImageDownloading>()
 
 
     fun downloadContent(url: String?, newsDescriptionId: Long?) {
@@ -95,8 +102,7 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
 
 
     @SuppressLint("CheckResult")
-    fun downloadFile(url: String, fileName: String): MutableLiveData<Int> {
-
+    fun downloadFile(url: String, fileName: String): MutableLiveData<ImageDownloading> {
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             val path = "${getApplication<Application>().externalMediaDirs?.get(0)}/${fileName}"
 
@@ -104,10 +110,10 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
             RemoteRepository.getFileDownloadingObservable(filePath = path, url = url)
                     ?.subscribe(
                             { progress ->
-                                downloadingFileLiveData.postValue(progress)
+                                downloadingFileLiveData.postValue(ImageDownloading(path,progress))
                                 Log.d(DEBUG_LOG, "progress ${progress}")
                             },
-                            { e ->downloadingFileLiveData.postValue(-1)
+                            { e ->downloadingFileLiveData.postValue(ImageDownloading(path,-1))
                                 Log.d(DEBUG_LOG, "ошибка ${e.message}")
                                 e.printStackTrace()
                             },

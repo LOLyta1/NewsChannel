@@ -85,20 +85,6 @@ fun getViewModelFactory(app: Application): ViewModelProvider.NewInstanceFactory 
         }
     }
 }
-
-fun FragmentFeedContent.showErrorUI() {
-
-    // this.view?.feed_content_container?.visibility = View.VISIBLE
-}
-
-fun FragmentFeedContent.hideErrorUI() {
-
-}
-
-fun forwardText(text: String) {
-
-}
-
 fun FragmentFeedContent.createNotification() {
     context?.let { _context: Context ->
         this.notification = NotificationCompat.Builder(_context, this.NOTIFICATION_CHANNEL)
@@ -117,17 +103,6 @@ fun FragmentFeedContent.createNotification() {
         }
     }
 }
-
-
-
-/*//сортировка  - 1-сортировать по возрастанить, 2- по убыванию
-val SORT_KEY="sort"
-//ресурс - 1-хабр, 2 - прогер, 3 - оба
-val SOURCE_KEY="source"
-//избранное или нет true/false
-val SHOW_FAV_KEY="fav"*/
-
-
 
 
 

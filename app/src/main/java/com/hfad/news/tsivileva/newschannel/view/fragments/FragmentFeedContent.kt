@@ -28,6 +28,7 @@ import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSaveFile
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
+import com.hfad.news.tsivileva.newschannel.view_model.ImageDownloading
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 
 
@@ -199,22 +200,38 @@ class FragmentFeedContent :
         createNotification()
 
         descriptionAndFav?.description?.pictureSrc?.let {
-            viewModel?.downloadFile(it, fileName)?.observe(viewLifecycleOwner, Observer { _progress: Int? ->
+            viewModel?.downloadFile(it, fileName)?.observe(viewLifecycleOwner, Observer { info: ImageDownloading? ->
+                Log.d(DEBUG_LOG, "Пришел прогресс загрузки, путь фаайла - ${info?.path}")
                 context?.let { _context: Context ->
                     notification?.let { _notification: Notification ->
-                        if (_progress != null) {
-                            NotificationManagerCompat.from(_context).notify(NOTIFICATION_ID, NotificationCompat.Builder(_context, NOTIFICATION_CHANNEL)
-                                    .setSmallIcon(R.drawable.download_icon)
-                                    .setContentTitle(resources.getString(R.string.downloading_file))
-                                    .setContentText("$_progress%")
-                                    .setProgress(100, _progress, false)
-                                    .build())
+                        if (info?.progress != null) {
+                            if (info.progress == 100) {
+                                NotificationManagerCompat.from(_context)
+                                        .notify(NOTIFICATION_ID, createNotificationBuilder(_context, info.progress)
+                                                .setContentTitle(resources.getString(R.string.downloading_file_complete))
+                                                .setContentIntent(PendingIntent.getActivities(_context,0, arrayOf(Intent(Intent.ACTION_VIEW,Uri.parse(info.path))),PendingIntent.FLAG_CANCEL_CURRENT))
+                                                .setStyle(NotificationCompat.BigTextStyle().bigText(resources.getString(R.string.file_save_at)+info.path))
+                                                .build()
+                                        )
+
+                            } else {
+                                NotificationManagerCompat.from(_context)
+                                        .notify(NOTIFICATION_ID, createNotificationBuilder(_context, info.progress).build())
+                            }
                         }
                     }
                 }
-
             })
         }
+    }
+
+    private fun createNotificationBuilder(context: Context, progress: Int): NotificationCompat.Builder {
+        return NotificationCompat.Builder(context, NOTIFICATION_CHANNEL)
+                .setSmallIcon(R.drawable.download_icon)
+                .setContentTitle(resources.getString(R.string.downloading_file))
+                .setContentText("$progress%")
+                .setProgress(100, progress, false)
+
     }
 
 
