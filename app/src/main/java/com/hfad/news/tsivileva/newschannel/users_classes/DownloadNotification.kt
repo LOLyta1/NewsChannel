@@ -15,10 +15,15 @@ class DownloadNotification(private val context: Context?) {
     private val NOTIFICATION_CHANNEL = "file_downloading"
     private val NOTIFICATION_ID = 1
 
-    private var builder=createNotificationBuilder(0)
+    private var builder:NotificationCompat.Builder?=null
+
 
     init {
         createNotificationChannel()
+        builder=createNotificationBuilder(0)
+        if (context != null && builder != null) {
+            NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder!!.build())
+        }
     }
 
     private fun createNotificationBuilder(progress: Int): NotificationCompat.Builder? {
@@ -28,6 +33,9 @@ class DownloadNotification(private val context: Context?) {
                     .setContentTitle(context.resources.getString(R.string.downloading_file))
                     .setContentText("$progress%")
                     .setProgress(100, progress, false)
+                    .setOnlyAlertOnce(true)
+                    .setOngoing(true)
+
         }
 
     }

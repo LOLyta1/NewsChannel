@@ -197,6 +197,7 @@ class FragmentFeedContent :
         viewModel?.downloadFile(descriptionAndFav?.description?.pictureLink)?.observe(viewLifecycleOwner, Observer { information: DownloadingState<Int>? ->
             when (information) {
                 is DownloadingSuccessful -> {
+                    Log.d(DEBUG_LOG,"onSaveFileClick.progress - ${information.data}")
                         downloadNotification.update(information.data, information.data.toString())
                 }
                 is DownloadingError -> {
