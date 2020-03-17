@@ -102,9 +102,8 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
 
     @SuppressLint("CheckResult")
     fun downloadFile(url: String?): MutableLiveData<DownloadingState<Int>> {
-
             if (url != null) {
-                RemoteRepository.getFileDownloadingObservable(url = url)
+                RemoteRepository.getFileDownloadingObservable(url = url,context = getApplication())
                         ?.distinctUntilChanged()
                         ?.subscribe(
                                 { progress ->
@@ -116,7 +115,7 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
                                     e.printStackTrace()
                                 },
                                 { downloadingFileLiveData.postValue(DownloadingSuccessful(100))
-                                    ImageGallery.updateImageInGallery(getApplication())
+                                    ImageGallery.getStreamToGallery(getApplication())
                                     Log.d(DEBUG_LOG, "Загрузка завершена") })
             }
 

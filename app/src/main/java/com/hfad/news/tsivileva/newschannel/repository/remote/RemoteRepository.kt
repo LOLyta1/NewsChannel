@@ -1,6 +1,7 @@
 package com.hfad.news.tsivileva. newschannel.repository.remote
 
 
+import android.content.Context
 import com.hfad.news.tsivileva.newschannel.users_classes.FeedsSource
 import com.hfad.news.tsivileva.newschannel.model.ModelConverter
 import com.hfad.news.tsivileva.newschannel.model.local.Content
@@ -71,16 +72,15 @@ class RemoteRepository {
             return retrofit.create(_class)
         }
 
-        fun getFileDownloadingObservable(url: String): Observable<Int>? {
+        fun getFileDownloadingObservable(url: String,context: Context): Observable<Int>? {
             var inputStream: InputStream?=null
-            var outputFile: FileOutputStream?=null
+            var outputFile=ImageGallery.getStreamToGallery(context)
 
             return  Observable.create { source: ObservableEmitter<Int> ->
                 try {
                     val response = OkHttpClient().newCall(Request.Builder().url(url).build()).execute()
                     if (response.isSuccessful) {
-                        inputStream = response.body?.byteStream()
-                        outputFile = FileOutputStream("${ImageGallery.path}/${ImageGallery.fileName}")
+                       inputStream = response.body?.byteStream()
                         val dataBuffer = ByteArray(8)
 
                         val contentLength = response.body?.contentLength()
@@ -97,7 +97,7 @@ class RemoteRepository {
                             }
                             count= inputStream?.read(dataBuffer)!!
                         }
-                        outputFile?.flush()
+                        //outputFile?.flush()
                         source.onComplete()
                     }
                 } catch (e: Exception) {
