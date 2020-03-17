@@ -1,11 +1,11 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.hfad.news.tsivileva.newschannel.*
+import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
+import com.hfad.news.tsivileva.newschannel.getSourceByLink
 import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.model.local.Favorite
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
@@ -16,17 +16,19 @@ import io.reactivex.schedulers.Schedulers
 
 data class ImageDownloading(
         var path: String,
-        var progress:Int
-){
+        var progress: Int
+) {
 
 }
+
 class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     private var contentSubscription: Disposable? = null
+    private var downloadingSubscription: Disposable? = null
     private var newsDescriptionId: Long? = null
 
     var newsLiveData = MutableLiveData<DownloadingState<Content>>()
 
-    var downloadingFileLiveData=MutableLiveData<DownloadingState<Int>>()
+    var downloadingFileLiveData = MutableLiveData<DownloadingState<Int>>()
 
 
     fun downloadContent(url: String?, newsDescriptionId: Long?) {
@@ -100,24 +102,27 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
 
-    @SuppressLint("CheckResult")
     fun downloadFile(url: String?): MutableLiveData<DownloadingState<Int>> {
-            if (url != null) {
-                RemoteRepository.getFileDownloadingObservable(url = url,context = getApplication())
-                        ?.distinctUntilChanged()
-                        ?.subscribe(
-                                { progress ->
-                                    downloadingFileLiveData.postValue(DownloadingSuccessful(progress))
-                                    Log.d(DEBUG_LOG, "progress ${progress}")
-                                },
-                                { e ->downloadingFileLiveData.postValue(DownloadingError(e,-1))
-                                    Log.d(DEBUG_LOG, "ошибка ${e.message}")
-                                    e.printStackTrace()
-                                },
-                                { downloadingFileLiveData.postValue(DownloadingComplete())
-                                    Log.d(DEBUG_LOG, "Загрузка завершена") })
-            }
+        if (url != null) {
+            downloadingSubscription = RemoteRepository.getFileDownloadingObservable(url = url, context = getApplication())
+                    ?.distinctUntilChanged()
+                    ?.doFinally { downloadingSubscription?.dispose() }
+                    ?.subscribe(
+                            { progress ->
+                                downloadingFileLiveData.postValue(DownloadingSuccessful(progress))
+                                Log.d(DEBUG_LOG, "progress ${progress}")
+                            },
+                            { e ->
+                                downloadingFileLiveData.postValue(DownloadingError(e, -1))
+                                Log.d(DEBUG_LOG, "ошибка ${e.message}")
+                                e.printStackTrace()
+                            },
+                            {
+                                downloadingFileLiveData.postValue(DownloadingComplete())
+                                Log.d(DEBUG_LOG, "Загрузка завершена")
+                            })
+        }
 
-    return downloadingFileLiveData
+        return downloadingFileLiveData
     }
 }

@@ -80,7 +80,7 @@ class RemoteRepository {
                     val response = OkHttpClient().newCall(Request.Builder().url(url).build()).execute()
                     if (response.isSuccessful) {
                         inputStream = response.body?.byteStream()
-                        val dataBuffer = ByteArray(8)
+                        val dataBuffer = ByteArray(256)
                         val contentLength = response.body?.contentLength()
                         var offset = 0
                         var count = 0
@@ -96,7 +96,7 @@ class RemoteRepository {
                             count = inputStream?.read(dataBuffer)!!
                         }
                         outputFile?.flush()
-                    //    source.onComplete()
+                       source.onComplete()
                     }
                 } catch (e: Exception) {
                     source.onError(e)

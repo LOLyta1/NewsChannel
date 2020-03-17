@@ -33,8 +33,7 @@ import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 class FragmentFeedContent :
         Fragment(),
         DialogNetworkError.IDialogListener,
-        IPermissionListener,
-        DialogSaveFile.okClickListener {
+        IPermissionListener{
 
 
     private var menu: Menu? = null
@@ -182,8 +181,27 @@ class FragmentFeedContent :
         if (requestCode == 1) {
             val index = permissions.indexOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             if (grantResults[index] == PackageManager.PERMISSION_GRANTED) {
-                DialogSaveFile().show(childFragmentManager, DialogSaveFile::class.java.canonicalName)
-                Log.d(DEBUG_LOG, "пришло разрешение ! ")
+                val downloadNotification = DownloadNotification(context)
+                viewModel?.downloadFile(descriptionAndFav?.description?.pictureLink)?.observe(viewLifecycleOwner, Observer { information: DownloadingState<Int>? ->
+                    when (information) {
+                        is DownloadingSuccessful -> {
+                            Log.d(DEBUG_LOG,"onSaveFileClick.progress - ${information.data}")
+                            downloadNotification.update(information.data, information.data.toString())
+                        }
+                        is DownloadingError -> {
+                            downloadNotification.update(100, "Ошибка загрузки")
+
+                        }
+                        is DownloadingComplete->{
+                            downloadNotification.update(100,resources.getString(R.string.downloading_file_complete))
+                            downloadNotification.hideProgress(resources.getString(R.string.downloading_file_complete))
+                            Toast.makeText(context, "Файл загружен в ${Gallery.path}", Toast.LENGTH_SHORT).show()
+                            viewModel?.downloadingFileLiveData?.removeObservers(viewLifecycleOwner)
+
+                        }
+                    }
+
+                })
             } else
                 if (grantResults[index] == PackageManager.PERMISSION_DENIED) {
                     Toast.makeText(context, "Отказано в доступе! Разрешите доступ в настройках приложения", Toast.LENGTH_LONG).show()
@@ -191,27 +209,7 @@ class FragmentFeedContent :
         }
     }
 
-    override fun onSaveFileClick(fileName: String) {
-        super.onSaveFileClick(fileName)
-        val downloadNotification = DownloadNotification(context)
-        viewModel?.downloadFile(descriptionAndFav?.description?.pictureLink)?.observe(viewLifecycleOwner, Observer { information: DownloadingState<Int>? ->
-            when (information) {
-                is DownloadingSuccessful -> {
-                    Log.d(DEBUG_LOG,"onSaveFileClick.progress - ${information.data}")
-                        downloadNotification.update(information.data, information.data.toString())
-                }
-                is DownloadingError -> {
-                    downloadNotification.update(100, "Ошибка загрузки")
 
-                }
-                is DownloadingComplete->{
-                    downloadNotification.update(100,resources.getString(R.string.downloading_file_complete))
-                 //   downloadNotification.hideProgress(resources.getString(R.string.downloading_file_complete))
-                }
-            }
-
-        })
-    }
 }
 
 
