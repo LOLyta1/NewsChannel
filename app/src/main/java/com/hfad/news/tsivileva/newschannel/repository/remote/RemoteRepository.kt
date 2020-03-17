@@ -22,7 +22,6 @@ import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
-import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import kotlin.math.roundToInt
@@ -74,7 +73,7 @@ class RemoteRepository {
 
         fun getFileDownloadingObservable(url: String,context: Context): Observable<Int>? {
             var inputStream: InputStream?=null
-            var outputFile=ImageGallery.getStreamToGallery(context)
+            var outputFile=ImageGallery.getStreamGallery(context)
 
             return  Observable.create { source: ObservableEmitter<Int> ->
                 try {
@@ -97,7 +96,7 @@ class RemoteRepository {
                             }
                             count= inputStream?.read(dataBuffer)!!
                         }
-                        //outputFile?.flush()
+                       outputFile?.flush()
                         source.onComplete()
                     }
                 } catch (e: Exception) {

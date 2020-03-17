@@ -20,7 +20,7 @@ class FileTest {
 
     @Test
     fun isImageFileCreatedTest(){
-        print(ImageGallery().getPath(context, Bitmap.createBitmap(Picture()),"1.txt"))
+       // print(ImageGallery()(context, Bitmap.createBitmap(Picture()),"1.txt"))
     }
 
     @Test
