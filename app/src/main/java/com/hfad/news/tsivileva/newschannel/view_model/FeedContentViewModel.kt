@@ -2,7 +2,6 @@ package com.hfad.news.tsivileva.newschannel.view_model
 
 import android.annotation.SuppressLint
 import android.app.Application
-import android.os.Environment
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -11,9 +10,9 @@ import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.model.local.Favorite
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
+import com.hfad.news.tsivileva.newschannel.users_classes.*
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import java.security.cert.CertPath
 
 data class ImageDownloading(
         var path: String,
@@ -27,7 +26,7 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
 
     var newsLiveData = MutableLiveData<DownloadingState<Content>>()
 
-    var downloadingFileLiveData=MutableLiveData<DownloadingState<ImageDownloading>>()
+    var downloadingFileLiveData=MutableLiveData<DownloadingState<Int>>()
 
 
     fun downloadContent(url: String?, newsDescriptionId: Long?) {
@@ -102,28 +101,25 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
 
 
     @SuppressLint("CheckResult")
-    fun downloadFile(url: String?, fileName: String): MutableLiveData<DownloadingState<ImageDownloading>> {
-
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            val path = "${getApplication<Application>().externalMediaDirs?.get(0)}/${fileName}"
-
-
-            Log.d(DEBUG_LOG, "путь файла - $path")
+    fun downloadFile(url: String?): MutableLiveData<DownloadingState<Int>> {
 
             if (url != null) {
-                RemoteRepository.getFileDownloadingObservable(filePath = path, url = url)
+                RemoteRepository.getFileDownloadingObservable(url = url)
+                        ?.distinctUntilChanged()
                         ?.subscribe(
                                 { progress ->
-                                    downloadingFileLiveData.postValue(DownloadingSuccessful(ImageDownloading(path,progress)))
+                                    downloadingFileLiveData.postValue(DownloadingSuccessful(progress))
                                     Log.d(DEBUG_LOG, "progress ${progress}")
                                 },
-                                { e ->downloadingFileLiveData.postValue(DownloadingError(e, ImageDownloading(path,-1)))
+                                { e ->downloadingFileLiveData.postValue(DownloadingError(e,-1))
                                     Log.d(DEBUG_LOG, "ошибка ${e.message}")
                                     e.printStackTrace()
                                 },
-                                { Log.d(DEBUG_LOG, "Загрузка завершена") })
+                                { downloadingFileLiveData.postValue(DownloadingSuccessful(100))
+                                    ImageGallery.updateImageInGallery(getApplication())
+                                    Log.d(DEBUG_LOG, "Загрузка завершена") })
             }
-        }
+
     return downloadingFileLiveData
     }
 }

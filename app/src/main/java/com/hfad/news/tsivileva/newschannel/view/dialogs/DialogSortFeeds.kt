@@ -8,6 +8,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import com.hfad.news.tsivileva.newschannel.*
+import com.hfad.news.tsivileva.newschannel.users_classes.FeedsSource
+import com.hfad.news.tsivileva.newschannel.users_classes.Filters
+import com.hfad.news.tsivileva.newschannel.users_classes.NewsPreferenceSaver
+import com.hfad.news.tsivileva.newschannel.users_classes.SortType
 import kotlinx.android.synthetic.main.dialog_sort_feeds.view.*
 
 class DialogSortFeeds : DialogFragment() {

@@ -1,9 +1,6 @@
 package com.hfad.news.tsivileva.newschannel.repository.local
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
-import androidx.sqlite.db.SupportSQLiteQuery
-import com.hfad.news.tsivileva.newschannel.FeedsSource
 import com.hfad.news.tsivileva.newschannel.model.local.*
 import io.reactivex.Single
 

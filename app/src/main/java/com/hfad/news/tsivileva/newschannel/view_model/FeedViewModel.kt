@@ -1,31 +1,18 @@
 package com.hfad.news.tsivileva.newschannel.view_model
 
 import android.app.Application
-import android.content.ComponentName
-import android.content.Context.BIND_AUTO_CREATE
-import android.content.Intent
-import android.content.ServiceConnection
-import android.os.Handler
-import android.os.IBinder
-import android.os.Message
-import android.os.Messenger
-import android.telecom.Call
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.hfad.news.tsivileva.newschannel.DEBUG_LOG
-import com.hfad.news.tsivileva.newschannel.FeedsSource
-import com.hfad.news.tsivileva.newschannel.Filters
-import com.hfad.news.tsivileva.newschannel.SortType
+import com.hfad.news.tsivileva.newschannel.users_classes.FeedsSource
+import com.hfad.news.tsivileva.newschannel.users_classes.Filters
+import com.hfad.news.tsivileva.newschannel.users_classes.SortType
 import com.hfad.news.tsivileva.newschannel.model.local.Description
 import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
 import com.hfad.news.tsivileva.newschannel.model.local.Favorite
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
-import com.hfad.news.tsivileva.newschannel.repository.remote.ImageDownloadService
 import com.hfad.news.tsivileva.newschannel.repository.remote.RemoteRepository
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import java.lang.Exception
 
 
 class FeedViewModel(val app: Application) : AndroidViewModel(app) {

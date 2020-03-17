@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.widget.Toast
@@ -20,7 +22,10 @@ import com.hfad.news.tsivileva.newschannel.activity.IPermissionListener
 import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.model.local.Description
 import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
-import com.hfad.news.tsivileva.newschannel.view.DownloadNotification
+import com.hfad.news.tsivileva.newschannel.users_classes.DownloadingError
+import com.hfad.news.tsivileva.newschannel.users_classes.DownloadingState
+import com.hfad.news.tsivileva.newschannel.users_classes.DownloadingSuccessful
+import com.hfad.news.tsivileva.newschannel.users_classes.DownloadNotification
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSaveFile
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
@@ -191,20 +196,21 @@ class FragmentFeedContent :
 
     override fun onSaveFileClick(fileName: String) {
         super.onSaveFileClick(fileName)
-        val downloadNotification=DownloadNotification(context)
-         viewModel?.downloadFile(descriptionAndFav?.description?.pictureLink, fileName)?.observe(viewLifecycleOwner, Observer { information: DownloadingState<ImageDownloading>? ->
-                when(information){
-                    is DownloadingSuccessful ->{
-                        if(information.data.progress<100){
-                            downloadNotification.update(information.data.progress,information.data.path)
-                        }else{
-                            downloadNotification.hideProgress(resources.getString(R.string.downloading_file_complete))
-                        }
-                    }
-                    is DownloadingError->{
-                        DownloadNotification(context).update(0,"Ошибка загрузки!")
+        val downloadNotification = DownloadNotification(context)
+        viewModel?.downloadFile(descriptionAndFav?.description?.pictureLink)?.observe(viewLifecycleOwner, Observer { information: DownloadingState<Int>? ->
+            when (information) {
+                is DownloadingSuccessful -> {
+                    if (information.data<100) {
+                        downloadNotification.update(information.data,Environment.getExternalStorageDirectory().path)
+                    }else{
+                        downloadNotification.hideProgress(resources.getString(R.string.downloading_file_complete))
+
                     }
                 }
+                is DownloadingError -> {
+                    DownloadNotification(context).update(0, "Ошибка загрузки!")
+                }
+            }
 
         })
     }

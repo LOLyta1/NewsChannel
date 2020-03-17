@@ -1,6 +1,6 @@
 package com.hfad.news.tsivileva.newschannel.model
 
-import com.hfad.news.tsivileva.newschannel.FeedsSource
+import com.hfad.news.tsivileva.newschannel.users_classes.FeedsSource
 import com.hfad.news.tsivileva.newschannel.getIdInLink
 import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.model.local.Description

@@ -1,12 +1,13 @@
 package com.hfad.news.tsivileva. newschannel.repository.remote
 
 
-import com.hfad.news.tsivileva.newschannel.FeedsSource
+import com.hfad.news.tsivileva.newschannel.users_classes.FeedsSource
 import com.hfad.news.tsivileva.newschannel.model.ModelConverter
 import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.model.local.Description
 import com.hfad.news.tsivileva.newschannel.model.remote.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.remote.proger.Proger
+import com.hfad.news.tsivileva.newschannel.users_classes.ImageGallery
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.Single
@@ -23,7 +24,6 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.io.OutputStream
 import kotlin.math.roundToInt
 
 
@@ -71,7 +71,7 @@ class RemoteRepository {
             return retrofit.create(_class)
         }
 
-        fun getFileDownloadingObservable(filePath: String, url: String): Observable<Int>? {
+        fun getFileDownloadingObservable(url: String): Observable<Int>? {
             var inputStream: InputStream?=null
             var outputFile: FileOutputStream?=null
 
@@ -80,8 +80,8 @@ class RemoteRepository {
                     val response = OkHttpClient().newCall(Request.Builder().url(url).build()).execute()
                     if (response.isSuccessful) {
                         inputStream = response.body?.byteStream()
-                        outputFile = FileOutputStream(filePath)
-                        val dataBuffer = ByteArray(256)
+                        outputFile = FileOutputStream("${ImageGallery.path}/${ImageGallery.fileName}")
+                        val dataBuffer = ByteArray(8)
 
                         val contentLength = response.body?.contentLength()
                         var offset = 0
@@ -92,7 +92,6 @@ class RemoteRepository {
                         while (count!=-1) {
                             if (count!=0 && contentLength != null) {
                                 source.onNext(calcProgress(offset,contentLength))
-                                //source.onNext(((offset*100)/contentLength).toInt()+1)
                                 offset += count
                                 outputFile?.write(dataBuffer, 0, count)
                             }
@@ -107,6 +106,7 @@ class RemoteRepository {
                  try {
                      inputStream?.close()
                      outputFile?.close()
+
                  } catch (e: IOException){
                      e.printStackTrace()
                  }

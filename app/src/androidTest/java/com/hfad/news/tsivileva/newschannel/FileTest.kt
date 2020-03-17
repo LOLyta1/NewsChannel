@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Picture
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.hfad.news.tsivileva.newschannel.users_classes.ImageGallery
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,7 +20,7 @@ class FileTest {
 
     @Test
     fun isImageFileCreatedTest(){
-        print(ImageFile().saveIntoFile(context, Bitmap.createBitmap(Picture()),"1.txt"))
+        print(ImageGallery().getPath(context, Bitmap.createBitmap(Picture()),"1.txt"))
     }
 
     @Test

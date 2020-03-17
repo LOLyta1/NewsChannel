@@ -2,7 +2,6 @@ package com.hfad.news.tsivileva.newschannel.view.fragments
 
 import android.app.Activity
 import android.content.Intent
-import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -16,6 +15,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hfad.news.tsivileva.newschannel.*
+import com.hfad.news.tsivileva.newschannel.users_classes.FeedsSource
+import com.hfad.news.tsivileva.newschannel.users_classes.Filters
+import com.hfad.news.tsivileva.newschannel.users_classes.NewsPreferenceSaver
+import com.hfad.news.tsivileva.newschannel.users_classes.SortType
 import com.hfad.news.tsivileva.newschannel.view.adapter.NewsListAdapter
 import com.hfad.news.tsivileva.newschannel.view.adapter.NewsListDecorator
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError

@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.hfad.news.tsivileva.newschannel.model.local.*
 import com.hfad.news.tsivileva.newschannel.repository.local.ILocaApi
 import com.hfad.news.tsivileva.newschannel.repository.local.NewsDatabase
+import com.hfad.news.tsivileva.newschannel.users_classes.FeedsSource
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before

@@ -1,21 +1,13 @@
 package com.hfad.news.tsivileva.newschannel
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import android.content.SharedPreferences
-import android.os.Build
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.google.gson.Gson
+import com.hfad.news.tsivileva.newschannel.users_classes.FeedsSource
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentFeedContent
-import com.hfad.news.tsivileva.newschannel.view.fragments.FragmentFeeds
 import kotlinx.android.synthetic.main.fragment_feed_details.view.*
 import java.lang.reflect.InvocationTargetException
 

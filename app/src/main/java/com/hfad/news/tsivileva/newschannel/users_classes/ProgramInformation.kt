@@ -1,7 +1,6 @@
-package com.hfad.news.tsivileva.newschannel
+package com.hfad.news.tsivileva.newschannel.users_classes
 
 import android.os.Parcelable
-import androidx.room.Entity
 import kotlinx.android.parcel.Parcelize
 
 sealed class DownloadingState<T>
@@ -21,9 +20,9 @@ enum class FeedsSource(val link: String) {
 
 @Parcelize
 data class Filters (
-        var sort: SortType=SortType.ASC,
+        var sort: SortType = SortType.ASC,
         var showOnlyFav: Boolean=false,
-        var source: FeedsSource=FeedsSource.BOTH
+        var source: FeedsSource = FeedsSource.BOTH
 ) : Parcelable
 
 

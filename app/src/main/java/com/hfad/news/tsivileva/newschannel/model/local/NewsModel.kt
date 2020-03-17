@@ -2,7 +2,7 @@ package com.hfad.news.tsivileva.newschannel.model.local
 
 import android.os.Parcelable
 import androidx.room.*
-import com.hfad.news.tsivileva.newschannel.FeedsSource
+import com.hfad.news.tsivileva.newschannel.users_classes.FeedsSource
 import kotlinx.android.parcel.Parcelize
 import java.text.SimpleDateFormat
 import java.util.*
