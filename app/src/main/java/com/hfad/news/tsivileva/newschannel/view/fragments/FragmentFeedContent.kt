@@ -205,7 +205,7 @@ class FragmentFeedContent :
 
                 }
                 is DownloadingComplete->{
-                    downloadNotification.update(100,resources.getString(R.string.downloading_file_complete))
+                    //downloadNotification.update(100,resources.getString(R.string.downloading_file_complete))
                  //   downloadNotification.hideProgress(resources.getString(R.string.downloading_file_complete))
                 }
             }

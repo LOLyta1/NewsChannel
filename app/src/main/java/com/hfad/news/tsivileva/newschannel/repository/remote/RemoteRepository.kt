@@ -9,9 +9,7 @@ import com.hfad.news.tsivileva.newschannel.model.remote.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.remote.proger.Proger
 import com.hfad.news.tsivileva.newschannel.users_classes.FeedsSource
 import com.hfad.news.tsivileva.newschannel.users_classes.Gallery
-import io.reactivex.Observable
-import io.reactivex.ObservableEmitter
-import io.reactivex.Single
+import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
@@ -71,16 +69,16 @@ class RemoteRepository {
             return retrofit.create(_class)
         }
 
-        fun getFileDownloadingObservable(url: String, context: Context): Observable<Int>? {
+        fun getFileDownloadingFlowable(url: String, context: Context): Flowable<Int> {
             var inputStream: InputStream? = null
             var outputFile = Gallery().getStream(context)
 
-            return Observable.create { source: ObservableEmitter<Int> ->
+            return Flowable.create({ source: FlowableEmitter<Int> ->
                 try {
                     val response = OkHttpClient().newCall(Request.Builder().url(url).build()).execute()
                     if (response.isSuccessful) {
                         inputStream = response.body?.byteStream()
-                        val dataBuffer = ByteArray(8)
+                        val dataBuffer = ByteArray(256)
                         val contentLength = response.body?.contentLength()
                         var offset = 0
                         var count = 0
@@ -96,7 +94,7 @@ class RemoteRepository {
                             count = inputStream?.read(dataBuffer)!!
                         }
                         outputFile?.flush()
-                    //    source.onComplete()
+                        source.onComplete()
                     }
                 } catch (e: Exception) {
                     source.onError(e)
@@ -109,7 +107,9 @@ class RemoteRepository {
                         e.printStackTrace()
                     }
                 }
-            }.observeOn(Schedulers.io()).subscribeOn(Schedulers.io())
+            }, BackpressureStrategy.LATEST)
+                    .observeOn(Schedulers.io())
+                    .subscribeOn(Schedulers.io())
         }
 
         private fun calcProgress(calculatedPart: Int, currentCount: Long?): Int {

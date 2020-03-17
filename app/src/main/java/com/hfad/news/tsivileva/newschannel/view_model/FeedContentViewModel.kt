@@ -22,6 +22,7 @@ data class ImageDownloading(
 }
 class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     private var contentSubscription: Disposable? = null
+    private var downloadingSubscription:Disposable?=null
     private var newsDescriptionId: Long? = null
 
     var newsLiveData = MutableLiveData<DownloadingState<Content>>()
@@ -100,10 +101,9 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
 
-    @SuppressLint("CheckResult")
     fun downloadFile(url: String?): MutableLiveData<DownloadingState<Int>> {
             if (url != null) {
-                RemoteRepository.getFileDownloadingObservable(url = url,context = getApplication())
+               downloadingSubscription= RemoteRepository.getFileDownloadingFlowable(url = url,context = getApplication())
                         ?.distinctUntilChanged()
                         ?.subscribe(
                                 { progress ->
@@ -114,7 +114,8 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
                                     Log.d(DEBUG_LOG, "ошибка ${e.message}")
                                     e.printStackTrace()
                                 },
-                                { downloadingFileLiveData.postValue(DownloadingComplete())
+                                { downloadingSubscription?.dispose()
+                                   downloadingFileLiveData.postValue(DownloadingComplete())
                                     Log.d(DEBUG_LOG, "Загрузка завершена") })
             }
 

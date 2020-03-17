@@ -33,8 +33,7 @@ class DownloadNotification(private val context: Context?) {
                     .setContentTitle(context.resources.getString(R.string.downloading_file))
                     .setContentText("$progress%")
                     .setProgress(100, progress, false)
-                    .setOnlyAlertOnce(true)
-                    .setOngoing(true)
+
 
         }
 
