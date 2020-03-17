@@ -1,11 +1,8 @@
 package com.hfad.news.tsivileva.newschannel
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Picture
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.hfad.news.tsivileva.newschannel.users_classes.ImageGallery
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

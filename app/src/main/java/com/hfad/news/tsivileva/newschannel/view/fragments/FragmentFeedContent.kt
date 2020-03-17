@@ -22,10 +22,7 @@ import com.hfad.news.tsivileva.newschannel.activity.IPermissionListener
 import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.model.local.Description
 import com.hfad.news.tsivileva.newschannel.model.local.DescriptionAndFav
-import com.hfad.news.tsivileva.newschannel.users_classes.DownloadingError
-import com.hfad.news.tsivileva.newschannel.users_classes.DownloadingState
-import com.hfad.news.tsivileva.newschannel.users_classes.DownloadingSuccessful
-import com.hfad.news.tsivileva.newschannel.users_classes.DownloadNotification
+import com.hfad.news.tsivileva.newschannel.users_classes.*
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogNetworkError
 import com.hfad.news.tsivileva.newschannel.view.dialogs.DialogSaveFile
 import com.hfad.news.tsivileva.newschannel.view_model.FeedContentViewModel
@@ -200,15 +197,15 @@ class FragmentFeedContent :
         viewModel?.downloadFile(descriptionAndFav?.description?.pictureLink)?.observe(viewLifecycleOwner, Observer { information: DownloadingState<Int>? ->
             when (information) {
                 is DownloadingSuccessful -> {
-                    if (information.data<100) {
-                        downloadNotification.update(information.data,Environment.getExternalStorageDirectory().path)
-                    }else{
-                        downloadNotification.hideProgress(resources.getString(R.string.downloading_file_complete))
-
-                    }
+                        downloadNotification.update(information.data, information.data.toString())
                 }
                 is DownloadingError -> {
-                    DownloadNotification(context).update(0, "Ошибка загрузки!")
+                    downloadNotification.update(100, "Ошибка загрузки")
+
+                }
+                is DownloadingComplete->{
+                    downloadNotification.update(100,resources.getString(R.string.downloading_file_complete))
+                 //   downloadNotification.hideProgress(resources.getString(R.string.downloading_file_complete))
                 }
             }
 

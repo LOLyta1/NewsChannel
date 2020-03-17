@@ -9,10 +9,9 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 
-import org.junit.Assert.*
 import org.junit.Test
 
-class ImageGalleryTest {
+class GalleryTest {
 
     @Before
     fun setUp() {
@@ -22,13 +21,13 @@ class ImageGalleryTest {
     fun providerInsertTest(){
         val context = ApplicationProvider.getApplicationContext<Context>()
         val contentValues = ContentValues().apply {
-            this.put(MediaStore.MediaColumns.DISPLAY_NAME, ImageGallery.fileName)
+            this.put(MediaStore.MediaColumns.DISPLAY_NAME, Gallery.fileName)
             this.put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
             this.put(MediaStore.MediaColumns.RELATIVE_PATH,"/")
 
         }
-        val uri = context.contentResolver.insert(Uri.parse(ImageGallery.path), contentValues)
-       Assert.assertNotNull(ImageGallery.getStreamGallery(context))
+        val uri = context.contentResolver.insert(Uri.parse(Gallery.path), contentValues)
+       Assert.assertNotNull(Gallery.getStreamGallery(context))
     }
 
     @After

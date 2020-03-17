@@ -1,14 +1,14 @@
-package com.hfad.news.tsivileva. newschannel.repository.remote
+package com.hfad.news.tsivileva.newschannel.repository.remote
 
 
 import android.content.Context
-import com.hfad.news.tsivileva.newschannel.users_classes.FeedsSource
 import com.hfad.news.tsivileva.newschannel.model.ModelConverter
 import com.hfad.news.tsivileva.newschannel.model.local.Content
 import com.hfad.news.tsivileva.newschannel.model.local.Description
 import com.hfad.news.tsivileva.newschannel.model.remote.habr.Habr
 import com.hfad.news.tsivileva.newschannel.model.remote.proger.Proger
-import com.hfad.news.tsivileva.newschannel.users_classes.ImageGallery
+import com.hfad.news.tsivileva.newschannel.users_classes.FeedsSource
+import com.hfad.news.tsivileva.newschannel.users_classes.Gallery
 import io.reactivex.Observable
 import io.reactivex.ObservableEmitter
 import io.reactivex.Single
@@ -71,53 +71,52 @@ class RemoteRepository {
             return retrofit.create(_class)
         }
 
-        fun getFileDownloadingObservable(url: String,context: Context): Observable<Int>? {
-            var inputStream: InputStream?=null
-            var outputFile=ImageGallery.getStreamGallery(context)
+        fun getFileDownloadingObservable(url: String, context: Context): Observable<Int>? {
+            var inputStream: InputStream? = null
+            var outputFile = Gallery().getStream(context)
 
-            return  Observable.create { source: ObservableEmitter<Int> ->
+            return Observable.create { source: ObservableEmitter<Int> ->
                 try {
                     val response = OkHttpClient().newCall(Request.Builder().url(url).build()).execute()
                     if (response.isSuccessful) {
-                       inputStream = response.body?.byteStream()
+                        inputStream = response.body?.byteStream()
                         val dataBuffer = ByteArray(8)
-
                         val contentLength = response.body?.contentLength()
                         var offset = 0
-                        var count=0
+                        var count = 0
 
                         source.onNext(0)/*информируем подписчика, что скачалось 0 процентов*/
 
-                        while (count!=-1) {
-                            if (count!=0 && contentLength != null) {
-                                source.onNext(calcProgress(offset,contentLength))
+                        while (count != -1) {
+                            if (count != 0 && contentLength != null) {
+                                source.onNext(calcProgress(offset, contentLength))
                                 offset += count
                                 outputFile?.write(dataBuffer, 0, count)
                             }
-                            count= inputStream?.read(dataBuffer)!!
+                            count = inputStream?.read(dataBuffer)!!
                         }
-                       outputFile?.flush()
+                        outputFile?.flush()
                         source.onComplete()
                     }
                 } catch (e: Exception) {
                     source.onError(e)
                 } finally {
-                 try {
-                     inputStream?.close()
-                     outputFile?.close()
+                    try {
+                        inputStream?.close()
+                        outputFile?.close()
 
-                 } catch (e: IOException){
-                     e.printStackTrace()
-                 }
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
                 }
             }.observeOn(Schedulers.io()).subscribeOn(Schedulers.io())
         }
 
-        private fun calcProgress(calculatedPart:Int, currentCount:Long? ) : Int{
-            return if(currentCount!=null && currentCount!=0L){
-              var value:Float= calculatedPart.toFloat()*100/currentCount
-              value.roundToInt()
-            }else{
+        private fun calcProgress(calculatedPart: Int, currentCount: Long?): Int {
+            return if (currentCount != null && currentCount != 0L) {
+                var value: Float = calculatedPart.toFloat() * 100 / currentCount
+                value.roundToInt()
+            } else {
                 -1
             }
         }

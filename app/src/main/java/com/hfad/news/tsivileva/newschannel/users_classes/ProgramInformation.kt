@@ -6,6 +6,7 @@ import kotlinx.android.parcel.Parcelize
 sealed class DownloadingState<T>
 class DownloadingSuccessful<T>(val data: T) : DownloadingState<T>()
 class DownloadingError<T>(val e: Throwable, val cachedData: T) : DownloadingState<T>()
+class DownloadingComplete<T>():DownloadingState<T>()
 
 enum class SortType {
     ASC,

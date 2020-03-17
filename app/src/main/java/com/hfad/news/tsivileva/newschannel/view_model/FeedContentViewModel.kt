@@ -114,8 +114,7 @@ class FeedContentViewModel(val app: Application) : AndroidViewModel(app) {
                                     Log.d(DEBUG_LOG, "ошибка ${e.message}")
                                     e.printStackTrace()
                                 },
-                                { downloadingFileLiveData.postValue(DownloadingSuccessful(100))
-                                    ImageGallery.getStreamGallery(getApplication())
+                                { downloadingFileLiveData.postValue(DownloadingComplete())
                                     Log.d(DEBUG_LOG, "Загрузка завершена") })
             }
 
