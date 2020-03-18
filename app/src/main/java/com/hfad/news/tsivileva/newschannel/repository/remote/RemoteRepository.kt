@@ -104,12 +104,13 @@ class RemoteRepository {
                     try {
                         inputStream?.close()
                         outputFile?.close()
-
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
                 }
-            }.observeOn(Schedulers.io()).subscribeOn(Schedulers.io())
+            }      .observeOn(Schedulers.io())
+                    .subscribeOn(Schedulers.io())
+
         }
 
         private fun calcProgress(calculatedPart: Int, currentCount: Long?): Int {

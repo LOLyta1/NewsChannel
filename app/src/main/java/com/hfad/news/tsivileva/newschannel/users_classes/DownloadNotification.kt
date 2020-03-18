@@ -31,19 +31,16 @@ class DownloadNotification(private val context: Context?) {
 
     private fun createNotificationBuilder(progress: Int): NotificationCompat.Builder? {
         return context?.let {
-            val intent= Intent(Intent.ACTION_VIEW, Uri.parse("${Gallery.path}/${Gallery.fileName}"))
 
+            val intent= Intent(Intent.ACTION_VIEW, Uri.parse(Gallery.filepath))
 
             NotificationCompat.Builder(it, NOTIFICATION_CHANNEL)
                     .setSmallIcon(R.drawable.download_icon)
                     .setContentTitle(context.resources.getString(R.string.downloading_file))
                     .setContentText("$progress%")
                     .setProgress(100, progress, false)
-                    .setOnlyAlertOnce(true)
-                    .setOngoing(true)
-                  .setContentIntent(PendingIntent.getActivities(context,0, arrayOf(intent),PendingIntent.FLAG_UPDATE_CURRENT))
 
-
+                  .setContentIntent(PendingIntent.getActivity(context,0, intent,PendingIntent.FLAG_UPDATE_CURRENT))
         }
 
     }

@@ -195,7 +195,7 @@ class FragmentFeedContent :
                         is DownloadingComplete->{
                             downloadNotification.update(100,resources.getString(R.string.downloading_file_complete))
                             downloadNotification.hideProgress(resources.getString(R.string.downloading_file_complete))
-                            Toast.makeText(context, "Файл загружен в ${Gallery.path}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Файл загружен в ${Gallery.filepath}", Toast.LENGTH_SHORT).show()
                             viewModel?.downloadingFileLiveData?.removeObservers(viewLifecycleOwner)
 
                         }
