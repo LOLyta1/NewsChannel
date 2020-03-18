@@ -26,7 +26,6 @@ import java.io.IOException
 import java.io.InputStream
 import kotlin.math.roundToInt
 
-
 class RemoteRepository {
     companion object Factory {
         fun getFeedsObservable(): Observable<List<Description>> {
@@ -109,7 +108,7 @@ class RemoteRepository {
                     }
                 }
             }      .observeOn(Schedulers.io())
-                    .subscribeOn(Schedulers.io())
+                   .subscribeOn(Schedulers.io())
 
         }
 

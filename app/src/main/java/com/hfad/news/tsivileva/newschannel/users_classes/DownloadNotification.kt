@@ -18,12 +18,12 @@ class DownloadNotification(private val context: Context?) {
     private val NOTIFICATION_CHANNEL = "file_downloading"
     private val NOTIFICATION_ID = 1
 
-    private var builder:NotificationCompat.Builder?=null
+    private var builder: NotificationCompat.Builder? = null
 
 
     init {
         createNotificationChannel()
-        builder=createNotificationBuilder(0)
+        builder = createNotificationBuilder(0)
         if (context != null && builder != null) {
             NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder!!.build())
         }
@@ -31,18 +31,12 @@ class DownloadNotification(private val context: Context?) {
 
     private fun createNotificationBuilder(progress: Int): NotificationCompat.Builder? {
         return context?.let {
-
-            val intent= Intent(Intent.ACTION_VIEW, Uri.parse(Gallery.filepath))
-
             NotificationCompat.Builder(it, NOTIFICATION_CHANNEL)
                     .setSmallIcon(R.drawable.download_icon)
                     .setContentTitle(context.resources.getString(R.string.downloading_file))
                     .setContentText("$progress%")
                     .setProgress(100, progress, false)
-
-                  .setContentIntent(PendingIntent.getActivity(context,0, intent,PendingIntent.FLAG_UPDATE_CURRENT))
         }
-
     }
 
     private fun createNotificationChannel() {
@@ -56,23 +50,26 @@ class DownloadNotification(private val context: Context?) {
 
     fun update(progress: Int, text: String? = "") {
         Log.d(DEBUG_LOG, " ${this.javaClass.name} - update(${progress}, $text)")
+
         builder
-                    ?.setContentText(text)
-                    ?.setProgress(100, progress, false)
-                    ?.build()
+                ?.setContentText(text)
+                ?.setProgress(100, progress, false)
+
+                ?.build()
         if (context != null && builder != null) {
             NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder!!.build())
         }
     }
 
-  fun hideProgress(contentText: String?) {
-
+    fun hideProgress(contentText: String?) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Gallery.filepath)).apply { type= "image"}
         Log.d(DEBUG_LOG, " ${this.javaClass.name} - hideProgress(${contentText})")
-                builder
-                        ?.setContentText(contentText)
+        builder
+                ?.setContentText(contentText)
                 ?.setProgress(0, 0, false)
                 ?.setAutoCancel(true)
-                  ?.build()
+                ?.setContentIntent(PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
+                ?.build()
         if (context != null && builder != null) {
             NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, builder!!.build())
         }
